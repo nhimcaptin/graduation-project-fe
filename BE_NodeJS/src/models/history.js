@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
     description: DataTypes.TEXT,
     prescription: DataTypes.TEXT,
     guarantee: DataTypes.STRING,
+    file: DataTypes.TEXT,
 
 
   }, {

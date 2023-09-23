@@ -33,6 +33,9 @@ module.exports = {
       guarantee: {
         type: Sequelize.STRING
       },
+      file: {
+        type: Sequelize.TEXT
+      },
       
 //thoi gian tao va update bang   
       createdAt: {

@@ -10,9 +10,7 @@ module.exports = {
       address: 'Hà Nội',
       gender: 0,
       yearOfBirth: '2003',
-      typeRole:'ROLE',
-      keyRole:'R1',
-
+      roleId: R1,
       createdAt: new Date(),
       updatedAt: new Date()
     }]);

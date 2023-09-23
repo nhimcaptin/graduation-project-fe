@@ -23,6 +23,9 @@ module.exports = {
       phoneNUmber: {
         type: Sequelize.STRING
       },
+      image: {
+        type: Sequelize.STRING
+      },
       address: {
         type: Sequelize.STRING
       },
@@ -32,10 +35,7 @@ module.exports = {
       yearOfBirth: {
         type: Sequelize.STRING
       },
-      typeRole: {
-        type: Sequelize.STRING
-      },
-      keyRole: {
+      roleId: {
         type: Sequelize.STRING
       },
 //thoi gian tao va update bang
