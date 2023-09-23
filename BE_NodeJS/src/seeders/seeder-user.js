@@ -1,5 +1,5 @@
 'use strict';
-
+//fake data
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return queryInterface.bulkInsert('Users', [{

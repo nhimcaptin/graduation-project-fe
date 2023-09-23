@@ -20,7 +20,7 @@ module.exports = {
       lastName: {
         type: Sequelize.STRING
       },
-      phoneNUmber: {
+      phoneNumber: {
         type: Sequelize.STRING
       },
       image: {
