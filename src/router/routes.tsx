@@ -51,19 +51,15 @@ export const renderRoutes = (routes: IRoutesState[]) => (
 
 const routes: IRoutesState[] = [
   {
+    guard: GuestGuard,
     path: ROUTERS_PATHS.LOGIN,
     component: lazy(() => import('../pages/Login'))
   },
-  // {
-  //   guard: GuestGuard,
-  //   path: ROUTERS_PATHS.LOGIN,
-  //   component: lazy(() => import('pages/Login'))
-  // },
-  // {
-  //   guard: GuestGuard,
-  //   path: ROUTERS_PATHS.FORGOT_PASSWORD,
-  //   component: lazy(() => import('pages/ForgotPassword'))
-  // },
+  {
+    guard: GuestGuard,
+    path: ROUTERS_PATHS.FORGOT_PASSWORD,
+    component: lazy(() => import('../pages/Login'))
+  },
   {
     path: ROUTERS_PATHS.ALL,
     guard: AuthGuard,
@@ -73,14 +69,6 @@ const routes: IRoutesState[] = [
         path: ROUTERS_PATHS.DASHBOARD,
         component: lazy(() => import('../pages/Dashboard'))
       },
-      // {
-      //   path: ROUTERS_PATHS.COUSRE,
-      //   component: lazy(() => import('pages/Cousre'))
-      // },
-      // {
-      //   path: ROUTERS_PATHS.USER,
-      //   component: lazy(() => import('pages/User'))
-      // }
     ]
   }
 ];

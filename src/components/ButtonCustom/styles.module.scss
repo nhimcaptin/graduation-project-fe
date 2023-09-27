@@ -1,0 +1,48 @@
+@import 'src/assets/css/_variable.scss';
+
+.loadingIcon {
+  span {
+    width: 12px !important;
+    height: 12px !important;
+
+    svg {
+      color: rgba(0, 0, 0, 0.26) !important;
+    }
+  }
+}
+
+.btn {
+  border-radius: 4px !important;
+  // filter: drop-shadow(0px 10px 20px rgba(0, 0, 0, 0.05)) !important;
+  margin-right: 8px !important;
+  min-width: 80 !important;
+  height: 40px;
+  font-size: 14px !important;
+  text-transform: none !important;
+  line-height: 15px !important;
+  padding: 5px 25px !important;
+  font-weight: 700 !important;
+
+  &:hover {
+    box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.15) !important;
+    filter: brightness(1.05);
+  }
+}
+
+.green {
+  background-color: $green !important;
+  color: $white !important;
+}
+
+.btn {
+  &:disabled {
+    opacity: 0.8;
+  }
+}
+
+.disabled {
+  color: rgba(0, 0, 0, 0.26) !important;
+  box-shadow: none;
+  border: none !important;
+  background-color: rgba(0, 0, 0, 0.12) !important;
+}
