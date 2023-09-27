@@ -146,7 +146,6 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
 
   useEffect(() => {
     initData();
-    // eslint-disable-next-line
   }, []);
 
   if (!state.isInitialised) {

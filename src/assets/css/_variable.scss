@@ -1,0 +1,83 @@
+//--- Color
+$primary: #23c115;
+$background: #ffffff;
+$secondary: #85ef90;
+$primary500: #557002;
+
+$secondary: #bffc05;
+$secondary200: #b6f006;
+$secondary300: #a2d604;
+$secondary400: #85b004;
+$secondary500: #557002;
+
+$warning: #e03f07;
+
+$text: #424242;;
+$text-button: #96999c;
+$text-100: #4a484f;
+$text-200: #222127;
+
+$shade: #bbbbbb;
+$error: #d32f2f;
+//--- Font weight
+$light: 300;
+$regular: 400;
+$semi-bold: 600;
+$bold: 700;
+$extra-bold: 800;
+
+//--- Transition duration
+$transition-duration: 0.6s;
+
+//--- Media
+@mixin mobile {
+  @media only screen and (max-width: 480px) {
+    @content;
+  }
+}
+
+@mixin large-mobile {
+  @media only screen and (max-width: 767px) and (min-width: 481px) {
+    @content;
+  }
+}
+
+@mixin large-mobile-landscape {
+  @media only screen and (max-width: 767px) and (min-width: 481px) and (orientation: landscape) {
+    @content;
+  }
+}
+
+@mixin mobile-landscape {
+  @media only screen and (max-width: 992px) and (min-width: 601px) and (orientation: landscape) {
+    @content;
+  }
+}
+
+@mixin tablet {
+  @media only screen and (min-width: 768px) and (max-width: 1279px) {
+    @content;
+  }
+}
+
+@mixin tablet-landscape {
+  @media only screen and (min-width: 768px) and (max-width: 1279px) and (orientation: landscape) {
+    @content;
+  }
+}
+
+@mixin laptop {
+  @media only screen and (min-width: 1280px) and (max-width: 1919px) {
+    @content;
+  }
+
+  @media screen and (min-device-width: 1200px) and (max-device-width: 1600px) and (-webkit-min-device-pixel-ratio: 2) and (min-resolution: 192dpi) {
+    @content;
+  }
+}
+
+@mixin nonTouchableDevice {
+  @media (hover: hover) and (pointer: fine) {
+    @content;
+  }
+}

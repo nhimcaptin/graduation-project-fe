@@ -1,0 +1,104 @@
+@import './_variable.scss';
+body {
+  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+  font-size: 16px;
+  margin: 0;
+  padding: 0;
+}
+
+//--- Bar icon
+.bar-icon {
+  display: inline-block;
+  width: 21px;
+
+  span {
+    background-color: white;
+    border-radius: 500px;
+    display: block;
+    float: left;
+    height: 2px;
+    margin-bottom: 5px;
+    width: 21px;
+
+    &:nth-child(2) {
+      width: 15px;
+    }
+
+    &:nth-child(3) {
+      margin-bottom: 0;
+    }
+  }
+}
+.MuiPopover-paper {
+  border-radius: 12px !important;
+}
+
+//--- Scroll Bar
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  box-shadow: inset 0 0 5px #eeeeee;
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: #eaeaea;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #6d6e70;
+}
+.is-require::after {
+  content: '*';
+  color: #de544f;
+  margin-left: 5px;
+}
+
+.multiple-tab {
+  .tab-content {
+    background-color: $background;
+    box-shadow: 0px 2px 24px -2px rgba(0, 0, 0, 0.1);
+    border-radius: 8px 8px 8px 8px;
+    padding: 12px 30px;
+  }
+  .tab-content-first {
+    border-radius: 0px 8px 8px 8px;
+  }
+  .tab-content-end {
+    border-radius: 8px 8px 0px 8px;
+  }
+
+  .tab-header {
+    .MuiTabs-scroller {
+      .MuiTabs-indicator {
+        height: 0px;
+      }
+      .MuiTabs-flexContainer {
+        .MuiButtonBase-root {
+          font-size: 12px;
+          color: $shade;
+        }
+        .Mui-selected {
+          background-color: $background;
+          box-shadow: 0px 2px 24px -2px rgba(0, 0, 0, 0.1);
+          border-radius: 8px 8px 0px 0px;
+          color: $text;
+        }
+      }
+    }
+  }
+}
+
+/* Chrome, Safari, Edge, Opera */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Firefox */
+input[type='number'] {
+  -moz-appearance: textfield;
+}
