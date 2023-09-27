@@ -3,6 +3,7 @@ import { makeStyles } from "@mui/styles";
 import LoadingScreen from "../../components/LoadingScreen";
 import { Box, Hidden, Paper } from "@mui/material";
 import { useLoadingScreen } from "../../hook/useLoadingScreen";
+import Sidebar from "../Sidebar";
 
 const useStyles = makeStyles({
   mainContainer: {
@@ -59,7 +60,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
       >
         {children}
       </div>
-      {/* <SideBar /> */}
+      <Sidebar />
 
       {isLoadingScreen && <LoadingScreen />}
     </>

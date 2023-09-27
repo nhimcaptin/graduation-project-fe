@@ -16,11 +16,13 @@ const ACTION_TYPE = {
 interface InitialAuthStateProps {
   isAuthenticated: boolean;
   isInitialised: boolean;
+  user: string | null;
 }
 
 const initialAuthState: InitialAuthStateProps = {
   isAuthenticated: false,
   isInitialised: false,
+  user: null
 };
 
 const reducer = (state: any, action: { type: string; payload?: any }) => {
