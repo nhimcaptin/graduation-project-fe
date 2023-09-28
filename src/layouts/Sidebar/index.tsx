@@ -7,6 +7,7 @@ import Icons from "../../consts/Icons";
 import clsx from "clsx";
 import ROUTERS_PATHS from "../../consts/router-paths";
 import logo from "../../assets/images/logo.png";
+import { Box } from "@mui/material";
 
 const Sidebar = () => {
   const { user } = useAuth();
@@ -66,7 +67,7 @@ const Sidebar = () => {
         <div id="sidebar-menu" className="sidebar-menu">
           <ul>
             {menu.map((m, i) => {
-              const IconDisplay = m.icon || null;
+              const IconDisplay = m.icon;
               return (
                 <li
                   key={m.key + i + window.location.pathname}
@@ -81,7 +82,10 @@ const Sidebar = () => {
                       ["active"]: checkActive(m.href),
                     })}
                   >
-                    <span>{m.title}</span>
+                    <span>
+                      <IconDisplay />
+                      {m.title}
+                    </span>
                   </Link>
                 </li>
               );

@@ -4,6 +4,7 @@ import LoadingScreen from "../../components/LoadingScreen";
 import { Box, Hidden, Paper } from "@mui/material";
 import { useLoadingScreen } from "../../hook/useLoadingScreen";
 import Sidebar from "../Sidebar";
+import Header from "../Header";
 
 const useStyles = makeStyles({
   mainContainer: {
@@ -53,7 +54,7 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   });
   return (
     <>
-      {/* <Header /> */}
+      <Header />
       <div
         className={"page-wrapper " + classes.mainContainer}
         style={{ minHeight: windowHeight }}

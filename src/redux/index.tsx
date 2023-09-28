@@ -4,12 +4,14 @@ import REDUX_SLICE_NAMES from '../consts/redux-slice-names';
 import loadingSlice from './store/loadingScreen';
 import toastMessageSlice from './store/ToastMessage';
 import userSlice from './store/userInfo';
+import checkingChanges from './store/checkingChanges';
 
 const store = configureStore({
   reducer: combineReducers({
     [REDUX_SLICE_NAMES.USER_INFO]: userSlice,
     [REDUX_SLICE_NAMES.LOADING_FULL_SCREEN]: loadingSlice,
     [REDUX_SLICE_NAMES.TOAST_NOTIFICATION]: toastMessageSlice,
+    [REDUX_SLICE_NAMES.CHECKING_CHANGES]: checkingChanges,
   })
 });
 
