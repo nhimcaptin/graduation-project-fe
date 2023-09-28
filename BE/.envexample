@@ -1,0 +1,3 @@
+PORT=8080
+MONGO = mongodb+srv://ngocbich8643:123456789uu@cluster0.hnpjhck.mongodb.net/booking_dental?retryWrites=true&w=majority
+JWT = 8hEnPGeoBqGUT6zksxt4G95gW
