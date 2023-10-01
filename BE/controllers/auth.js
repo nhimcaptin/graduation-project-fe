@@ -8,13 +8,16 @@ export const register = async (req, res, next) => {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
 
+    
+    const newUser = new User({ 
+           
 
-    const newUser = new User({
-      
       ...req.body,
       password: hash,
       
     }); 
+    console.log("body", req.body)
+
 
 
     await newUser.save();
@@ -62,7 +65,32 @@ export const login = async (req, res, next) => {
       })
       .status(200)
       .json({ details: { ...otherDetails }, isAdmin });
+          
   } catch (err) {
     next(err);
   }
 };
+
+export const logout = async (req, res) => {
+  const accessToken = req.cookies.access_token;
+  try{
+    if(accessToken){    
+      res
+        .cookie("access_token",'', {
+          httpOnly: true,
+        })
+        .status(200)
+        .json({message : 'Sign Out Successfully'})     
+    }
+    else{
+      res.status(500).json({message : 'accessToken = undefine '})
+    }
+  
+  }
+  catch{
+     res.status(500).json({
+      message : 'Server error'
+     })
+  }
+
+}

@@ -6,12 +6,14 @@ import usersRoute from "./routes/users.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import bodyParser from "body-parser";
+import session  from "express-session";
 
 const app = express();
 dotenv.config();
 
 const connect = async () => {
   try {
+    console.log("process.env.JWT",process.env.JWT)
     await mongoose.connect(process.env.MONGO);
     console.log("Connected to mongoDB.");
   } catch (error) {
@@ -29,6 +31,11 @@ app.use(cookieParser())
 app.use(express.json());
 app.use(bodyParser.urlencoded({ extended: false }));
 app.use(bodyParser.json());
+app.use(session({
+  secret: 'your-secret-key', 
+  resave: false,
+  saveUninitialized: true,
+}));
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", usersRoute);
