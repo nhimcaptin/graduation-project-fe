@@ -1,104 +1,408 @@
 @import './_variable.scss';
+
+
 body {
-  font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
-  font-size: 16px;
-  margin: 0;
-  padding: 0;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+    font-size: 16px;
+    margin: 0;
+    padding: 0;
 }
 
 //--- Bar icon
 .bar-icon {
-  display: inline-block;
-  width: 21px;
-
-  span {
-    background-color: white;
-    border-radius: 500px;
-    display: block;
-    float: left;
-    height: 2px;
-    margin-bottom: 5px;
+    display: inline-block;
     width: 21px;
 
-    &:nth-child(2) {
-      width: 15px;
-    }
+    span {
+        background-color: white;
+        border-radius: 500px;
+        display: block;
+        float: left;
+        height: 2px;
+        margin-bottom: 5px;
+        width: 21px;
 
-    &:nth-child(3) {
-      margin-bottom: 0;
+        &:nth-child(2) {
+            width: 15px;
+        }
+
+        &:nth-child(3) {
+            margin-bottom: 0;
+        }
     }
-  }
 }
+
 .MuiPopover-paper {
-  border-radius: 12px !important;
+    border-radius: 12px !important;
 }
 
 //--- Scroll Bar
 ::-webkit-scrollbar {
-  width: 8px;
-  height: 8px;
+    width: 8px;
+    height: 8px;
 }
 
 ::-webkit-scrollbar-track {
-  box-shadow: inset 0 0 5px #eeeeee;
+    box-shadow: inset 0 0 5px #eeeeee;
 }
 
 ::-webkit-scrollbar-thumb {
-  background-color: #eaeaea;
+    background-color: #eaeaea;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #6d6e70;
+    background: #6d6e70;
 }
+
 .is-require::after {
-  content: '*';
-  color: #de544f;
-  margin-left: 5px;
+    content: '*';
+    color: #de544f;
+    margin-left: 5px;
 }
 
-.multiple-tab {
-  .tab-content {
-    background-color: $background;
-    box-shadow: 0px 2px 24px -2px rgba(0, 0, 0, 0.1);
-    border-radius: 8px 8px 8px 8px;
-    padding: 12px 30px;
-  }
-  .tab-content-first {
-    border-radius: 0px 8px 8px 8px;
-  }
-  .tab-content-end {
-    border-radius: 8px 8px 0px 8px;
-  }
+.optionLabelEmail {
+    color: rgb(168, 153, 153);
+}
 
-  .tab-header {
-    .MuiTabs-scroller {
-      .MuiTabs-indicator {
-        height: 0px;
-      }
-      .MuiTabs-flexContainer {
-        .MuiButtonBase-root {
-          font-size: 12px;
-          color: $shade;
-        }
-        .Mui-selected {
-          background-color: $background;
-          box-shadow: 0px 2px 24px -2px rgba(0, 0, 0, 0.1);
-          border-radius: 8px 8px 0px 0px;
-          color: $text;
-        }
-      }
+// Required
+.required::before {
+    content: '*';
+    color: red;
+    margin-left: 2px;
+}
+
+.background-table-header {
+    background-color: #e4e4e4 !important;
+    font-weight: 700 !important;
+    color: #614c4c !important;
+}
+
+.d-none {
+    display: none !important;
+}
+
+.d-flex-center {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.d-flex-column-center {
+    flex-direction: column !important;
+    display: flex;
+    justify-content: space-evenly !important;
+}
+
+.d-flex-jus-center {
+    display: flex;
+    justify-content: center;
+}
+
+.d-flex-ali-center {
+    display: flex;
+    align-items: center;
+}
+
+.highlight-row {
+    background-color: $gray-highlight-row;
+}
+
+// .highlight-row > * {
+//   color: #ffffff !important;
+// }
+
+// .highlight-row:hover td {
+//   color: #000000 !important;
+// }
+
+.highlight-row > td > span.status {
+    color: #ffffff;
+}
+
+.align-center {
+    text-align: center !important;
+}
+
+.align-right {
+    text-align: right !important;
+}
+
+.pd-r-0 {
+    padding-right: 0 !important;
+}
+
+.pd-l-22 {
+    padding-left: 22px !important;
+}
+
+.pd-r-22 {
+    padding-right: 22px !important;
+}
+
+.pd-r-30 {
+    padding-right: 40px !important;
+}
+
+.pd-r-42 {
+    padding-right: 42px !important;
+}
+
+.page-title {
+    font-weight: 700;
+    font-size: 24px;
+    color: #614c4c;
+    margin-bottom: 24px;
+}
+
+.column-input-section {
+    .title {
+        font-weight: 700;
+        font-size: 12px;
+        color: #614c4c;
+        margin-bottom: 6px;
     }
-  }
 }
 
+.section-title {
+    font-weight: 700;
+    font-size: 20px;
+    color: #614c4c;
+    margin-bottom: 12px;
+}
+
+.table-scroll-bar {
+    scrollbar-gutter: stable;
+}
+
+.mg-l-10 {
+    margin-left: 10px;
+}
+
+//--- Search by
+.search-by-container {
+    padding-top: 12px;
+    // padding-bottom: 8px;
+    display: flex;
+    align-items: center;
+
+    .search-label {
+        margin-right: 5px;
+        font-size: 14px;
+        color: $gray;
+        display: flex;
+        align-items: flex-start;
+        min-width: 65px;
+    }
+
+    .MuiChip-root {
+        margin-left: 5px;
+        margin-right: 5px;
+    }
+
+    .clear-all {
+        font-size: 12px;
+        text-decoration: none;
+        margin-left: 10px;
+        color: $light-red;
+        &:hover {
+            text-decoration: underline;
+        }
+    }
+}
+
+//--- MUI Autocomplete Menu
+ul.MuiAutocomplete-listbox {
+    li.MuiAutocomplete-option {
+        color: $text;
+        font-size: 14px;
+    }
+}
+div.MuiAutocomplete-loading {
+    text-align: center;
+}
+div.MuiAutocomplete-noOptions {
+    text-align: center;
+}
+
+.autocompleteMultiSelect {
+    .MuiChip-root {
+        height: 23px;
+        font-size: 12px;
+        svg {
+            height: 15px;
+            width: 15px;
+        }
+        margin-top: 0px !important;
+        margin-bottom: 0px !important;
+    }
+
+    span.MuiAutocomplete-tag.MuiAutocomplete-tagSizeMedium {
+        font-size: 14px;
+        line-height: 15px;
+    }
+}
+
+.messagaNoData {
+    opacity: 0.5;
+}
 /* Chrome, Safari, Edge, Opera */
 input::-webkit-outer-spin-button,
 input::-webkit-inner-spin-button {
-  -webkit-appearance: none;
-  margin: 0;
+    -webkit-appearance: none;
+    margin: 0;
 }
 
 /* Firefox */
 input[type='number'] {
-  -moz-appearance: textfield;
+    -moz-appearance: textfield;
+}
+
+.preview-sunEditor {
+    background-color: #202225;
+    .sun-editor {
+        border: 0;
+    }
+    .sun-editor .se-wrapper .se-wrapper-wysiwyg {
+        background-color: #202225;
+    }
+
+    span,
+    h2,
+    h1,
+    p,
+    h3,
+    h4,
+    h5,
+    h6,
+    div,
+    strong {
+        color: white !important;
+        span {
+            color: white !important;
+        }
+    }
+}
+
+.linkToDetail {
+    text-decoration: none;
+    color: $dark-green;
+    &:hover {
+        color: $light-green;
+    }
+}
+
+.animate-flicker-btn {
+    -webkit-animation: flickerAnimation 3s infinite;
+    -moz-animation: flickerAnimation 3s infinite;
+    -o-animation: flickerAnimation 3s infinite;
+    animation: flickerAnimation 3s infinite;
+}
+
+.animate-flicker-msg-1 {
+    background-color: #F4D3D3 !important;
+    -webkit-animation: flickerAnimationMsg 10s infinite;
+    -moz-animation: flickerAnimationMsg 10s infinite;
+    -o-animation: flickerAnimationMsg 10s infinite;
+    animation: flickerAnimationMsg 10s infinite;
+}
+
+.animate-flicker-msg-2 {
+    background-color: #F4D3D3 !important;
+    -webkit-animation: flickerAnimationMsg 5s infinite;
+    -moz-animation: flickerAnimationMsg 5s infinite;
+    -o-animation: flickerAnimationMsg 5s infinite;
+    animation: flickerAnimationMsg 5s infinite;
+}
+
+// FLicker Button
+@keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@-o-keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@-moz-keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@-webkit-keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+
+
+// Flicker Notification
+@keyframes flickerAnimationMsg {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.2;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@-o-keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.2;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@-moz-keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.2;
+    }
+    100% {
+        opacity: 1;
+    }
+}
+@-webkit-keyframes flickerAnimation {
+    0% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.2;
+    }
+    100% {
+        opacity: 1;
+    }
 }
