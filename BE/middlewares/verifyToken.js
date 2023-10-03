@@ -33,8 +33,9 @@ export const verifyAdmin = (req, res, next) => {
     method: req.method,
     token: req.cookies.access_token,
   };
-  verifyToken(req, res, next, () => {
-    if (req.user.isAdmin && checkPermissions(_data)) {
+  verifyToken(req, res, next, async () => {
+    const _checkPermissions = await checkPermissions(_data);
+    if (req.user.isAdmin && _checkPermissions) {
       next();
     } else {
       return next(createError(403, "You are not authorized!"));
@@ -46,5 +47,5 @@ const checkPermissions = async (req) => {
   const decoded = jwt.verify(req.token, process.env.JWT);
   const data = await User.findOne({ _id: decoded.id });
   const _path = routers.find((x) => x.url === req.baseUrl);
-  return _path.permissions.find((x) => x.method === req.method).role.indexOf(data.role);
+  return _path.permissions.find((x) => x.method === req.method).role.indexOf(data.role) >= 0;
 };

@@ -1,12 +1,11 @@
 import express from "express";
-import { updateUser, deleteUser, detailUser } from "../controllers/user.js";
-import { verifyAdmin, verifyToken, verifyUser } from "../middlewares/verifyToken.js";
-import { register } from "../controllers/auth.js";
+import { createUser, deleteUser, detailUser, updateUser } from "../controllers/user.js";
+import { verifyAdmin } from "../middlewares/verifyToken.js";
 
 const router = express.Router();
 
 //CREATE
-router.post("", register);
+router.post("", verifyAdmin, createUser);
 
 //UPDATE
 router.put("/:id", verifyAdmin, updateUser);

@@ -1,5 +1,27 @@
+import { MESSAGE_ERROR } from "../const/messages.js";
+import { createError } from "../middlewares/error.js";
 import User from "../models/User.js";
+import bcrypt from "bcryptjs";
 
+export const createUser = async (req, res, next) => {
+  try {
+    const data = req.body;
+    const { email } = data;
+    const isExists = await User.findOne({ email: email });
+    if (isExists) {
+      return next(createError(400, MESSAGE_ERROR.MAIL_ALREADY_EXISTS));
+    }
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync("admin123456", salt);
+    await new User({
+      ...req.body,
+      password: hash,
+    }).save();
+    res.status(200).send("User has been created.");
+  } catch (err) {
+    next(err);
+  }
+};
 export const updateUser = async (req, res, next) => {
   try {
     const updatedUser = await User.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
@@ -11,7 +33,7 @@ export const updateUser = async (req, res, next) => {
 export const detailUser = async (req, res, next) => {
   try {
     const detailUser = await User.findById(req.params.id).exec();
-    const data = {...detailUser._doc, password: null}
+    const data = { ...detailUser._doc, password: null };
     delete data.password;
     res.status(200).json(data);
   } catch (err) {
