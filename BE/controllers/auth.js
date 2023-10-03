@@ -2,6 +2,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import { createError } from "../middlewares/error.js";
 import jwt from "jsonwebtoken";
+import { MESSAGE_ERROR } from "../const/messages.js";
 
 export const register = async (req, res, next) => {
   try {
@@ -45,6 +46,7 @@ export const login = async (req, res, next) => {
   try {
     const user = await User.findOne({ email: req.body.email });
     if (!user) return next(createError(404, "User not found!"));
+    if(req.originalUrl === "/api/auth/login-admin" && !user.isAdmin) return next(createError(403, MESSAGE_ERROR.NOT_PERMISSIONS));
 
     const isPasswordCorrect = await bcrypt.compare(
       req.body.password,

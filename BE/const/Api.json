@@ -1,0 +1,13 @@
+{
+    "register": "http://localhost:3000/api/auth/register",
+    "login-web": "http://localhost:3000/api/auth/login-web",
+    "login-admin": "http://localhost:3000/api/auth/login-admin",
+    "logout": "http://localhost:3000/api/auth/logout",
+
+    // API USER
+    "createUser": "http://localhost:3000/api/users",
+    "updateUser": "http://localhost:3000/api/users/:id",
+    "detailUser": "http://localhost:3000/api/users/detail/:id",
+    "deleteUser": "http://localhost:3000/api/users/:id",
+    "getCurrentUser": "http://localhost:3000/api/users/get-current-user"
+}

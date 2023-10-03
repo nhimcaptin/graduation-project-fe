@@ -2,6 +2,7 @@ import jwt from "jsonwebtoken";
 import { createError } from "../middlewares/error.js";
 import { routers } from "./permissions.js";
 import User from "../models/User.js";
+import { MESSAGE_ERROR } from "../const/messages.js";
 
 export const verifyToken = (req, res, next, verifyPermissions) => {
   const token = req.cookies.access_token;
@@ -10,7 +11,7 @@ export const verifyToken = (req, res, next, verifyPermissions) => {
   }
 
   jwt.verify(token, process.env.JWT, (err, user) => {
-    if (err) return next(createError(403, "token is not valid!"));
+    if (err) return next(createError(401, "token is not valid!"));
     req.user = user;
   });
   verifyPermissions && verifyPermissions();
@@ -21,14 +22,14 @@ export const verifyUser = (req, res, next) => {
     if (req.user.id === req.params.id || req.user.isAdmin) {
       next();
     } else {
-      return next(createError(403, "You are not authorized!"));
+      return next(createError(403, MESSAGE_ERROR.NOT_PERMISSIONS));
     }
   });
 };
 
 export const verifyAdmin = (req, res, next) => {
   const _data = {
-    baseUrl: req.baseUrl,
+    baseUrl: req.baseUrl + req.route.path,
     method: req.method,
     token: req.cookies.access_token,
   };
@@ -37,7 +38,7 @@ export const verifyAdmin = (req, res, next) => {
     if (req.user.isAdmin && _checkPermissions) {
       next();
     } else {
-      return res.status(400).json(createError(403, "You are not authorized!"));
+      return res.status(400).json(createError(403, MESSAGE_ERROR.NOT_PERMISSIONS));
     }
   });
 };
