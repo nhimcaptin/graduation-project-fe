@@ -70,3 +70,21 @@ export const getCurrentUser = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getListUser = async (req, res, next) => {
+  try {
+    const { Page, PageSize, Sorts, filters } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+    const query = User.find();
+    const users = await query
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .sort(Sorts)
+      .find({ isAdmin: false });
+    const totalUsers = await User.countDocuments(query);
+    res.json({ users, totalUsers });
+  } catch (error) {
+    next(error);
+  }
+};
