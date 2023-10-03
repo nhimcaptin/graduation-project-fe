@@ -12,7 +12,6 @@ export const verifyToken = (req, res, next, verifyPermissions) => {
   jwt.verify(token, process.env.JWT, (err, user) => {
     if (err) return next(createError(403, "token is not valid!"));
     req.user = user;
-    next();
   });
   verifyPermissions && verifyPermissions();
 };
@@ -38,7 +37,7 @@ export const verifyAdmin = (req, res, next) => {
     if (req.user.isAdmin && _checkPermissions) {
       next();
     } else {
-      return next(createError(403, "You are not authorized!"));
+      return res.status(400).json(createError(403, "You are not authorized!"));
     }
   });
 };
