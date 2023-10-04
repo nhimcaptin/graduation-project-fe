@@ -2,6 +2,11 @@ import React, { useEffect, useMemo, useState } from "react";
 import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import {
+  Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogTitle,
   IconButton,
   Paper,
   Popover,
@@ -68,6 +73,7 @@ const headCells = [
     style: { maxWidth: "20%", minWidth: "180px" },
   },
   { label: "Action", style: { minWidth: "5%" } },
+  { label: "", style: { minWidth: "0%" } },
 ];
 
 const User = () => {
@@ -82,7 +88,7 @@ const User = () => {
   const open = Boolean(anchorEl);
   const menuId = open ? "simple-popover" : undefined;
 
-  const [data, setData] = useState<any>([]);
+  const [staffs, setData] = useState<any>([]);
 
   const createSortHandler =
     (property: keyof RowDataProps | string) =>
@@ -125,7 +131,31 @@ const User = () => {
         console.error("Lỗi yêu cầu:", error);
       });
   };
-  useMemo(() => {
+
+  const [userToDelete, setUserToDelete] = useState<any>(staffs);
+
+  // Hàm xử lý việc xóa người dùng
+  const deleteUser = (userId: string) => {
+    // Gửi yêu cầu xóa người dùng đến máy chủ thông qua API
+    console.log(BASE_URL + URL_PATHS.GET_USER + "/" + userId);
+    // Đảm bảo thay thế 'your-api-endpoint' bằng đúng đường dẫn của API xóa người dùng
+    apiService
+      .delete(BASE_URL + URL_PATHS.GET_USER + "/" + userId)
+      .then((res: any) => {
+        setAnchorEl(null);
+        getData();
+      });
+  };
+
+  // Hàm xử lý sự kiện xóa người dùng
+  const handleDelete = (id: string) => {
+    if (id) {
+      deleteUser(id);
+      setUserToDelete(staffs);
+    }
+  };
+
+  useEffect(() => {
     getData();
   }, []);
 
@@ -201,9 +231,10 @@ const User = () => {
           <TableBody>
             {loadingTable && false ? (
               <LoadingTableRow colSpan={6} />
-            ) : data && data.length > 0 ? (
+            ) : staffs && staffs.length > 0 ? (
               <>
-                {data.map((data: any, index: number) => {
+                {staffs.map((data: any, index: number) => {
+                  const rowId = data;
                   return (
                     <TableRow
                       key={index}
@@ -228,36 +259,44 @@ const User = () => {
                           <MoreHorizIcon />
                         </IconButton>
                       </TableCell>
+                      <TableCell>
+                        {open && (
+                          <Popover
+                            id={menuId}
+                            open={open}
+                            anchorEl={anchorEl}
+                            onClose={handleCloseActionMenu}
+                            anchorOrigin={{
+                              vertical: "bottom",
+                              horizontal: "left",
+                            }}
+                          >
+                            <MenuListActions
+                              actionView={(e) => console.log(selectedItem._id)}
+                            />
+                            <MenuListActions actionEdit={(e) => {}} />
+                            <MenuListActions
+                              actionDelete={(e) =>
+                                handleDelete(selectedItem._id)
+                              }
+                            />
+                          </Popover>
+                        )}
+                      </TableCell>
                     </TableRow>
                   );
                 })}
               </>
             ) : (
               <TableRow>
-              <TableCell colSpan={6}>
-                <Skeleton variant="text" width="100%" height={40} />
-              </TableCell>
-            </TableRow>
+                <TableCell colSpan={8}>
+                  <Skeleton variant="text" width="100%" height={40} />
+                </TableCell>
+              </TableRow>
             )}
           </TableBody>
         </Table>
       </TableContainer>
-      {open && (
-        <Popover
-          id={menuId}
-          open={open}
-          anchorEl={anchorEl}
-          onClose={handleCloseActionMenu}
-          anchorOrigin={{
-            vertical: "bottom",
-            horizontal: "left",
-          }}
-        >
-          <MenuListActions actionView={(e) => {}} />
-          <MenuListActions actionEdit={(e) => {}} />
-          <MenuListActions actionDelete={(e) => {}} />
-        </Popover>
-      )}
     </Page>
   );
 };
