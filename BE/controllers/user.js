@@ -55,7 +55,7 @@ export const deleteUser = async (req, res, next) => {
 
 export const getCurrentUser = async (req, res, next) => {
   try {
-    const decoded = jwt.verify(req.cookies.access_token, process.env.JWT);
+    const decoded = jwt.verify(req.header("authorization").replace("Bearer ", ""), process.env.JWT);
     const data = await User.findOne({ _id: decoded.id });
     const user = {
       name: data.name,
@@ -65,7 +65,7 @@ export const getCurrentUser = async (req, res, next) => {
       img: data.img,
       role: data.role,
     };
-    return res.status(200).json(data);
+    return res.status(200).json(user);
   } catch (error) {
     next(error);
   }

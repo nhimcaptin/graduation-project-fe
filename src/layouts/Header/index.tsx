@@ -1,11 +1,4 @@
-import {
-  AppBar,
-  Box,
-  MenuItem,
-  MenuList,
-  Popover,
-  Toolbar,
-} from "@mui/material";
+import { AppBar, Box, MenuItem, MenuList, Popover, Toolbar, Typography } from "@mui/material";
 import LogoutIcon from "@mui/icons-material/Logout";
 import MenuIcon from "@mui/icons-material/Menu";
 import ELEMENT_ID from "../../consts/element";
@@ -26,9 +19,7 @@ const Header = () => {
   const { logout } = useAuth();
   const [openMenu, setOpenMenu] = useState<boolean>(false);
   const { currentUser } = useSelector((state: any) => state.currentUser);
-  const isChangeForm = useSelector(
-    (state: any) => state.checkingChanges.isChange
-  );
+  const isChangeForm = useSelector((state: any) => state.checkingChanges.isChange);
   const { pathname } = location;
 
   const ImageSrc = `${IMG_URL}${currentUser.avatar}`;
@@ -77,10 +68,15 @@ const Header = () => {
   return (
     <AppBar className={styles.appBar}>
       <Toolbar className={styles.toolbar}>
-        <div
+        <Typography
           className={styles.breadCrumbsContainer}
           id={ELEMENT_ID.BREADCRUMB_CONTAINER}
-        ></div>
+          variant="h5"
+          component="h5"
+          gutterBottom
+        >
+          Khách hàng
+        </Typography>
         <Box
           sx={{
             display: "flex",
@@ -96,9 +92,7 @@ const Header = () => {
             onClick={(e) => setOpenMenu(true)}
           >
             <div className={styles.textContainer}>
-              <p className={styles.userName}>
-                {currentUser?.firstName} Admin nè
-              </p>
+              <p className={styles.userName}>{currentUser?.firstName} Admin nè</p>
             </div>
             <img
               src={currentUser.avatar ? ImageSrc : avatarDefault}

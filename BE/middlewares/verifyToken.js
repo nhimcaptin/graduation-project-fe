@@ -5,7 +5,7 @@ import User from "../models/User.js";
 import { MESSAGE_ERROR } from "../const/messages.js";
 
 export const verifyToken = (req, res, next, verifyPermissions) => {
-  const token = req.cookies.access_token;
+  const token = req.header("authorization").replace("Bearer ", "");
   if (!token) {
     return next(createError(401, "you are not authenticated"));
   }
@@ -31,7 +31,7 @@ export const verifyAdmin = (req, res, next) => {
   const _data = {
     baseUrl: req.baseUrl + req.route.path,
     method: req.method,
-    token: req.cookies.access_token,
+    token: req.header("authorization").replace("Bearer ", ""),
   };
   verifyToken(req, res, next, async () => {
     const _checkPermissions = await checkPermissions(_data);

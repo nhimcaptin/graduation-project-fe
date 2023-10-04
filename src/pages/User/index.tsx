@@ -4,6 +4,7 @@ import styles from "./styles.module.scss";
 import {
   IconButton,
   Paper,
+  Popover,
   Table,
   TableBody,
   TableCell,
@@ -22,6 +23,7 @@ import LoadingTableRow from "../../components/LoadingTableRow";
 import { Link } from "react-router-dom";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import NoDataTableRow from "../../components/NoDataTableRow";
+import MenuListActions from "../../components/MenuListActions";
 
 interface RowDataProps {
   id: number;
@@ -70,6 +72,9 @@ const User = () => {
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
 
+  const open = Boolean(anchorEl);
+  const menuId = open ? "simple-popover" : undefined;
+
   const createSortHandler = (property: keyof RowDataProps | string) => (event: React.MouseEvent<unknown>) => {
     handleRequestSort(event, property);
   };
@@ -84,6 +89,10 @@ const User = () => {
   const handleOpenMenuAction = (event: React.MouseEvent<HTMLButtonElement>, record: RowDataProps) => {
     setAnchorEl(event.currentTarget);
     setSelectedItem(record);
+  };
+
+  const handleCloseActionMenu = () => {
+    setAnchorEl(null);
   };
 
   const getData = (props: any) => {};
@@ -177,6 +186,20 @@ const User = () => {
           </TableBody>
         </Table>
       </TableContainer>
+      {open && (
+        <Popover
+          id={menuId}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleCloseActionMenu}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+        >
+          <MenuListActions actionView={() => {}} />
+        </Popover>
+      )}
     </Page>
   );
 };

@@ -14,7 +14,6 @@ const requestHandler = (request: any, isHandlerEnabled: any) => {
     }
 
     const token = localStorage.getItem('token');
-    console.log("token", token)
     if (token) {
         request.headers['Authorization'] = `Bearer ${token}`;
     }
@@ -61,7 +60,7 @@ class Service {
             baseURL: BASE_URL,
             responseType: 'json',
             timeout: timeout || 300000,
-            timeoutErrorMessage: 'ExpiredTime'
+            timeoutErrorMessage: 'ExpiredTime',
         });
 
         this.handleError = async (error: any, isHandlerEnabled: any) => {
@@ -321,7 +320,7 @@ class Service {
                     data: params
                 })
                 .then((response: any) => {
-                    if (response.status >= 200 && response.status < 300) {
+                    if (response?.status >= 200 && response?.status < 300) {
                         resolve(response.data);
                     } else {
                         if (response.response && response.response.data && response.response.data.errors) {

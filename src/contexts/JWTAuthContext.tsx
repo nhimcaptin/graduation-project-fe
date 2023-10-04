@@ -1,4 +1,4 @@
-import React, { useEffect, useReducer } from "react";
+import React, { useEffect, useReducer, useState } from "react";
 
 import SplashScreen from "../components/SplashScreen/index";
 import Toast from "../components/Toast";
@@ -75,18 +75,13 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const { setToastInformation } = useSetToastInformationState();
 
   const login = async (data: any) => {
-    console.log("data", data)
     localStorage.setItem("token", data.token);
     let userInfo = null;
     try {
       if (data.token) {
         const responseUserInfo: any = await apiService.get(URL_PATHS.GET_CURRENT_USER);
-        console.log("responseUserInfo", responseUserInfo)
-        // const responseUserInfo: any = {
-        //   body: "12313123131231231321123131313123",
-        // };
         if (responseUserInfo) {
-          userInfo = responseUserInfo.body;
+          userInfo = responseUserInfo;
           if (userInfo) {
             setUserInformation(userInfo);
           }
@@ -113,18 +108,14 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
     localStorage.clear();
     dispatch({ type: ACTION_TYPE.LOGOUT });
   };
-
   const initData = async () => {
     let token = localStorage.getItem("token");
     let userInfo: any = null;
     try {
       if (token) {
-        // const responseUserInfo: any = await GetCurrentUser();
-        const responseUserInfo: any = {
-          body: "12313123131231231321123131313123",
-        };
+        const responseUserInfo: any = await apiService.get(URL_PATHS.GET_CURRENT_USER);
         if (responseUserInfo) {
-          userInfo = responseUserInfo.body;
+          userInfo = responseUserInfo;
           if (userInfo) {
             setUserInformation(userInfo);
           }

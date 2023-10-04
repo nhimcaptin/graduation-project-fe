@@ -4,9 +4,12 @@ import { Helmet } from "react-helmet";
 
 import styles from "./styles.module.scss";
 import clsx from "clsx";
+import ELEMENT_ID from "../../consts/element";
 
 const Page = forwardRef((props: any, ref: any) => {
   const { children, title = "", isActive, ...rest } = props;
+  const breadCrumbs =  document.getElementById(ELEMENT_ID.BREADCRUMB_CONTAINER);
+  breadCrumbs && (breadCrumbs.innerHTML = title);
   return (
     <div ref={ref} {...rest}>
       <Helmet>
@@ -16,16 +19,6 @@ const Page = forwardRef((props: any, ref: any) => {
         height={window.innerHeight - 182}
         className={clsx({ [styles.box]: isActive })}
       >
-        {isActive && (
-          <Typography
-            variant="h5"
-            component="h5"
-            className={styles.titleHeader}
-            gutterBottom
-          >
-            {title}
-          </Typography>
-        )}
         {children}
       </Box>
     </div>
