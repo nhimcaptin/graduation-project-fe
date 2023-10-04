@@ -12,6 +12,8 @@ import ROUTERS_PATHS from "../../consts/router-paths";
 import clsx from "clsx";
 import useAuth from "../../hook/useAuth";
 import Icons from "../../consts/Icons";
+import apiService from "../../services/api-services";
+import URL_PATHS from "../../services/url-path";
 
 const Header = () => {
   const anchorElRef = useRef(null);
@@ -57,12 +59,9 @@ const Header = () => {
 
   const logOutAccount = async () => {
     try {
-      //   const res = await apiService.post(URL_PATHS.LOG_OUT);
+      const res = await apiService.post(URL_PATHS.LOG_OUT);
       logout();
-      //   return res;
-    } catch (error) {
-      throw error;
-    }
+    } catch (error) {}
   };
 
   return (
