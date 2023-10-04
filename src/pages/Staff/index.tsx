@@ -1,10 +1,11 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import {
   IconButton,
   Paper,
   Popover,
+  Skeleton,
   Table,
   TableBody,
   TableCell,
@@ -17,7 +18,7 @@ import {
 import clsx from "clsx";
 import { StickyTableCell } from "../../components/StickyTableCell";
 import { Order } from "../../utils/sortTable";
-import { Box } from "@mui/system";
+import { Box, width } from "@mui/system";
 import { visuallyHidden } from "@mui/utils";
 import LoadingTableRow from "../../components/LoadingTableRow";
 import { Link } from "react-router-dom";
@@ -27,6 +28,7 @@ import MenuListActions from "../../components/MenuListActions";
 import apiService from "../../services/api-services";
 import { BASE_URL } from "../../services/base-url";
 import URL_PATHS from "../../services/url-path";
+import { async } from "q";
 
 interface RowDataProps {
   id: number;
@@ -65,7 +67,7 @@ const headCells = [
     sort: "createdDate",
     style: { maxWidth: "20%", minWidth: "180px" },
   },
-  { label: "", style: { minWidth: "5%" } },
+  { label: "Action", style: { minWidth: "5%" } },
 ];
 
 const User = () => {
@@ -80,9 +82,7 @@ const User = () => {
   const open = Boolean(anchorEl);
   const menuId = open ? "simple-popover" : undefined;
 
-
-  const [data,setData] = useState<any>([])
-
+  const [data, setData] = useState<any>([]);
 
   const createSortHandler =
     (property: keyof RowDataProps | string) =>
@@ -112,24 +112,22 @@ const User = () => {
     setAnchorEl(null);
   };
 
-  const getData = (props: any) => {
+  const getData = async (props: any) => {
     apiService
-      .get(BASE_URL+URL_PATHS.DETAIL_USER1)
-      .then((response:any) => {
+      .get(BASE_URL + URL_PATHS.DETAIL_USER1)
+      .then((response: any) => {
         // Xử lý dữ liệu khi yêu cầu thành công
         console.log("Dữ liệu từ server:", response.users);
-        setData(response.users)
+        setData(response.users);
       })
       .catch((error) => {
         // Xử lý lỗi khi yêu cầu thất bại
         console.error("Lỗi yêu cầu:", error);
       });
   };
-useEffect(()=>{
-  getData();
-
-},[])
-
+  useMemo(() => {
+    getData();
+  }, []);
 
   return (
     <Page className={styles.root} title="Khách hàng" isActive>
@@ -203,8 +201,7 @@ useEffect(()=>{
           <TableBody>
             {loadingTable && false ? (
               <LoadingTableRow colSpan={6} />
-            ) : data &&
-              data.length > 0 ? (
+            ) : data && data.length > 0 ? (
               <>
                 {data.map((data: any, index: number) => {
                   return (
@@ -236,7 +233,11 @@ useEffect(()=>{
                 })}
               </>
             ) : (
-              <NoDataTableRow colSpan={6} />
+              <TableRow>
+              <TableCell colSpan={6}>
+                <Skeleton variant="text" width="100%" height={40} />
+              </TableCell>
+            </TableRow>
             )}
           </TableBody>
         </Table>
@@ -252,7 +253,9 @@ useEffect(()=>{
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={() => {}} />
+          <MenuListActions actionView={(e) => {}} />
+          <MenuListActions actionEdit={(e) => {}} />
+          <MenuListActions actionDelete={(e) => {}} />
         </Popover>
       )}
     </Page>
