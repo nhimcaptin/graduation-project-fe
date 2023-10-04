@@ -5,5 +5,6 @@ const URL_PATHS = {
     GET_CURRENT_USER: "api/users/get-current-user",
     GET_USER: "api/users",
     DETAIL_USER: "api/users/detail",
+    DETAIL_USER1: "api/users/get-list",
 }
 export default URL_PATHS
