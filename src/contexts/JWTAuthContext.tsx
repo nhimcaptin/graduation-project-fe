@@ -6,6 +6,8 @@ import { STATUS_CODE } from "../consts/statusCode";
 import { useSetUserInformationState } from "../redux/store/userInfo";
 import { useSetToastInformationState } from "../redux/store/ToastMessage";
 import { STATUS_TOAST } from "../consts/statusCode";
+import apiService from "../services/api-services";
+import URL_PATHS from "../services/url-path";
 
 const ACTION_TYPE = {
   INITIALISE: "INITIALISE",
@@ -73,14 +75,16 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const { setToastInformation } = useSetToastInformationState();
 
   const login = async (data: any) => {
+    console.log("data", data)
     localStorage.setItem("token", data.token);
     let userInfo = null;
     try {
       if (data.token) {
-        // const responseUserInfo: any = await GetCurrentUser();
-        const responseUserInfo: any = {
-          body: "12313123131231231321123131313123",
-        };
+        const responseUserInfo: any = await apiService.get(URL_PATHS.GET_CURRENT_USER);
+        console.log("responseUserInfo", responseUserInfo)
+        // const responseUserInfo: any = {
+        //   body: "12313123131231231321123131313123",
+        // };
         if (responseUserInfo) {
           userInfo = responseUserInfo.body;
           if (userInfo) {

@@ -1,13 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hook/useAuth";
-import {
-  Box,
-  Card,
-  CardContent,
-  Container,
-  Grid,
-  Typography,
-} from "@mui/material";
+import { Box, Card, CardContent, Container, Grid, Typography } from "@mui/material";
 import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import logo from "../../assets/images/logo.png";
@@ -18,6 +11,8 @@ import { ILogin } from "./interface";
 import ButtonCustom from "../../components/ButtonCustom";
 import ROUTERS_PATHS from "../../consts/router-paths";
 import { MESSAGE_ERROR } from "../../consts/messages";
+import apiService from "../../services/api-services";
+import URL_PATHS from "../../services/url-path";
 
 const Login = () => {
   const { login } = useAuth();
@@ -29,17 +24,24 @@ const Login = () => {
     formState: { errors },
   } = useForm<ILogin>();
 
-  const handleLogin = (data: ILogin) => {
+  const handleLogin = async (data: ILogin) => {
     try {
+      const _data = {
+        email: data.userName,
+        password: data.password,
+      };
+      const res: any = await apiService.post(URL_PATHS.LOGIN, _data);
       const submitData = {
-        token: "This is token",
+        token: res?.access_token,
         responseUserInfo: {
           statusCode: 200,
         },
       };
-      login(submitData);
+      await login(submitData);
       navigate("/", { replace: false });
-    } catch (error) {}
+    } catch (error) {
+      console.error("error", error);
+    }
   };
 
   return (
@@ -50,12 +52,7 @@ const Login = () => {
         </Box>
         <Card className={styles.styleCard}>
           <CardContent className={styles.cardContent}>
-            <Box
-              alignItems="center"
-              display="flex"
-              justifyContent="center"
-              mb={3}
-            >
+            <Box alignItems="center" display="flex" justifyContent="center" mb={3}>
               <div>
                 <Typography className={styles.cardTextTitle} gutterBottom>
                   Đăng nhập
@@ -72,9 +69,7 @@ const Login = () => {
                     rules={{
                       required: MESSAGE_ERROR.fieldRequired,
                     }}
-                    render={({
-                      field: { onChange, onBlur, value, ref, name },
-                    }) => (
+                    render={({ field: { onChange, onBlur, value, ref, name } }) => (
                       <TextFieldCustom
                         name={name}
                         className={styles.inputLogin}
@@ -95,9 +90,7 @@ const Login = () => {
                     rules={{
                       required: MESSAGE_ERROR.fieldRequired,
                     }}
-                    render={({
-                      field: { onChange, onBlur, value, ref, name },
-                    }) => (
+                    render={({ field: { onChange, onBlur, value, ref, name } }) => (
                       <TextFieldCustom
                         name={name}
                         className={styles.inputLogin}
@@ -112,10 +105,7 @@ const Login = () => {
                   />
                 </Grid>
                 <Box mt={1} mr={1}>
-                  <Link
-                    to={ROUTERS_PATHS.FORGOT_PASSWORD}
-                    className={styles.textForgotPass}
-                  >
+                  <Link to={ROUTERS_PATHS.FORGOT_PASSWORD} className={styles.textForgotPass}>
                     Quên mật khẩu?
                   </Link>
                 </Box>
