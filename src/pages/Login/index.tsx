@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hook/useAuth";
 import { Box, Card, CardContent, Container, Grid, Typography } from "@mui/material";
@@ -13,10 +14,15 @@ import ROUTERS_PATHS from "../../consts/router-paths";
 import { MESSAGE_ERROR } from "../../consts/messages";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
+import { useSetToastInformationState } from "../../redux/store/ToastMessage";
+import { STATUS_TOAST } from "../../consts/statusCode";
+import { handleErrorMessage } from "../../utils/errorMessage";
 
 const Login = () => {
   const { login } = useAuth();
   const navigate = useNavigate();
+  const { setToastInformation } = useSetToastInformationState();
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   const {
     handleSubmit,
@@ -26,6 +32,7 @@ const Login = () => {
 
   const handleLogin = async (data: ILogin) => {
     try {
+      setIsLoading(true);
       const _data = {
         email: data.userName,
         password: data.password,
@@ -39,8 +46,13 @@ const Login = () => {
       };
       await login(submitData);
       navigate("/", { replace: false });
-    } catch (error) {
-      console.error("error", error);
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -117,6 +129,7 @@ const Login = () => {
                     type="submit"
                     title="Đăng nhập"
                     sx={{ width: "100%" }}
+                    loading={isLoading}
                   />
                 </Grid>
               </form>

@@ -74,7 +74,7 @@ export const login = async (req, res, next) => {
 };
 
 export const logout = async (req, res) => {
-  const accessToken = req.cookies.access_token;
+  const accessToken = req.header("authorization").replace("Bearer ", "");
   try{
     if(accessToken){    
       res
