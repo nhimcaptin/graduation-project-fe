@@ -1,0 +1,86 @@
+@import '../../assets/css/variable';
+
+.buttonIcon {
+  color: white;
+}
+
+.darkgreen {
+  background-color: $dark-green;
+  &:hover {
+    background-color: $light-green;
+  }
+}
+
+.spandarkgreen {
+  cursor: pointer;
+  &:hover {
+    button:not(:global(.Mui-disabled)) {
+      background-color: $light-green;
+    }
+  }
+}
+
+.darkred {
+  background-color: $dark-red;
+
+  &:hover {
+    background-color: $red;
+  }
+}
+
+// .spandarkgreen {
+//   cursor: pointer;
+//   &:hover {
+//     button {
+//       background-color: $light-green;
+//     }
+//   }
+// }
+
+.lightgreen {
+  background-color: $light-green;
+  &:hover {
+    background-color: $dark-green;
+  }
+}
+
+.spanlightgreen {
+  cursor: pointer;
+  &:hover {
+    button {
+      background-color: $dark-green;
+    }
+  }
+}
+
+.orange {
+  background-color: $orange;
+  &:hover {
+    background-color: $yellow;
+  }
+}
+
+.spanorange {
+  cursor: pointer;
+  &:hover {
+    button {
+      background-color: $yellow;
+    }
+  }
+}
+
+.grey {
+  background-color: #525252;
+  transition: 0.18s ease;
+  &:hover {
+    background-color: #747474;
+  }
+}
+
+.blue {
+  background-color: #54a7ff;
+  transition: 0.18s ease;
+  &:hover {
+    background-color: #4289f3;
+  }
+}

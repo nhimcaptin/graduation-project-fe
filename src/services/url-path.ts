@@ -3,7 +3,8 @@ const URL_PATHS = {
     LOG_OUT: "api/auth/logout",
     REGISTER: "api/auth/register",
     GET_CURRENT_USER: "api/users/get-current-user",
-    GET_USER: "api/users",
+    CREATE_USER: "api/users",
+    GET_USER: "api/users/get-list",
     DETAIL_USER: "api/users/detail",
     DETAIL_USER1: "api/users/get-list",
     DELETE_USER:"api/users/:id"
