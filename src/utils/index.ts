@@ -1,7 +1,12 @@
 import { LabelDisplayedRowsArgs } from "@mui/material";
 import DISPLAY_TEXTS from "../consts/display-texts";
 
+export const FORMAT_DATE = "DD/MM/YYYY"
 export const rowsPerPageOptions = [10, 20, 50];
+
+export const convertBreakToHtml = (text: string) => {
+  return text && text.replace(/\r?\n/g, '<br/>');
+};
 
 export const labelDisplayedRows = (page: LabelDisplayedRowsArgs) =>
   `${page.from}-${page.to === -1 ? page.count : page.to} ${DISPLAY_TEXTS.displayRow} ${page.count}`;
