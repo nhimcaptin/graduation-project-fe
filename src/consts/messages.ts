@@ -6,5 +6,5 @@ export const MESSAGE_ERROR: any = {
 };
 
 export const MESSAGES_CONFIRM = {
-  fieldRequired: "Đây là trường bắt buộc.",
+  DeleteUser: "Bạn có chắc muốn xóa người dùng này? Người dùng đã xóa không thể khôi phục lại.",
 };

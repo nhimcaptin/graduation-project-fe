@@ -9,22 +9,23 @@ import { Provider } from "react-redux";
 import { AuthProvider } from "./contexts/JWTAuthContext";
 import "./App.css";
 import routes, { renderRoutes } from "./router/routes";
+import ConfirmModal from "./components/ConfirmModal";
+import LoadingScreen from "./components/LoadingScreen";
 
 const theme = createTheme(viVN);
 
 function App() {
   return (
     <Provider store={store}>
-      <LocalizationProvider
-        dateAdapter={AdapterDateFns}
-        adapterLocale={viLocale}
-      >
+      <LocalizationProvider dateAdapter={AdapterDateFns} adapterLocale={viLocale}>
         <ThemeProvider theme={theme}>
           <Router>
             <AuthProvider>{renderRoutes(routes)}</AuthProvider>
           </Router>
         </ThemeProvider>
       </LocalizationProvider>
+      <ConfirmModal />
+      <LoadingScreen />
     </Provider>
   );
 }
