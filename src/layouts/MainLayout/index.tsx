@@ -8,7 +8,7 @@ import Header from "../Header";
 
 const useStyles = makeStyles({
   mainContainer: {
-    marginTop: 82,
+    marginTop: 50,
     backgroundColor: "#fffff",
     minHeight: window.innerHeight - 122,
     left: 0,

@@ -7,7 +7,9 @@ import {
   Dialog,
   DialogActions,
   DialogContent,
+  DialogContentText,
   DialogTitle,
+  Grid,
   IconButton,
   List,
   ListItem,
@@ -17,11 +19,13 @@ import {
   Paper,
   Popover,
   Skeleton,
+  Slide,
   Table,
   TableBody,
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TableSortLabel,
   Typography,
@@ -42,7 +46,13 @@ import URL_PATHS from "../../services/url-path";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
 import { STATUS_TOAST } from "../../consts/statusCode";
 import { handleErrorMessage } from "../../utils/errorMessage";
-
+import { labelDisplayedRows, rowsPerPageOptions } from "../../utils";
+import { useForm } from "react-hook-form";
+import DISPLAY_TEXTS from "../../consts/display-texts";
+import SearchPopover from "../../components/SearchPopover";
+import LabelCustom from "../../components/LabelCustom";
+import { ButtonIconCustom } from "../../components/ButtonIconCustom";
+import { TransitionProps } from "@mui/material/transitions";
 interface RowDataProps {
   id: number;
   name: string;
@@ -95,14 +105,16 @@ const Staff = () => {
 
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
-
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(rowsPerPageOptions[0]);
   const { setToastInformation } = useSetToastInformationState();
-
+  const [totalCount, setTotalCount] = useState<number>(0);
   const open = Boolean(anchorEl);
   const menuId = open ? "simple-popover" : undefined;
-
+  const { control, handleSubmit, reset, setValue, watch } = useForm();
   const [staffs, setData] = useState<any>([]);
   const [isPopupOpen, setPopupOpen] = useState<boolean>(false);
+  const [filterContext, setFilterContext] = useState<any>({});
 
   const createSortHandler =
     (property: keyof RowDataProps | string) =>
@@ -132,35 +144,126 @@ const Staff = () => {
     setAnchorEl(null);
   };
 
-  const getData = async (props: any) => {
-    apiService
-      .get(BASE_URL + URL_PATHS.DETAIL_USER1)
-      .then((response: any) => {
-        console.log("Dữ liệu từ server:", response.users);
-        setData(response.users);
-        setLoadingTable(false);
+  const handleChangePage = (
+    _event: React.MouseEvent<HTMLButtonElement> | null,
+    newPage: number
+  ) => {
+    setPage(newPage);
+    getData({
+      pageIndex: newPage,
+      pageSize: rowsPerPage,
+    });
+  };
+
+
+  const handleChangeRowsPerPage = async (
+    event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setPage(0);
+    getData({
+      pageIndex: 0,
+      pageSize: parseInt(event.target.value),
+    });
+  };
+
+  const handleSearch = (handleCloseSearch?: () => void) => {
+    setPage(0);
+    handleSubmit((data) =>
+      onSubmitFilter({
+        ...data,
+        sortBy: "createdDate",
+        sortDirection: "desc",
+        pageIndex: 0,
       })
-      .catch((error) => {
-        console.error("Lỗi yêu cầu:", error);
+    )();
+    handleCloseSearch && handleCloseSearch();
+  };
+
+  const onSubmitFilter = (data: any) => {
+    setFilterContext(data);
+    getData({});
+  };
+
+  const handleClearSearch = () => {
+    reset();
+  };
+
+  const handleRefresh = () => {
+    reset();
+    getData({});
+  };
+
+  const handleOpenModal = () => {};
+
+  const getData = async (props: any) => {
+    const pageSize =
+      !!props && props.hasOwnProperty("pageSize")
+        ? props.pageSize || 0
+        : rowsPerPage;
+    const pageIndex =
+      !!props && props.hasOwnProperty("pageIndex")
+        ? props.pageIndex || 0
+        : page;
+    const highlightId =
+      !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
+
+    const sortBy = props?.sortBy || orderBy;
+    const sortOrder = props?.sortDirection || order;
+
+    const params = {
+      Page: pageIndex + 1,
+      PageSize: pageSize,
+      Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
+    };
+
+    const filters = {};
+    try {
+      const data: any = await apiService.getFilter(
+        URL_PATHS.GET_USER,
+        params,
+        filters
+      );
+      console.log("data", data);
+      setTotalCount(data.totalUsers);
+      console.log("totalCount", totalCount);
+      setData(data.data);
+      setLoadingTable(false);
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
       });
+    }
   };
 
   const [userToDelete, setUserToDelete] = useState<any>(staffs);
 
   const deleteUser = (userId: string) => {
-    console.log(BASE_URL + URL_PATHS.GET_USER + "/" + userId);
-    apiService
-      .delete(BASE_URL + URL_PATHS.GET_USER + "/" + userId)
-      .then((res: any) => {
-        setAnchorEl(null);
-        getData({});
+    try {
+      apiService
+        .delete(BASE_URL + URL_PATHS.CREATE_USER + "/" + userId)
+        .then((res: any) => {
+          setAnchorEl(null);
+          setToastInformation({
+            status: STATUS_TOAST.SUCCESS,
+            message: "Xóa thành công!",
+          });
+          getData({});
+        });
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
       });
+    }
   };
 
   const handleDelete = (id: string) => {
     try {
       if (id) {
         deleteUser(id);
+
         setUserToDelete(staffs);
       }
     } catch (error: any) {
@@ -173,19 +276,54 @@ const Staff = () => {
     }
   };
 
-
-
   useEffect(() => {
     getData({});
   }, []);
 
-
   return (
     <Page className={styles.root} title="Nhân viên" isActive>
-      <Button >Add New Staff</Button>
-
-
-
+      <Grid container style={{ marginBottom: "20px" }}>
+        <Grid item xs={10}>
+          <Box>
+            <SearchPopover
+              contentWidth="40rem"
+              onFilter={handleSearch}
+              onClear={handleClearSearch}
+            >
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Tên chương trình" />
+                  </Box>
+                </Grid>
+              </Grid>
+            </SearchPopover>
+            <ButtonIconCustom
+              className="mg-l-10"
+              tooltipTitle="Làm mới"
+              type="refresh"
+              color="lightgreen"
+              onClick={handleRefresh}
+            />
+          </Box>
+        </Grid>
+        <Grid item xs={2}>
+          <Box
+            display="flex"
+            justifyContent="flex-end"
+            alignItems="flex-end"
+            height="100%"
+          >
+            <ButtonIconCustom
+              className="mg-l-10"
+              tooltipTitle="Thêm mới"
+              type="add"
+              color="darkgreen"
+              onClick={handleOpenModal}
+            />
+          </Box>
+        </Grid>
+      </Grid>
       <TableContainer
         component={Paper}
         sx={{ maxHeight: window.innerHeight - 250 }}
@@ -266,15 +404,15 @@ const Staff = () => {
                       hover
                       className={clsx(styles.stickyTableRow)}
                     >
-                      <TableCell>{data.name}</TableCell>
-                      <TableCell className="">{data.email}</TableCell>
-                      <TableCell className="">{data.phone}</TableCell>
-                      <TableCell>{data.address}</TableCell>
-                      <TableCell>{data.updatedAt}</TableCell>
+                      <TableCell>{rowId.name}</TableCell>
+                      <TableCell className="">{rowId.email}</TableCell>
+                      <TableCell className="">{rowId.phone}</TableCell>
+                      <TableCell>{rowId.address}</TableCell>
+                      <TableCell>{rowId.updatedAt}</TableCell>
                       <TableCell>
                         <IconButton
                           aria-label="more"
-                          onClick={(e) => handleOpenMenuAction(e, data)}
+                          onClick={(e) => handleOpenMenuAction(e, rowId)}
                         >
                           <MoreHorizIcon />
                         </IconButton>
@@ -299,9 +437,9 @@ const Staff = () => {
                             />
                             <MenuListActions actionEdit={(e) => {}} />
                             <MenuListActions
-                              actionDelete={(e) =>
-                                handleDelete(selectedItem._id)
-                              }
+                              actionDelete={(e) => {
+                                console.log(rowId);
+                              }}
                             />
                           </Popover>
                         )}
@@ -320,8 +458,17 @@ const Staff = () => {
           </TableBody>
         </Table>
       </TableContainer>
-
-     
+      <TablePagination
+        rowsPerPageOptions={rowsPerPageOptions}
+        component="div"
+        count={totalCount}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        labelDisplayedRows={labelDisplayedRows}
+        labelRowsPerPage={DISPLAY_TEXTS.rowsPerPage}
+      />
     </Page>
   );
 };

@@ -74,7 +74,7 @@ const Header = () => {
           component="h5"
           gutterBottom
         >
-          Khách hàng
+          Dashboard
         </Typography>
         <Box
           sx={{
@@ -91,7 +91,7 @@ const Header = () => {
             onClick={(e) => setOpenMenu(true)}
           >
             <div className={styles.textContainer}>
-              <p className={styles.userName}>{currentUser?.firstName} Admin nè</p>
+              <p className={styles.userName}>{currentUser?.name} </p>
             </div>
             <img
               src={currentUser.avatar ? ImageSrc : avatarDefault}

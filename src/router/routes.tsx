@@ -76,6 +76,10 @@ const routes: IRoutesState[] = [
         component: lazy(() => import("../pages/Staff")),
       },
       {
+        path: ROUTERS_PATHS.MY_PROFILE,
+        component: lazy(() => import("../pages/MyProfile")),
+      },
+      {
         path: "*",
         component: () => <Navigate to={ROUTERS_PATHS.DASHBOARD} replace />,
       },
