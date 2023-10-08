@@ -11,6 +11,7 @@ import {
   DialogTitle,
   Grid,
   IconButton,
+  ImageListItem,
   List,
   ListItem,
   ListItemAvatar,
@@ -46,13 +47,26 @@ import URL_PATHS from "../../services/url-path";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
 import { STATUS_TOAST } from "../../consts/statusCode";
 import { handleErrorMessage } from "../../utils/errorMessage";
-import { labelDisplayedRows, rowsPerPageOptions } from "../../utils";
-import { useForm } from "react-hook-form";
+import {
+  FORMAT_DATE,
+  labelDisplayedRows,
+  rowsPerPageOptions,
+} from "../../utils";
+import { Controller, useForm } from "react-hook-form";
 import DISPLAY_TEXTS from "../../consts/display-texts";
 import SearchPopover from "../../components/SearchPopover";
 import LabelCustom from "../../components/LabelCustom";
 import { ButtonIconCustom } from "../../components/ButtonIconCustom";
 import { TransitionProps } from "@mui/material/transitions";
+import moment from "moment";
+
+import IF from "../../components/IF";
+import { useSetConfirmModalState } from "../../redux/store/confirmModal";
+import { MESSAGES_CONFIRM, MESSAGE_ERROR } from "../../consts/messages";
+import AddStaff from "../Staff/components/AddStaff";
+import TextFieldCustom from "../../components/TextFieldCustom";
+import Icons from "../../consts/Icons";
+import EditStaff from "./components/EditStaff";
 interface RowDataProps {
   id: number;
   name: string;
@@ -70,6 +84,12 @@ const headCells = [
     sort: "name",
     style: { maxWidth: "30%", minWidth: "180px" },
   },
+  {
+    label: "Image",
+    sort: "image",
+    style: { maxWidth: "30%", minWidth: "180px" },
+  },
+  ,
   {
     label: "Email",
     sort: "email",
@@ -90,7 +110,7 @@ const headCells = [
     sort: "createdDate",
     style: { maxWidth: "20%", minWidth: "180px" },
   },
-  { label: "Action", style: { minWidth: "5%" } },
+  { label: "", style: { minWidth: "5%" } },
   { label: "", style: { minWidth: "0%" } },
 ];
 
@@ -113,8 +133,11 @@ const Staff = () => {
   const menuId = open ? "simple-popover" : undefined;
   const { control, handleSubmit, reset, setValue, watch } = useForm();
   const [staffs, setData] = useState<any>([]);
-  const [isPopupOpen, setPopupOpen] = useState<boolean>(false);
   const [filterContext, setFilterContext] = useState<any>({});
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [isViewMode, setIsViewMode] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>("");
+  const { openConfirmModal } = useSetConfirmModalState();
 
   const createSortHandler =
     (property: keyof RowDataProps | string) =>
@@ -155,7 +178,53 @@ const Staff = () => {
     });
   };
 
+  const handleCancel = () => {
+    setIsOpenModal(false);
+    setSelectedItem(null);
+  };
 
+  const handleView = (dataDetail?: any) => {
+    console.log(selectedItem);
+
+    setAnchorEl(null);
+    setIsViewMode(true);
+    setIsOpenModal(true);
+    getUserDetail(selectedItem._id);
+    setTitle("Xem chi tiết");
+  };
+
+  const handleEdit = (dataDetail?: any) => {
+    setAnchorEl(null);
+    setIsViewMode(false);
+    setIsOpenModal(true);
+    getUserDetail(selectedItem?._id);
+    setTitle("Chỉnh sửa");
+    
+  };
+  const handleDelete = () => {
+    setAnchorEl(null);
+    openConfirmModal({
+      isOpen: true,
+      title: "Xóa",
+      message: MESSAGES_CONFIRM.DeleteUser,
+      cancelBtnLabel: "Hủy",
+      okBtnLabel: "Xóa",
+      isDeleteConfirm: true,
+      onOk: () => onDelete(),
+    });
+  };
+  const onDelete = async () => {
+    setLoadingTable(true);
+    await apiService.delete(
+      BASE_URL + URL_PATHS.CREATE_USER + "/" + selectedItem._id
+    );
+    console.log(BASE_URL + URL_PATHS.CREATE_USER + "/" + selectedItem._id);
+    setToastInformation({
+      status: STATUS_TOAST.SUCCESS,
+      message: "Xóa thành công!!!",
+    });
+    getData({});
+  };
   const handleChangeRowsPerPage = async (
     event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -172,7 +241,7 @@ const Staff = () => {
     handleSubmit((data) =>
       onSubmitFilter({
         ...data,
-        sortBy: "createdDate",
+        sortBy: "name",
         sortDirection: "desc",
         pageIndex: 0,
       })
@@ -182,6 +251,7 @@ const Staff = () => {
 
   const onSubmitFilter = (data: any) => {
     setFilterContext(data);
+
     getData({});
   };
 
@@ -197,6 +267,7 @@ const Staff = () => {
   const handleOpenModal = () => {};
 
   const getData = async (props: any) => {
+    setLoadingTable(true);
     const pageSize =
       !!props && props.hasOwnProperty("pageSize")
         ? props.pageSize || 0
@@ -237,44 +308,29 @@ const Staff = () => {
     }
   };
 
-  const [userToDelete, setUserToDelete] = useState<any>(staffs);
+  // const [userToDelete, setUserToDelete] = useState<any>(staffs);
 
-  const deleteUser = (userId: string) => {
-    try {
-      apiService
-        .delete(BASE_URL + URL_PATHS.CREATE_USER + "/" + userId)
-        .then((res: any) => {
-          setAnchorEl(null);
-          setToastInformation({
-            status: STATUS_TOAST.SUCCESS,
-            message: "Xóa thành công!",
-          });
-          getData({});
-        });
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    }
-  };
+  // const deleteUser = (userId: string) => {
+  //   try {
+  //     apiService
+  //       .delete(BASE_URL + URL_PATHS.CREATE_USER + "/" + userId)
+  //       .then((res: any) => {
+  //         setAnchorEl(null);
+  //         setToastInformation({
+  //           status: STATUS_TOAST.SUCCESS,
+  //           message: "Xóa thành công!",
+  //         });
+  //         getData({});
+  //       });
+  //   } catch (error: any) {
+  //     setToastInformation({
+  //       status: STATUS_TOAST.ERROR,
+  //       message: handleErrorMessage(error),
+  //     });
+  //   }
+  // };
 
-  const handleDelete = (id: string) => {
-    try {
-      if (id) {
-        deleteUser(id);
-
-        setUserToDelete(staffs);
-      }
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  const getUserDetail = async (id: string) => {};
 
   useEffect(() => {
     getData({});
@@ -293,7 +349,13 @@ const Staff = () => {
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Tên chương trình" />
+                    <TextFieldCustom
+                      variant="outlined"
+                      fullWidth
+                      name="search"
+                      onChange={() => handleSearch}
+                      placeholder="Tìm kiếm"
+                    />
                   </Box>
                 </Grid>
               </Grid>
@@ -405,10 +467,22 @@ const Staff = () => {
                       className={clsx(styles.stickyTableRow)}
                     >
                       <TableCell>{rowId.name}</TableCell>
+                      <TableCell>
+                        <ImageListItem key={rowId.image}>
+                          <img
+                            srcSet={`${rowId.image}?w=164&h=164&fit=crop&auto=format&dpr=2 2x`}
+                            src={`rowId.image`}
+                            alt="Ảnh thẻ"
+                            loading="lazy"
+                          />
+                        </ImageListItem>
+                      </TableCell>
                       <TableCell className="">{rowId.email}</TableCell>
                       <TableCell className="">{rowId.phone}</TableCell>
                       <TableCell>{rowId.address}</TableCell>
-                      <TableCell>{rowId.updatedAt}</TableCell>
+                      <TableCell>
+                        {moment(data.createdAt).format(FORMAT_DATE)}
+                      </TableCell>
                       <TableCell>
                         <IconButton
                           aria-label="more"
@@ -417,33 +491,7 @@ const Staff = () => {
                           <MoreHorizIcon />
                         </IconButton>
                       </TableCell>
-                      <TableCell>
-                        {open && (
-                          <Popover
-                            id={menuId}
-                            open={open}
-                            anchorEl={anchorEl}
-                            onClose={handleCloseActionMenu}
-                            anchorOrigin={{
-                              vertical: "bottom",
-                              horizontal: "left",
-                            }}
-                          >
-                            <MenuListActions
-                              actionView={(e) => {
-                                console.log(selectedItem._id);
-                                console.log(e);
-                              }}
-                            />
-                            <MenuListActions actionEdit={(e) => {}} />
-                            <MenuListActions
-                              actionDelete={(e) => {
-                                console.log(rowId);
-                              }}
-                            />
-                          </Popover>
-                        )}
-                      </TableCell>
+                      <TableCell></TableCell>
                     </TableRow>
                   );
                 })}
@@ -469,6 +517,62 @@ const Staff = () => {
         labelDisplayedRows={labelDisplayedRows}
         labelRowsPerPage={DISPLAY_TEXTS.rowsPerPage}
       />
+      <IF condition={open}>
+        <Popover
+          id={menuId}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleCloseActionMenu}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+        >
+          <MenuListActions
+            actionView={handleView}
+            actionEdit={handleEdit}
+            actionDelete={handleDelete}
+          />
+        </Popover>
+      </IF>
+
+      {/* {isOpenModal && (
+        <AddStaff
+          isOpen={isOpenModal}
+
+          title={title}
+          onCancel={handleCancel}
+          isEdit={!isViewMode}
+          dataDetail={selectedItem}
+        />
+      )}
+      {isOpenModal && (
+        <EditStaff
+          isOpen={isOpenModal}
+          title={title}
+          onCancel={handleCancel}
+          isEdit={!isViewMode}
+          dataDetail={selectedItem}
+        />
+      )} */}
+      {isOpenModal &&
+        (isViewMode ? (
+          <AddStaff
+            isOpen={isOpenModal}
+            title={title}
+            onCancel={handleCancel}
+            isEdit={!isViewMode}
+            dataDetail={selectedItem}
+          />
+        ) : (
+          <EditStaff
+            isOpen={isOpenModal}
+            title={title}
+            onCancel={handleCancel}
+            isEdit={!isViewMode}
+            dataDetail={selectedItem}
+          />
+        ))}
     </Page>
   );
 };

@@ -1,7 +1,14 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuth from "../../hook/useAuth";
-import { Box, Card, CardContent, Container, Grid, Typography } from "@mui/material";
+import {
+  Box,
+  Card,
+  CardContent,
+  Container,
+  Grid,
+  Typography,
+} from "@mui/material";
 import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import logo from "../../assets/images/logo.png";
@@ -64,7 +71,12 @@ const Login = () => {
         </Box>
         <Card className={styles.styleCard}>
           <CardContent className={styles.cardContent}>
-            <Box alignItems="center" display="flex" justifyContent="center" mb={3}>
+            <Box
+              alignItems="center"
+              display="flex"
+              justifyContent="center"
+              mb={3}
+            >
               <div>
                 <Typography className={styles.cardTextTitle} gutterBottom>
                   Đăng nhập
@@ -81,7 +93,9 @@ const Login = () => {
                     rules={{
                       required: MESSAGE_ERROR.fieldRequired,
                     }}
-                    render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                    render={({
+                      field: { onChange, onBlur, value, ref, name },
+                    }) => (
                       <TextFieldCustom
                         name={name}
                         className={styles.inputLogin}
@@ -102,7 +116,9 @@ const Login = () => {
                     rules={{
                       required: MESSAGE_ERROR.fieldRequired,
                     }}
-                    render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                    render={({
+                      field: { onChange, onBlur, value, ref, name },
+                    }) => (
                       <TextFieldCustom
                         name={name}
                         className={styles.inputLogin}
@@ -117,7 +133,10 @@ const Login = () => {
                   />
                 </Grid>
                 <Box mt={1} mr={1}>
-                  <Link to={ROUTERS_PATHS.FORGOT_PASSWORD} className={styles.textForgotPass}>
+                  <Link
+                    to={ROUTERS_PATHS.FORGOT_PASSWORD}
+                    className={styles.textForgotPass}
+                  >
                     Quên mật khẩu?
                   </Link>
                 </Box>

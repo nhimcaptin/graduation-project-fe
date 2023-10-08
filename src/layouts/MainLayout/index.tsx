@@ -55,12 +55,12 @@ const MainLayout = ({ children }: MainLayoutProps) => {
   return (
     <>
       <Header />
-      <div
+      <section
         className={"page-wrapper " + classes.mainContainer}
         style={{ minHeight: windowHeight }}
       >
         {children}
-      </div>
+      </section>
       <Sidebar />
 
       {isLoadingScreen && <LoadingScreen />}
