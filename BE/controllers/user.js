@@ -44,21 +44,21 @@ export const detailUser = async (req, res, next) => {
   }
 };
 
-// export const detailDoctor = async (req, res, next) => {
-//   try {
-//     const doctor = await User.findOne({ _id: req.params.id, role: 'Doctor' }).exec();
-//     if (!doctor) {
-//       return res.status(404).json({ message: 'Bác sĩ không tồn tại.' });
-//     }
+export const detailDoctor = async (req, res, next) => {
+  try {
+    const doctor = await User.findOne({ _id: req.params.id, role: 'Doctor' }).exec();
+    if (!doctor) {
+      return res.status(404).json({ message: 'Bác sĩ không tồn tại.' });
+    }
 
-//     const data = { ...doctor._doc, password: null };
-//     delete data.password;
+    const data = { ...doctor._doc, password: null };
+    delete data.password;
 
-//     return res.status(200).json(data);
-//   } catch (err) {
-//     next(err);
-//   }
-// };
+    return res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const deleteUser = async (req, res, next) => {
   try {

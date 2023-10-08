@@ -36,4 +36,10 @@ export const routers = [
       { method: "GET" },
     ],
   },
+  {
+    url: "/api/users/detail-doctor/:id",
+    permissions: [
+      { method: "GET" },
+    ],
+  },
 ];

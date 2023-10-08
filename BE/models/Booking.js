@@ -1,41 +1,34 @@
 import mongoose from "mongoose";
 const BookingSchema = new mongoose.Schema(
   {
-    name: {
-      type: String,
-      required: true,
+    patientId: { 
+      type: mongoose.Schema.Types.ObjectId, ref: 'User', 
+      required: true 
     },
-    email: {
-      type: String,
-      required: true,
-      unique: true,
-     },
-    password: {
-      type: String,
-      required: true,
+
+    doctorId: { 
+      type: mongoose.Schema.Types.ObjectId, ref: 'User', 
+      required: true 
     },
-    phone: {
-      type: String,
-      required: true,
+
+    date: { 
+      type: Date, 
+      required: true 
     },
-    address: {
+
+    timeType: {
       type: String,
-      required: true,
+      require: true
     },
-    img: {
+
+    description:{
       type: String,
     },
-    role: {
-      type: String,
-      required: true,
-      default: "User",
-    },
-    isAdmin: {
-      type: Boolean,
-      default: false,
+    service:{
+      type: String
     },
   },
   { timestamps: true }
 );
 
-export default mongoose.model("User", BookingSchema);
+export default mongoose.model("Booking", BookingSchema);
