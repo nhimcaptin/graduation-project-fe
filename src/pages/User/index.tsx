@@ -1,7 +1,8 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import {
+  Grid,
   IconButton,
   Paper,
   Popover,
@@ -10,6 +11,7 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   TableSortLabel,
   Typography,
@@ -24,6 +26,22 @@ import { Link } from "react-router-dom";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import NoDataTableRow from "../../components/NoDataTableRow";
 import MenuListActions from "../../components/MenuListActions";
+import SearchPopover from "../../components/SearchPopover";
+import LabelCustom from "../../components/LabelCustom";
+import { ButtonIconCustom } from "../../components/ButtonIconCustom";
+import { useForm } from "react-hook-form";
+import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
+import DISPLAY_TEXTS from "../../consts/display-texts";
+import apiService from "../../services/api-services";
+import URL_PATHS from "../../services/url-path";
+import { useSetToastInformationState } from "../../redux/store/ToastMessage";
+import { STATUS_TOAST } from "../../consts/statusCode";
+import { handleErrorMessage } from "../../utils/errorMessage";
+import moment from "moment";
+import AddUser from "./components/AddUser";
+import { useSetConfirmModalState } from "../../redux/store/confirmModal";
+import { MESSAGES_CONFIRM } from "../../consts/messages";
+import IF from "../../components/IF";
 
 interface RowDataProps {
   id: number;
@@ -70,7 +88,20 @@ const User = () => {
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdDate");
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [page, setPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState<number>(rowsPerPageOptions[0]);
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const [userState, setUserState] = useState<any>([]);
   const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
+  const [filterContext, setFilterContext] = useState<any>({});
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [isViewMode, setIsViewMode] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>("");
+
+  const { setToastInformation } = useSetToastInformationState();
+  const { openConfirmModal } = useSetConfirmModalState();
+
+  const { control, handleSubmit, reset, setValue, watch } = useForm();
 
   const open = Boolean(anchorEl);
   const menuId = open ? "simple-popover" : undefined;
@@ -95,10 +126,156 @@ const User = () => {
     setAnchorEl(null);
   };
 
-  const getData = (props: any) => {};
+  const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
+    setPage(newPage);
+    getData({
+      pageIndex: newPage,
+      pageSize: rowsPerPage,
+    });
+  };
+
+  const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    setRowsPerPage(parseInt(event.target.value));
+    setPage(0);
+    getData({
+      pageIndex: 0,
+      pageSize: parseInt(event.target.value),
+    });
+  };
+
+  const handleSearch = (handleCloseSearch?: () => void) => {
+    setPage(0);
+    handleSubmit((data) => onSubmitFilter({ ...data, sortBy: "createdDate", sortDirection: "desc", pageIndex: 0 }))();
+    handleCloseSearch && handleCloseSearch();
+  };
+
+  const onSubmitFilter = (data: any) => {
+    setFilterContext(data);
+    getData({});
+  };
+
+  const handleClearSearch = () => {
+    reset();
+  };
+
+  const handleRefresh = () => {
+    reset();
+    getData({});
+  };
+
+  const handleOpenModal = () => {
+    setIsOpenModal(true);
+    setSelectedItem(null);
+    setTitle("Thêm mới");
+  };
+
+  const handleCancel = () => {
+    setIsOpenModal(false);
+    setSelectedItem(null);
+  };
+
+  const handleView = (dataDetail?: any) => {
+    setAnchorEl(null);
+    setIsViewMode(true);
+    setIsOpenModal(true);
+    getUserDetail(dataDetail?.id);
+    setTitle("Xem chi tiết");
+  };
+
+  const handleEdit = (dataDetail?: any) => {
+    setAnchorEl(null);
+    setIsViewMode(false);
+    setIsOpenModal(true);
+    getUserDetail(dataDetail?.id);
+    setTitle("Chỉnh sửa");
+  };
+
+  const handleDelete = () => {
+    setAnchorEl(null);
+    openConfirmModal({
+      isOpen: true,
+      title: "Xóa",
+      message: MESSAGES_CONFIRM.DeleteUser,
+      cancelBtnLabel: "Hủy",
+      okBtnLabel: "Xóa",
+      isDeleteConfirm: true,
+      onOk: () => onDelete(),
+    });
+  };
+
+  const onDelete = () => {};
+
+  const getData = async (props: any) => {
+    setLoadingTable(true);
+    const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
+    const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
+    const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
+
+    const sortBy = props?.sortBy || orderBy;
+    const sortOrder = props?.sortDirection || order;
+
+    const params = {
+      Page: pageIndex + 1,
+      PageSize: pageSize,
+      Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
+    };
+
+    const filters = {};
+    try {
+      const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
+      setTotalCount(data?.totalUsers);
+      setUserState(data?.data);
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingTable(false);
+    }
+  };
+
+  const getUserDetail = (id: string | number) => {};
+
+  useEffect(() => {
+    getData({});
+  }, []);
 
   return (
     <Page className={styles.root} title="Khách hàng" isActive>
+      <Grid container style={{ marginBottom: "20px" }}>
+        <Grid item xs={10}>
+          <Box>
+            <SearchPopover contentWidth="40rem" onFilter={handleSearch} onClear={handleClearSearch}>
+              <Grid container spacing={2}>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Tên chương trình" />
+                  </Box>
+                </Grid>
+              </Grid>
+            </SearchPopover>
+            <ButtonIconCustom
+              className="mg-l-10"
+              tooltipTitle="Làm mới"
+              type="refresh"
+              color="lightgreen"
+              onClick={handleRefresh}
+            />
+          </Box>
+        </Grid>
+        <Grid item xs={2}>
+          <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
+            <ButtonIconCustom
+              className="mg-l-10"
+              tooltipTitle="Thêm mới"
+              type="add"
+              color="darkgreen"
+              onClick={handleOpenModal}
+            />
+          </Box>
+        </Grid>
+      </Grid>
       <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
         <Table stickyHeader>
           <TableHead>
@@ -156,21 +333,22 @@ const User = () => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {loadingTable && false ? (
+            {loadingTable ? (
               <LoadingTableRow colSpan={6} />
-            ) : [] && [].length > 0 ? (
+            ) : userState && userState.length > 0 ? (
               <>
-                {[].map((data: any, index: number) => {
+                {userState.map((data: any, index: number) => {
                   return (
-                    <TableRow key={index} hover className={clsx(styles.stickyTableRow)}>
-                      {/* <StickyTableCell className={style.stickyTableCell}>
-                        <Link to={ROUTERS_PATHS.VIEW_STORE.replace(":id", data.id + "")} className={style.linkToDetail}>
-                          {data.name}
-                        </Link>
-                      </StickyTableCell> */}
-                      <TableCell>{data.address}</TableCell>
-                      <TableCell className="">{data.userCount}</TableCell>
-                      <TableCell>{data.contactNumber}</TableCell>
+                    <TableRow
+                      key={index}
+                      hover
+                      className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
+                    >
+                      <TableCell>{data.name}</TableCell>
+                      <TableCell>{data.email}</TableCell>
+                      <TableCell>{data.phone}</TableCell>
+                      <TableCell className="">{data.address}</TableCell>
+                      <TableCell>{moment(data.createdAt).format(FORMAT_DATE)}</TableCell>
                       <TableCell>
                         <IconButton aria-label="more" onClick={(e) => handleOpenMenuAction(e, data)}>
                           <MoreHorizIcon />
@@ -186,7 +364,18 @@ const User = () => {
           </TableBody>
         </Table>
       </TableContainer>
-      {open && (
+      <TablePagination
+        rowsPerPageOptions={rowsPerPageOptions}
+        component="div"
+        count={totalCount}
+        rowsPerPage={rowsPerPage}
+        page={page}
+        onPageChange={handleChangePage}
+        onRowsPerPageChange={handleChangeRowsPerPage}
+        labelDisplayedRows={labelDisplayedRows}
+        labelRowsPerPage={DISPLAY_TEXTS.rowsPerPage}
+      />
+      <IF condition={open}>
         <Popover
           id={menuId}
           open={open}
@@ -197,8 +386,12 @@ const User = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={() => {}} />
+          <MenuListActions actionView={handleView} actionEdit={handleEdit} actionDelete={handleDelete} />
         </Popover>
+      </IF>
+
+      {isOpenModal && (
+        <AddUser isOpen={isOpenModal} title={title} onCancel={handleCancel} isEdit={!isViewMode} dataDetail={""} />
       )}
     </Page>
   );

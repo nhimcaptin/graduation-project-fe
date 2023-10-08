@@ -97,9 +97,21 @@ export const getListUser = async (req, res, next) => {
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts)
-      .find({ isAdmin: false });
+      .find({});
     const totalUsers = await User.countDocuments(query);
-    res.json({ users, totalUsers });
+    const data = users?.map((x) => {
+      return {
+        _id: x.id,
+        address: x?.address,
+        email: x?.email,
+        img: x?.img,
+        name: x?.name,
+        phone: x?.phone,
+        role: x?.role,
+        createdAt: x?.createdAt,
+      };
+    });
+    res.json({ data, totalUsers });
   } catch (error) {
     next(error);
   }

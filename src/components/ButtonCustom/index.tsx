@@ -4,7 +4,7 @@ import styles from "./styles.module.scss";
 import { LoadingButton } from "@mui/lab";
 import { SxProps } from "@mui/material";
 
-type ColorType = "green";
+type ColorType = "green" | "white" | "yellow" | "blue" | "cancelGray" | "red";
 type SizeType = "large" | "medium" | "small";
 type TypeButton = "button" | "submit" | "reset" | undefined;
 

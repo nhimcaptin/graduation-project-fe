@@ -1,0 +1,21 @@
+.dialogTitle {
+  background: #ffd392;
+  padding-top: 8px !important;
+  padding-bottom: 8px !important;
+  font-weight: 600 !important;
+}
+
+.dialogContent {
+  padding-top: 24px !important;
+  padding-bottom: 24px;
+  p {
+    font-weight: 500;
+    font-size: 16px;
+    line-height: 20px;
+    color: #614c4c;
+  }
+}
+
+.dialogActions {
+  padding: 10px 24px;
+}

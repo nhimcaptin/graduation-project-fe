@@ -1,6 +1,6 @@
 import ROUTERS_PATHS from "../consts/router-paths";
 import React, { Suspense, Fragment, lazy } from "react";
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, Navigate } from "react-router-dom";
 import LoadingScreen from "../components/LoadingScreen/index";
 
 import AuthGuard from "../components/AuthGuard";
@@ -37,9 +37,7 @@ export const renderRoutes = (routes: IRoutesState[]) => (
             path={route.path}
             element={
               <Guard>
-                <Layout>
-                  {route.routes ? renderRoutes(route.routes) : <Component />}
-                </Layout>
+                <Layout>{route.routes ? renderRoutes(route.routes) : <Component />}</Layout>
               </Guard>
             }
           />
@@ -53,12 +51,12 @@ const routes: IRoutesState[] = [
   {
     guard: GuestGuard,
     path: ROUTERS_PATHS.LOGIN,
-    component: lazy(() => import('../pages/Login'))
+    component: lazy(() => import("../pages/Login")),
   },
   {
     guard: GuestGuard,
     path: ROUTERS_PATHS.FORGOT_PASSWORD,
-    component: lazy(() => import('../pages/Login'))
+    component: lazy(() => import("../pages/Login")),
   },
   {
     path: ROUTERS_PATHS.ALL,
@@ -67,18 +65,22 @@ const routes: IRoutesState[] = [
     routes: [
       {
         path: ROUTERS_PATHS.DASHBOARD,
-        component: lazy(() => import('../pages/Dashboard'))
+        component: lazy(() => import("../pages/Dashboard")),
       },
       {
         path: ROUTERS_PATHS.CUSTOMER,
-        component: lazy(() => import('../pages/User'))
+        component: lazy(() => import("../pages/User")),
       },
       {
         path: ROUTERS_PATHS.USER,
-        component: lazy(() => import('../pages/Staff'))
+        component: lazy(() => import("../pages/Staff")),
       },
-    ]
-  }
+      {
+        path: "*",
+        component: () => <Navigate to={ROUTERS_PATHS.DASHBOARD} replace />,
+      },
+    ],
+  },
 ];
 
 export default routes;
