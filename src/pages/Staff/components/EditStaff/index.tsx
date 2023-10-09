@@ -1,97 +1,152 @@
 import React, { useEffect, useState } from "react";
 import CrudModal from "../../../../components/CrudModal";
 import {
-  Avatar,
-  Card,
-  CardContent,
-  Paper,
-  Typography,
-  Container,
-  TextField,
-  Button,
+  Box,
   Grid,
+  TextField,
+  ThemeProvider,
+  Typography,
+  createTheme,
 } from "@mui/material";
-import { makeStyles } from "@mui/styles";
+import { format } from "date-fns";
+import { useSetToastInformationState } from "../../../../redux/store/ToastMessage";
+import { STATUS_TOAST } from "../../../../consts/statusCode";
+import moment from "moment";
+import { FORMAT_DATE } from "../../../../utils";
 import apiService from "../../../../services/api-services";
 import { BASE_URL } from "../../../../services/base-url";
 import URL_PATHS from "../../../../services/url-path";
-import { useSetToastInformationState } from "../../../../redux/store/ToastMessage";
-import { STATUS_TOAST } from "../../../../consts/statusCode";
+
 interface PropsType {
   isOpen: boolean;
   dataDetail: UserDetail;
   title: string;
-  onCancel: (parameter: any) => void;
+  onCancel: () => any;
   isEdit: boolean;
+  onSave: (formData: UserDetail) => void;
 }
+
 interface UserDetail {
-  [x: string]: unknown;
-  id: string;
+  _id: string;
   name: string;
   email: string;
   address: string;
+  img: string;
+  phone: string;
+  createdDate: Date;
   // Thêm các trường dữ liệu khác của người dùng tại đây
 }
 
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: "flex",
-    alignItems: "center", // Để căn giữa theo chiều dọc
-    padding: 0,
-    width: "100%", // Rộng 100% phần tử cha
+type UserDetailField = keyof UserDetail;
+
+const theme = createTheme({
+  typography: {
+    allVariants: {
+      fontFamily: [
+        "-apple-system",
+        "BlinkMacSystemFont",
+        '"Segoe UI"',
+        "Roboto",
+        '"Helvetica Neue"',
+        "Arial",
+        "sans-serif",
+        '"Apple Color Emoji"',
+        '"Segoe UI Emoji"',
+        '"Segoe UI Symbol"',
+      ].join(","),
+      fontSize: 16,
+      fontWeight: "500",
+    },
   },
-  imageContainer: {
-    flex: "0 0 auto", // Không đặt động co giãn cho phần này
-    marginRight: 5, // Khoảng cách giữa ảnh và nội dung
+});
+
+// Định nghĩa các trường và giao diện hiển thị
+const headCells = [
+  {
+    label: "Họ và tên",
+    sort: "name",
+    style: { maxWidth: "30%", minWidth: "180px" },
   },
-  image: {
-    width: "100px", // Độ rộng của ảnh
-    height: "100px", // Độ cao của ảnh
-    objectFit: "cover", // Để ảnh không bị méo
+  {
+    label: "Image",
+    sort: "img",
+    style: { maxWidth: "20%", minWidth: "180px" },
   },
-  content: {
-    marginLeft: "10%",
-    flex: "1", // Phần thông tin co giãn để lấp đầy phần còn lại
+  {
+    label: "Email",
+    sort: "email",
+    style: { maxWidth: "20%", minWidth: "180px" },
   },
-}));
+  {
+    label: "Số điện thoại",
+    sort: "phone",
+    style: { maxWidth: "20%", minWidth: "180px" },
+  },
+  {
+    label: "Địa chỉ",
+    sort: "address",
+    style: { maxWidth: "20%", minWidth: "180px" },
+  },
+  {
+    label: "Ngày tạo",
+    sort: "createdDate",
+    style: { maxWidth: "20%", minWidth: "180px" },
+  },
+];
+
 const EditStaff = (props: PropsType) => {
-  const { isOpen, title, isEdit, onCancel, dataDetail } = props;
-  const classes = useStyles();
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(true);
-  const [loadingTable, setLoadingTable] = useState<Boolean>(true);
-  // Sử dụng state để lưu thông tin chỉnh sửa
-  const [formData, setFormData] = useState<UserDetail | null>(null);
+  const { isOpen, title, isEdit, onCancel, dataDetail, onSave } = props;
   const { setToastInformation } = useSetToastInformationState();
-  // Đặt giá trị ban đầu của formData khi có thông tin có sẵn
+  const [formData, setFormData] = useState<UserDetail | undefined>(dataDetail);
+  const [isFormOpen, setIsFormOpen] = useState(true);
+
   useEffect(() => {
     setFormData(dataDetail);
   }, [dataDetail]);
 
+  const isFieldEmpty = (fieldName: UserDetailField) => {
+    return !formData || !formData[fieldName];
+  };
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (formData) {
       const { name, value } = e.target;
+
       setFormData({
         ...formData,
         [name]: value,
       });
     }
   };
-
+  const handleCancel = () => {
+    // Gọi onCancel prop để đóng popup
+    onCancel();
+  };
   const handleSubmit = async () => {
     if (formData) {
-      // Xử lý cập nhật thông tin có sẵn dựa trên formData ở đây
+      if (
+        isFieldEmpty("name") ||
+        isFieldEmpty("email") ||
+        isFieldEmpty("phone") ||
+        isFieldEmpty("img") ||
+        isFieldEmpty("address")
+      ) {
+        setToastInformation({
+          status: STATUS_TOAST.ERROR,
+          message: "Vui lòng không để trống các trường!!!",
+        });
+        return; // Ngăn chặn việc submit nếu có trường nào đó trống
+      }
       await apiService.put(
         BASE_URL + URL_PATHS.CREATE_USER + "/" + formData._id,
         formData
       );
-      console.log("Updated User Info:", formData);
-      loadingTable;
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
-        message: "Sửa thành công!!!",
+        message: "Thêm thành công!!!",
       });
-      
+      onSave(formData);
+      handleCancel();
     }
   };
 
@@ -100,59 +155,54 @@ const EditStaff = (props: PropsType) => {
       isOpen={isOpen}
       formTitle={title}
       handleSave={isEdit ? handleSubmit : undefined}
-      handleClose={onCancel}
+      handleClose={handleCancel}
       cancelBtnLabel="Hủy"
       saveBtnLabel="Lưu"
       dialogProps={{
         fullWidth: true,
         maxWidth: "md",
       }}
-      
     >
-      <div>
+      <section>
         {formData ? (
-          <Container maxWidth="sm">
-            <Paper elevation={3} style={{ padding: "20px" }}>
-              <form onSubmit={(e) => e.preventDefault()}>
-                <Grid container spacing={3}>
-                  <Grid item xs={6}>
-                    <TextField
-                      label="Tên"
-                      variant="outlined"
-                      fullWidth
-                      name="name"
-                      value={formData.name}
-                      onChange={handleChange}
-                    />
+          <ThemeProvider theme={theme}>
+            <Box>
+              <Grid container spacing={3}>
+                {headCells.map((header, index) => (
+                  <Grid item xs={6} key={header.label}>
+                    <Typography>{header.label}</Typography>
+                    {header.sort === "createdDate" ? (
+                      <TextField
+                        variant="outlined"
+                        fullWidth
+                        name={header.sort}
+                        value={
+                          moment(dataDetail[header.sort]).format(FORMAT_DATE) // Định dạng thời gian theo ý muốn
+                        }
+                        disabled={!isEdit}
+                      />
+                    ) : (
+                      <TextField
+                        error={
+                          isFieldEmpty(header.sort as UserDetailField) && isEdit
+                        }
+                        variant="outlined"
+                        fullWidth
+                        name={header.sort as UserDetailField}
+                        value={formData[header.sort as UserDetailField]}
+                        onChange={handleChange}
+                        disabled={!isEdit}
+                      />
+                    )}
                   </Grid>
-                  <Grid item xs={6}>
-                    <TextField
-                      label="Số điện thoại"
-                      variant="outlined"
-                      fullWidth
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                  <Grid item xs={12}>
-                    <TextField
-                      label="Email"
-                      variant="outlined"
-                      fullWidth
-                      name="email"
-                      value={formData.email}
-                      onChange={handleChange}
-                    />
-                  </Grid>
-                </Grid>
-              </form>
-            </Paper>
-          </Container>
+                ))}
+              </Grid>
+            </Box>
+          </ThemeProvider>
         ) : (
-          <p>Không có thông tin người dùng để hiển thị.</p>
+          <p>Không có thông tin người dùng để hiển thị.Edit</p>
         )}
-      </div>
+      </section>
     </CrudModal>
   );
 };

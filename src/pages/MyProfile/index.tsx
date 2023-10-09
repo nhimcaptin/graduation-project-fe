@@ -78,7 +78,7 @@ const MyProfile = () => {
             }}
           >
             <Typography
-              variant={isSmallScreen ?"h6" :"h4"}
+              variant={isSmallScreen ? "h6" : "h4"}
               style={{
                 fontFamily: "Fira Sans, sans-serif",
                 fontWeight: "bold",
@@ -97,7 +97,10 @@ const MyProfile = () => {
             >
               <Avatar
                 alt="Remy Sharp"
-                sx={{ width: isSmallScreen ? 150 : 200, height: isSmallScreen ? 150 : 200 }}
+                sx={{
+                  width: isSmallScreen ? 150 : 200,
+                  height: isSmallScreen ? 150 : 200,
+                }}
                 src="/static/images/avatar/1.jpg"
               />
 
@@ -128,7 +131,11 @@ const MyProfile = () => {
             </Stack>
 
             {/* Hàng 3 */}
-            <Grid container justifyContent={isSmallScreen ? "center" : "flex-end"} spacing={2}>
+            <Grid
+              container
+              justifyContent={isSmallScreen ? "center" : "flex-end"}
+              spacing={2}
+            >
               <Grid item>
                 <ButtonCustom type="button" className={styles.custom_button}>
                   Change Password

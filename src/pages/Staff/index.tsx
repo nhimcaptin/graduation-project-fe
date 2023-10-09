@@ -63,10 +63,11 @@ import moment from "moment";
 import IF from "../../components/IF";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
 import { MESSAGES_CONFIRM, MESSAGE_ERROR } from "../../consts/messages";
-import AddStaff from "../Staff/components/AddStaff";
+import AddStaff from "./components/AddStaff";
 import TextFieldCustom from "../../components/TextFieldCustom";
 import Icons from "../../consts/Icons";
 import EditStaff from "./components/EditStaff";
+import ViewStaff from "./components/ViewStaff";
 interface RowDataProps {
   id: number;
   name: string;
@@ -136,9 +137,10 @@ const Staff = () => {
   const [filterContext, setFilterContext] = useState<any>({});
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
+
   const [title, setTitle] = useState<string>("");
   const { openConfirmModal } = useSetConfirmModalState();
-
+  const [modalContent, setModalContent] = useState(null);
   const createSortHandler =
     (property: keyof RowDataProps | string) =>
     (event: React.MouseEvent<unknown>) => {
@@ -199,8 +201,16 @@ const Staff = () => {
     setIsOpenModal(true);
     getUserDetail(selectedItem?._id);
     setTitle("Chỉnh sửa");
-    
   };
+
+  const handleAddNew = (e: any) => {
+    setIsOpenModal(true);
+    setAnchorEl(null);
+    setIsViewMode(false);
+    setTitle("Thêm mới user");
+    console.log(e);
+  };
+
   const handleDelete = () => {
     setAnchorEl(null);
     openConfirmModal({
@@ -299,6 +309,7 @@ const Staff = () => {
       setTotalCount(data.totalUsers);
       console.log("totalCount", totalCount);
       setData(data.data);
+      setIsLoading(true);
       setLoadingTable(false);
     } catch (error: any) {
       setToastInformation({
@@ -307,28 +318,6 @@ const Staff = () => {
       });
     }
   };
-
-  // const [userToDelete, setUserToDelete] = useState<any>(staffs);
-
-  // const deleteUser = (userId: string) => {
-  //   try {
-  //     apiService
-  //       .delete(BASE_URL + URL_PATHS.CREATE_USER + "/" + userId)
-  //       .then((res: any) => {
-  //         setAnchorEl(null);
-  //         setToastInformation({
-  //           status: STATUS_TOAST.SUCCESS,
-  //           message: "Xóa thành công!",
-  //         });
-  //         getData({});
-  //       });
-  //   } catch (error: any) {
-  //     setToastInformation({
-  //       status: STATUS_TOAST.ERROR,
-  //       message: handleErrorMessage(error),
-  //     });
-  //   }
-  // };
 
   const getUserDetail = async (id: string) => {};
 
@@ -381,7 +370,7 @@ const Staff = () => {
               tooltipTitle="Thêm mới"
               type="add"
               color="darkgreen"
-              onClick={handleOpenModal}
+              onClick={handleAddNew}
             />
           </Box>
         </Grid>
@@ -508,7 +497,7 @@ const Staff = () => {
       </TableContainer>
       <TablePagination
         rowsPerPageOptions={rowsPerPageOptions}
-        component="div"
+        component="section"
         count={totalCount}
         rowsPerPage={rowsPerPage}
         page={page}
@@ -536,28 +525,19 @@ const Staff = () => {
         </Popover>
       </IF>
 
-      {/* {isOpenModal && (
-        <AddStaff
-          isOpen={isOpenModal}
-
-          title={title}
-          onCancel={handleCancel}
-          isEdit={!isViewMode}
-          dataDetail={selectedItem}
-        />
-      )}
-      {isOpenModal && (
-        <EditStaff
-          isOpen={isOpenModal}
-          title={title}
-          onCancel={handleCancel}
-          isEdit={!isViewMode}
-          dataDetail={selectedItem}
-        />
-      )} */}
       {isOpenModal &&
         (isViewMode ? (
-          <AddStaff
+          <ViewStaff
+            isOpen={isOpenModal}
+            title={title}
+            onCancel={handleCancel}
+            isEdit={!isViewMode}
+            dataDetail={selectedItem}
+          />
+        ) : title ? (
+          <EditStaff
+            onSave={getData}
+            
             isOpen={isOpenModal}
             title={title}
             onCancel={handleCancel}
@@ -565,12 +545,11 @@ const Staff = () => {
             dataDetail={selectedItem}
           />
         ) : (
-          <EditStaff
+          <AddStaff
             isOpen={isOpenModal}
             title={title}
             onCancel={handleCancel}
-            isEdit={!isViewMode}
-            dataDetail={selectedItem}
+            isEdit={isViewMode}
           />
         ))}
     </Page>
