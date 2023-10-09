@@ -3,6 +3,7 @@ import { createError } from "../middlewares/error.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { convertFilter } from "../util/index.js";
 
 export const createUser = async (req, res, next) => {
   try {
@@ -92,12 +93,12 @@ export const getListUser = async (req, res, next) => {
     const { Page, PageSize, Sorts, filters } = req.query;
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
-    const query = User.find();
+    const _filter = convertFilter(filters);
+    const query = User.find(_filter);
     const users = await query
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts)
-      .find({});
     const totalUsers = await User.countDocuments(query);
     const data = users?.map((x) => {
       return {
