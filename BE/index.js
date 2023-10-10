@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import mongoose from "mongoose";
 import authRoute from "./routes/auth.js";
 import usersRoute from "./routes/users.js";
+import roleRoute from "./routes/role.js";
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -39,6 +40,7 @@ app.use(session({
 
 app.use("/api/auth", authRoute);
 app.use("/api/users", usersRoute);
+app.use("/api/role", roleRoute);
 
 
 app.use((err, req, res, next) => {
