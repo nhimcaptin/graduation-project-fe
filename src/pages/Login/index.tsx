@@ -83,6 +83,7 @@ const Login = () => {
                     }}
                     render={({ field: { onChange, onBlur, value, ref, name } }) => (
                       <TextFieldCustom
+                        isLogin
                         name={name}
                         className={styles.inputLogin}
                         ref={ref}
@@ -104,6 +105,7 @@ const Login = () => {
                     }}
                     render={({ field: { onChange, onBlur, value, ref, name } }) => (
                       <TextFieldCustom
+                        isLogin
                         name={name}
                         className={styles.inputLogin}
                         ref={ref}

@@ -42,6 +42,7 @@ import AddUser from "./components/AddUser";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
 import { MESSAGES_CONFIRM } from "../../consts/messages";
 import IF from "../../components/IF";
+import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 
 interface RowDataProps {
   id: number;
@@ -97,9 +98,11 @@ const User = () => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
+  const [userDetail, setUserDetail] = useState(null);
 
   const { setToastInformation } = useSetToastInformationState();
   const { openConfirmModal } = useSetConfirmModalState();
+  const { setLoadingScreen } = useSetLoadingScreenState();
 
   const { control, handleSubmit, reset, setValue, watch } = useForm();
 
@@ -120,6 +123,7 @@ const User = () => {
   const handleOpenMenuAction = (event: React.MouseEvent<HTMLButtonElement>, record: RowDataProps) => {
     setAnchorEl(event.currentTarget);
     setSelectedItem(record);
+    setUserDetail(null)
   };
 
   const handleCloseActionMenu = () => {
@@ -166,6 +170,7 @@ const User = () => {
   const handleOpenModal = () => {
     setIsOpenModal(true);
     setSelectedItem(null);
+    setUserDetail(null)
     setTitle("Thêm mới");
   };
 
@@ -177,7 +182,6 @@ const User = () => {
   const handleView = (dataDetail?: any) => {
     setAnchorEl(null);
     setIsViewMode(true);
-    setIsOpenModal(true);
     getUserDetail(dataDetail?.id);
     setTitle("Xem chi tiết");
   };
@@ -185,7 +189,6 @@ const User = () => {
   const handleEdit = (dataDetail?: any) => {
     setAnchorEl(null);
     setIsViewMode(false);
-    setIsOpenModal(true);
     getUserDetail(dataDetail?.id);
     setTitle("Chỉnh sửa");
   };
@@ -235,7 +238,21 @@ const User = () => {
     }
   };
 
-  const getUserDetail = (id: string | number) => {};
+  const getUserDetail = async (id: string | number) => {
+    setLoadingScreen(true);
+    try {
+      const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_USER}/${id || selectedItem?._id}`);
+      setUserDetail(data)
+      setIsOpenModal(true);
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
+  };
 
   useEffect(() => {
     getData({});
@@ -391,7 +408,7 @@ const User = () => {
       </IF>
 
       {isOpenModal && (
-        <AddUser isOpen={isOpenModal} title={title} onCancel={handleCancel} isEdit={!isViewMode} dataDetail={""} />
+        <AddUser isOpen={isOpenModal} title={title} onCancel={handleCancel} isEdit={!isViewMode} dataDetail={userDetail} />
       )}
     </Page>
   );
