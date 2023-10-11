@@ -6,6 +6,7 @@ const ROUTERS_PATHS = {
   FORGOT_PASSWORD: "/forgot-password",
   CUSTOMER: "/customer",
   USER: "/staff",
+  Role: "/list-of-positions",
   MY_PROFILE: "/my-profile",
 };
 
