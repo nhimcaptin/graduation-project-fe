@@ -94,12 +94,13 @@ export const getListUser = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
+    const total = User.find({});
     const query = User.find(_filter);
     const users = await query
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts)
-    const totalUsers = await User.countDocuments(query);
+    const totalUsers = await User.countDocuments(total);
     const data = users?.map((x) => {
       return {
         _id: x.id,

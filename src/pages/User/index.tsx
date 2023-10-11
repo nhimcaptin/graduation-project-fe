@@ -29,7 +29,7 @@ import MenuListActions from "../../components/MenuListActions";
 import SearchPopover from "../../components/SearchPopover";
 import LabelCustom from "../../components/LabelCustom";
 import { ButtonIconCustom } from "../../components/ButtonIconCustom";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
 import DISPLAY_TEXTS from "../../consts/display-texts";
 import apiService from "../../services/api-services";
@@ -42,6 +42,8 @@ import AddUser from "./components/AddUser";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
 import { MESSAGES_CONFIRM } from "../../consts/messages";
 import IF from "../../components/IF";
+import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
+import TextFieldCustom from "../../components/TextFieldCustom";
 
 interface RowDataProps {
   id: number;
@@ -49,7 +51,7 @@ interface RowDataProps {
   email: string;
   phone: string;
   address: string;
-  createdDate: string;
+  createdAt: string;
   [x: string]: string | number | boolean | undefined;
   [x: number]: string | number | undefined;
 }
@@ -77,7 +79,7 @@ const headCells = [
   },
   {
     label: "Ngày tạo",
-    sort: "createdDate",
+    sort: "createdAt",
     style: { maxWidth: "20%", minWidth: "180px" },
   },
   { label: "", style: { minWidth: "5%" } },
@@ -86,7 +88,7 @@ const headCells = [
 const User = () => {
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
-  const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdDate");
+  const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(rowsPerPageOptions[0]);
@@ -97,11 +99,19 @@ const User = () => {
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
+  const [userDetail, setUserDetail] = useState(null);
 
   const { setToastInformation } = useSetToastInformationState();
   const { openConfirmModal } = useSetConfirmModalState();
+  const { setLoadingScreen } = useSetLoadingScreenState();
 
-  const { control, handleSubmit, reset, setValue, watch } = useForm();
+  const { control, handleSubmit, reset, setValue, watch } = useForm({
+    defaultValues: {
+      name: "",
+      phone: "",
+      email: "",
+    },
+  });
 
   const open = Boolean(anchorEl);
   const menuId = open ? "simple-popover" : undefined;
@@ -114,12 +124,14 @@ const User = () => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
+    reset({ name: "", phone: "", email: "" });
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
   const handleOpenMenuAction = (event: React.MouseEvent<HTMLButtonElement>, record: RowDataProps) => {
     setAnchorEl(event.currentTarget);
     setSelectedItem(record);
+    setUserDetail(null);
   };
 
   const handleCloseActionMenu = () => {
@@ -128,6 +140,7 @@ const User = () => {
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
+    reset({ name: "", phone: "", email: "" });
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -137,6 +150,7 @@ const User = () => {
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
+    reset({ name: "", phone: "", email: "" });
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -145,27 +159,28 @@ const User = () => {
 
   const handleSearch = (handleCloseSearch?: () => void) => {
     setPage(0);
-    handleSubmit((data) => onSubmitFilter({ ...data, sortBy: "createdDate", sortDirection: "desc", pageIndex: 0 }))();
+    handleSubmit((data) => onSubmitFilter({ ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 }))();
     handleCloseSearch && handleCloseSearch();
   };
 
   const onSubmitFilter = (data: any) => {
     setFilterContext(data);
-    getData({});
+    getData(data);
   };
 
   const handleClearSearch = () => {
-    reset();
+    reset({ name: "", phone: "", email: "" });
   };
 
   const handleRefresh = () => {
-    reset();
+    reset({ name: "", phone: "", email: "" });
     getData({});
   };
 
   const handleOpenModal = () => {
     setIsOpenModal(true);
     setSelectedItem(null);
+    setUserDetail(null);
     setTitle("Thêm mới");
   };
 
@@ -177,7 +192,6 @@ const User = () => {
   const handleView = (dataDetail?: any) => {
     setAnchorEl(null);
     setIsViewMode(true);
-    setIsOpenModal(true);
     getUserDetail(dataDetail?.id);
     setTitle("Xem chi tiết");
   };
@@ -185,7 +199,6 @@ const User = () => {
   const handleEdit = (dataDetail?: any) => {
     setAnchorEl(null);
     setIsViewMode(false);
-    setIsOpenModal(true);
     getUserDetail(dataDetail?.id);
     setTitle("Chỉnh sửa");
   };
@@ -209,6 +222,9 @@ const User = () => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
+    const name = !!props && props.hasOwnProperty("name") ? props.name || 0 : page;
+    const phone = !!props && props.hasOwnProperty("phone") ? props.phone || 0 : page;
+    const email = !!props && props.hasOwnProperty("email") ? props.email || 0 : page;
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -220,7 +236,7 @@ const User = () => {
       Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
     };
 
-    const filters = {};
+    const filters = { unEncoded: { name: name, phone: phone, email: email } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
       setTotalCount(data?.totalUsers);
@@ -235,7 +251,21 @@ const User = () => {
     }
   };
 
-  const getUserDetail = (id: string | number) => {};
+  const getUserDetail = async (id: string | number) => {
+    setLoadingScreen(true);
+    try {
+      const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_USER}/${id || selectedItem?._id}`);
+      setUserDetail(data);
+      setIsOpenModal(true);
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
+  };
 
   useEffect(() => {
     getData({});
@@ -250,7 +280,59 @@ const User = () => {
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Tên chương trình" />
+                    <LabelCustom title="Họ và tên" />
+                    <Controller
+                      control={control}
+                      name="name"
+                      render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                        <TextFieldCustom
+                          name={name}
+                          ref={ref}
+                          value={value}
+                          onChange={onChange}
+                          placeholder="Nhập họ và tên"
+                          type="text"
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Email" />
+                    <Controller
+                      control={control}
+                      name="email"
+                      render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                        <TextFieldCustom
+                          name={name}
+                          ref={ref}
+                          value={value}
+                          onChange={onChange}
+                          placeholder="Nhập email"
+                          type="text"
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Số điện thoại" />
+                    <Controller
+                      control={control}
+                      name="phone"
+                      render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                        <TextFieldCustom
+                          name={name}
+                          ref={ref}
+                          value={value}
+                          onChange={onChange}
+                          placeholder="Nhập số điện thoại"
+                          type="text"
+                        />
+                      )}
+                    />
                   </Box>
                 </Grid>
               </Grid>
@@ -391,7 +473,13 @@ const User = () => {
       </IF>
 
       {isOpenModal && (
-        <AddUser isOpen={isOpenModal} title={title} onCancel={handleCancel} isEdit={!isViewMode} dataDetail={""} />
+        <AddUser
+          isOpen={isOpenModal}
+          title={title}
+          onCancel={handleCancel}
+          isEdit={!isViewMode}
+          dataDetail={userDetail}
+        />
       )}
     </Page>
   );
