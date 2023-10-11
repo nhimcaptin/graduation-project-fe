@@ -27,6 +27,12 @@ import moment from "moment";
 import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
 import NoDataTableRow from "../../components/NoDataTableRow";
 import DISPLAY_TEXTS from "../../consts/display-texts";
+import AddEditRole from "./component/AddEditRole";
+import IF from "../../components/IF";
+import MenuListActions from "../../components/MenuListActions";
+import { ButtonIconCustom } from "../../components/ButtonIconCustom";
+import apiService from "../../services/api-services";
+import URL_PATHS from "../../services/url-path";
 
 interface RowDataProps {
   id: number;
@@ -57,17 +63,31 @@ const headCells = [
 
 const Role = () => {
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
+  const [userDetail, setUserDetail] = useState(null);
+  const [title, setTitle] = useState("");
+  const [isOpenModal, setIsOpenModal] = useState(false);
   const [order, setOrder] = useState<Order>("desc");
   const [loadingTable, setLoadingTable] = useState<Boolean>(false);
   const [userState, setUserState] = useState<any>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(rowsPerPageOptions[0]);
+  const [permissionList, setPermissionList] = useState<any>([]);
+  const [roleDetail, setRoleDetail] = useState<any>([]);
+
+  const open = Boolean(anchorEl);
+  const menuId = open ? "simple-popover" : undefined;
+
+  const handleCloseActionMenu = () => {
+    setAnchorEl(null);
+  };
 
   const handleOpenMenuAction = (event: React.MouseEvent<HTMLButtonElement>, record: RowDataProps) => {
-    // setAnchorEl(event.currentTarget);
-    // setSelectedItem(record);
-    // setUserDetail(null);
+    setAnchorEl(event.currentTarget);
+    setSelectedItem(record);
+    setUserDetail(null);
   };
 
   const createSortHandler = (property: keyof RowDataProps | string) => (event: React.MouseEvent<unknown>) => {
@@ -100,8 +120,57 @@ const Role = () => {
     // });
   };
 
+  const handleOpenModal = () => {
+    setIsOpenModal(true);
+    setSelectedItem(null);
+    setUserDetail(null);
+    setTitle("Thêm mới");
+  };
+
+  const handleCloseModal = () => {
+    setIsOpenModal(false);
+    setSelectedItem(null);
+    setUserDetail(null);
+  };
+
+  const handleView = () => {};
+
+  const handleEdit = () => {};
+
+  const getResourceActions = async () => {
+    try {
+      const data: any = await apiService.getFilter(URL_PATHS.RESOURCE_ACTION);
+      setPermissionList(data);
+    } catch (error) {}
+  };
+  const getDetailRole = async () => {
+    try {
+      const data: any = await apiService.getFilter(URL_PATHS.ROLE_GET_DETAIL + "?id=6526ca952f7b4c61131d5ec9");
+      setRoleDetail(data);
+    } catch (error) {}
+  };
+
+  useEffect(() => {
+    getResourceActions();
+    getDetailRole();
+  }, []);
+
   return (
-    <Page className={styles.root} title="Khách hàng" isActive>
+    <Page className={styles.root} title="Vai trò" isActive>
+      <Grid container style={{ marginBottom: "20px" }}>
+        <Grid item xs={10}></Grid>
+        <Grid item xs={2}>
+          <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
+            <ButtonIconCustom
+              className="mg-l-10"
+              tooltipTitle="Thêm mới"
+              type="add"
+              color="darkgreen"
+              onClick={handleOpenModal}
+            />
+          </Box>
+        </Grid>
+      </Grid>
       <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
         <Table stickyHeader>
           <TableHead>
@@ -201,6 +270,30 @@ const Role = () => {
         labelDisplayedRows={labelDisplayedRows}
         labelRowsPerPage={DISPLAY_TEXTS.rowsPerPage}
       />
+      <IF condition={open}>
+        <Popover
+          id={menuId}
+          open={open}
+          anchorEl={anchorEl}
+          onClose={handleCloseActionMenu}
+          anchorOrigin={{
+            vertical: "bottom",
+            horizontal: "left",
+          }}
+        >
+          <MenuListActions actionView={handleView} actionEdit={handleEdit} />
+        </Popover>
+      </IF>
+      {isOpenModal && (
+        <AddEditRole
+          isOpen={isOpenModal}
+          title={title}
+          handleClose={handleCloseModal}
+          permissionList={permissionList}
+          roleDetail={roleDetail}
+          isEdit={true}
+        />
+      )}
     </Page>
   );
 };

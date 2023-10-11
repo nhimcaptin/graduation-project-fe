@@ -6,5 +6,7 @@ const URL_PATHS = {
     CREATE_USER: "api/users",
     GET_USER: "api/users/get-list",
     DETAIL_USER: "api/users/detail",
+    RESOURCE_ACTION: "api/role/resource-actions",
+    ROLE_GET_DETAIL: "api/role/get-detail",
 }
 export default URL_PATHS

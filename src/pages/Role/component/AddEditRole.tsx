@@ -1,35 +1,140 @@
-import React from "react";
-import CrudModal from "src/components/CrudModal";
+import React, { useEffect, useState } from "react";
+import CrudModal from "../../../components/CrudModal";
 import { Autocomplete, Grid, styled, Typography } from "@mui/material";
-import LabelCustom from "src/components/LabelCustom";
-import { Controller, useForm } from "react-hook-form";
-import TextFieldCustom from "src/components/TextFieldCustom";
-import { MESSAGE_ERROR } from "src/consts/messages";
+import LabelCustom from "../../../components/LabelCustom";
+import { Controller, useFieldArray, useForm } from "react-hook-form";
+import TextFieldCustom from "../../../components/TextFieldCustom";
+import { MESSAGE_ERROR } from "../../../consts/messages";
+import SelectBox from "../../../components/CheckBoxCustom";
+import COLORS from "../../../consts/colors";
+
+const TextRolePosition = styled(Typography)({
+  fontWeight: 500,
+  fontSize: "14px",
+  color: "#614C4C",
+});
+
+const PositionSelectBox = styled(SelectBox)({
+  alignItems: "flex-start",
+  "& .MuiTypography-root": {
+    marginTop: "8px",
+    display: "inline-block",
+    lineHeight: "20px !important",
+  },
+});
+
+interface IFormPermission {
+  actionCode: string;
+  resourceCode: string;
+  isActive: boolean;
+  idResource: number | string;
+  idAction: number | string;
+}
+
+type IFormData = {
+  roleName: string;
+  description: string;
+  permissions: IFormPermission[];
+};
+
+const defaultFormData: IFormData = {
+  roleName: "",
+  description: "",
+  permissions: [],
+};
 
 const AddEditRole = (props: any) => {
-  const { title, isOpen, isEdit, handleCancelForm, isLoading } = props;
+  const { title, isOpen, isEdit, handleClose, isLoading, permissionList, roleDetail } = props;
+  const [permissonFieldMap, setPermissonFieldMap] = useState<{ [key: string]: number }>({});
 
   const {
     control,
     handleSubmit,
-    getValues,
+    watch,
     setValue,
     formState: { errors },
-  } = useForm();
+  } = useForm({ defaultValues: defaultFormData });
+
+  const { fields, append } = useFieldArray({
+    control,
+    name: "permissions",
+  });
 
   const handleTrimTextInput = (e: any) => {
     const newText = e.target.value || "";
     return { target: { value: newText.trim() } };
   };
+
+  const isActionActive = (action: string, resource: string) => {
+    const isActive = !!(roleDetail?.permissions || []).find(
+      (role: any) => role.actionCode === action && role.resourceCode === resource
+    );
+
+    return isActive;
+  };
+
+  const populatePermission = () => {
+    let currentIndex = 0;
+    let permissonFieldMap: { [key: string]: number } = {};
+    permissionList.map((permission: any) => {
+      const resourceCode = permission.resource.code;
+      const resourceid = permission.resource._id;
+      permission.actions.map((action: any) => {
+        append({
+          actionCode: action.code,
+          resourceCode,
+          isActive: roleDetail ? isActionActive(action.code, resourceCode) : false,
+          idResource: resourceid,
+          idAction: action._id,
+        });
+        permissonFieldMap[`${resourceCode}.${action.code}`] = currentIndex;
+        currentIndex++;
+      });
+    });
+    setPermissonFieldMap(permissonFieldMap);
+  };
+
+  const onSubmit = async (data: IFormData) => {
+    const isActivePermiss = data.permissions.filter((x: any) => x.isActive);
+
+    const obj: any = {};
+    isActivePermiss.forEach((x: any) => {
+      if (obj[x.idResource]) {
+        obj[x.idResource].push({ _id: x.idAction });
+      } else {
+        obj[x.idResource] = [{ _id: x.idAction }];
+      }
+    });
+
+    const permissions = Object.keys(obj).map((x: any) => {
+      return {
+        resource: { _id: x },
+        actions: obj[x],
+      };
+    });
+    const dataSubmit = {
+      roleName: data.roleName,
+      description: data.description,
+      permissions,
+    };
+
+    console.log("dataSubmit", dataSubmit);
+  };
+
+  useEffect(() => {
+    setValue("description", roleDetail.description);
+    setValue("roleName", roleDetail.roleName);
+    populatePermission();
+  }, []);
   return (
     <>
       <CrudModal
         formTitle={title}
         isOpen={isOpen}
         saveBtnLabel="Lưu"
-        handleSave={!isEdit ? undefined : () => {}}
+        handleSave={!isEdit ? undefined : handleSubmit(onSubmit)}
         cancelBtnLabel={!isEdit ? "Đóng" : "Hủy"}
-        handleClose={handleCancelForm}
+        handleClose={handleClose}
         dialogProps={{ maxWidth: "md", fullWidth: true }}
         isDisable={isLoading}
       >
@@ -54,7 +159,7 @@ const AddEditRole = (props: any) => {
                       onChange(handleTrimTextInput(e));
                     }}
                     placeholder="Nhập tên vai trò"
-                    errorMessage={errors?.name?.message}
+                    errorMessage={errors?.roleName?.message}
                     disabled={true}
                   />
                 );
@@ -68,7 +173,7 @@ const AddEditRole = (props: any) => {
               fontWeight: 700,
               fontSize: "14px",
               display: "flex",
-              alignItems: "flex-start",
+              alignItems: "center",
               color: "#614C4C",
             }}
           >
@@ -93,12 +198,51 @@ const AddEditRole = (props: any) => {
                     placeholder="Nhập mô tả"
                     multiline
                     errorMessage={errors?.description?.message}
-                    disabled={true}
+                    disabled={!isEdit}
                   />
                 );
               }}
             />
           </Grid>
+          {permissionList &&
+            permissionList.map((resource: any, _index: number) => (
+              <Grid container item xs={12} key={resource.resource.code}>
+                <Grid item xs={3}>
+                  <TextRolePosition>{resource.resource.name}</TextRolePosition>
+                </Grid>
+                <Grid container item xs={9} key={_index}>
+                  {resource.actions &&
+                    resource.actions.map((action: any, index: number) => (
+                      <Grid item xs={2} key={index}>
+                        <Controller
+                          control={control}
+                          key={`${watch(
+                            `permissions.${permissonFieldMap[`${resource.resource.code}.${action.code}`]}.isActive`
+                          )}`}
+                          name={`permissions.${permissonFieldMap[`${resource.resource.code}.${action.code}`]}.isActive`}
+                          render={({ field: { onChange, value } }) => {
+                            return (
+                              <PositionSelectBox
+                                value={value ? value : false}
+                                onChange={onChange}
+                                label={action.name}
+                                sx={{
+                                  "& .MuiSvgIcon-root": {
+                                    fontSize: "16px",
+                                    color: COLORS.TEXT,
+                                  },
+                                }}
+                                sxLabel={{ fontSize: "12px", color: COLORS.TEXT }}
+                                disabled={!isEdit}
+                              />
+                            );
+                          }}
+                        />
+                      </Grid>
+                    ))}
+                </Grid>
+              </Grid>
+            ))}
         </Grid>
       </CrudModal>
     </>
