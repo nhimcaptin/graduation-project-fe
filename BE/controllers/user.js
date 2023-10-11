@@ -3,6 +3,7 @@ import { createError } from "../middlewares/error.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { convertFilter } from "../util/index.js";
 
 export const createUser = async (req, res, next) => {
   try {
@@ -44,6 +45,22 @@ export const detailUser = async (req, res, next) => {
   }
 };
 
+export const detailDoctor = async (req, res, next) => {
+  try {
+    const doctor = await User.findOne({ _id: req.params.id, role: 'Doctor' }).exec();
+    if (!doctor) {
+      return res.status(404).json({ message: 'Bác sĩ không tồn tại.' });
+    }
+
+    const data = { ...doctor._doc, password: null };
+    delete data.password;
+
+    return res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const deleteUser = async (req, res, next) => {
   try {
     await User.findByIdAndDelete(req.params.id);
@@ -76,13 +93,14 @@ export const getListUser = async (req, res, next) => {
     const { Page, PageSize, Sorts, filters } = req.query;
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
-    const query = User.find();
+    const _filter = convertFilter(filters);
+    const total = User.find({});
+    const query = User.find(_filter);
     const users = await query
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts)
-      .find({});
-    const totalUsers = await User.countDocuments(query);
+    const totalUsers = await User.countDocuments(total);
     const data = users?.map((x) => {
       return {
         _id: x.id,
@@ -100,3 +118,22 @@ export const getListUser = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getListDoctors = async (req, res, next) => {
+  try {
+    const { Page, PageSize, Sorts, filters } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+    const query = User.find({ role: 'Doctor' }); 
+    const doctors = await query
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .sort(Sorts);
+    const totalDoctors = await User.countDocuments({ role: 'Doctor' }); 
+
+    res.json({ doctors, totalDoctors });
+  } catch (error) {
+    next(error);
+  }
+};
+

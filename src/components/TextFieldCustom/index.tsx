@@ -91,12 +91,13 @@ export interface TextFieldCustomProps {
   autoFocus?: boolean;
   autoComplete?: string;
   endAdornment?: any;
+  isLogin?: boolean;
 }
 
 const TextFieldCustom = React.forwardRef(
   (props: TextFieldCustomProps, ref?: React.Ref<any>) => {
     const classes = useStyles();
-    const { onClick, errorMessage, error, ...restProps } = props;
+    const { onClick, errorMessage, error, isLogin, ...restProps } = props;
 
     if (ref)
       return (
@@ -105,7 +106,7 @@ const TextFieldCustom = React.forwardRef(
             {...restProps}
             className={clsx(
               classes.textField,
-              { [classes.borderInput]: !(!!errorMessage || error) },
+              { [classes.borderInput]: !(!!errorMessage || error) && isLogin },
               { [props.className || ""]: !!props.className }
             )}
             inputRef={ref}

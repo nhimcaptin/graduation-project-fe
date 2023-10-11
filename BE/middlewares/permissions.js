@@ -30,4 +30,16 @@ export const routers = [
       { method: "GET", role: ["Admin",] },
     ],
   },
+  {
+    url: "/api/users/get-list-doctor",
+    permissions: [
+      { method: "GET" },
+    ],
+  },
+  {
+    url: "/api/users/detail-doctor/:id",
+    permissions: [
+      { method: "GET" },
+    ],
+  },
 ];

@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, deleteUser, detailUser, getCurrentUser, getListUser, updateUser } from "../controllers/user.js";
+import { createUser, deleteUser, detailDoctor, detailUser, getCurrentUser, getListDoctors, getListUser, updateUser } from "../controllers/user.js";
 import { verifyAdmin } from "../middlewares/verifyToken.js";
 
 const router = express.Router();
@@ -10,7 +10,7 @@ router.post("", verifyAdmin, createUser);
 //UPDATE
 router.put("/:id", verifyAdmin, updateUser);
 
-//DETAIL
+//GET-DETAIL
 router.get("/detail/:id", verifyAdmin, detailUser);
 
 //DELETE
@@ -21,5 +21,11 @@ router.get("/get-current-user", verifyAdmin, getCurrentUser);
 
 //GET-LIST-USER
 router.get("/get-list", verifyAdmin, getListUser);
+
+//GET-LIST-DOCTOR
+router.get("/get-list-doctor", getListDoctors);
+
+//GET-DETAIL-DOCTOR
+router.get("/detail-doctor/:id", detailDoctor);
 
 export default router;
