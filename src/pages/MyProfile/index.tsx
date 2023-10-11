@@ -3,60 +3,43 @@ import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import {
   Avatar,
-  Button,
-  Dialog,
-  DialogActions,
-  DialogContent,
-  DialogTitle,
   Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemAvatar,
-  ListItemButton,
-  ListItemText,
   Paper,
-  Popover,
-  Skeleton,
   Stack,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TablePagination,
-  TableRow,
-  TableSortLabel,
   Typography,
   useMediaQuery,
 } from "@mui/material";
-import clsx from "clsx";
-import { StickyTableCell } from "../../components/StickyTableCell";
-import { Order } from "../../utils/sortTable";
-import { Box, width } from "@mui/system";
-import { visuallyHidden } from "@mui/utils";
-import LoadingTableRow from "../../components/LoadingTableRow";
-import { Link } from "react-router-dom";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import NoDataTableRow from "../../components/NoDataTableRow";
-import MenuListActions from "../../components/MenuListActions";
-import apiService from "../../services/api-services";
-import { BASE_URL } from "../../services/base-url";
-import URL_PATHS from "../../services/url-path";
-import { useSetToastInformationState } from "../../redux/store/ToastMessage";
-import { STATUS_TOAST } from "../../consts/statusCode";
-import { handleErrorMessage } from "../../utils/errorMessage";
-import { labelDisplayedRows, rowsPerPageOptions } from "../../utils";
-import { useForm } from "react-hook-form";
-import DISPLAY_TEXTS from "../../consts/display-texts";
-import SearchPopover from "../../components/SearchPopover";
-import LabelCustom from "../../components/LabelCustom";
-import { ButtonIconCustom } from "../../components/ButtonIconCustom";
 import ButtonCustom from "../../components/ButtonCustom";
-
+import { useSelector } from "react-redux";
+import ChangePassword from "./component/ChangePassword/ChangePassword";
+import { useSetToastInformationState } from "../../redux/store/ToastMessage";
+import { useForm } from "react-hook-form";
 const MyProfile = () => {
   const isSmallScreen = useMediaQuery("(max-width: 678px)");
+  const [loadingTable, setLoadingTable] = useState<Boolean>(true);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const { setToastInformation } = useSetToastInformationState();
+  const [totalCount, setTotalCount] = useState<number>(0);
+  const open = Boolean(anchorEl);
+  const menuId = open ? "simple-popover" : undefined;
+  const { control, handleSubmit, reset, setValue, watch } = useForm();
+  const [staffs, setData] = useState<any>([]);
+  const [filterContext, setFilterContext] = useState<any>({});
+  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [title, setTitle] = useState<string>("");
+  const [isViewMode, setIsViewMode] = useState<boolean>(false);
 
+  const { currentUser } = useSelector((state: any) => state.currentUser);
+  console.log(currentUser);
+
+  const handleCancel = () => {
+    setIsOpenModal(false);
+  };
+  const handleOpenModal = () => {
+    setIsOpenModal(true);
+    setTitle("Change Password");
+  };
   return (
     <Page className={styles.root} title="My Profile" isActive>
       <Grid container justifyContent="center">
@@ -122,10 +105,12 @@ const MyProfile = () => {
                   Administrator Application
                 </Typography>
                 <Typography variant="h6" gutterBottom>
-                  <strong>Email: </strong>admin34@gmail.com
+                  <strong>Email: </strong>
+                  {currentUser?.email}
                 </Typography>
                 <Typography variant="h6" gutterBottom>
-                  <strong>Organization: </strong>400
+                  <strong>Organization: </strong>
+                  {"200"}
                 </Typography>
               </Grid>
             </Stack>
@@ -137,19 +122,34 @@ const MyProfile = () => {
               spacing={2}
             >
               <Grid item>
-                <ButtonCustom type="button" className={styles.custom_button}>
-                  Change Password
-                </ButtonCustom>
+                <ButtonCustom
+                  type="button"
+                  className={styles.custom_button}
+                  title="Change Password"
+                  onClick={handleOpenModal}
+                ></ButtonCustom>
               </Grid>
               <Grid item>
-                <ButtonCustom type="button" className={styles.custom_button}>
-                  Edit profile
-                </ButtonCustom>
+                <ButtonCustom
+                  type="button"
+                  className={styles.custom_button}
+                  onClick={handleOpenModal}
+                  title="Edit profile"
+                ></ButtonCustom>
               </Grid>
             </Grid>
           </Paper>
         </Grid>
       </Grid>
+      {isOpenModal && (
+        <ChangePassword
+          isOpen={isOpenModal}
+          title={title}
+          onCancel={handleCancel}
+          isEdit={!isViewMode}
+          dataDetail={currentUser}
+        />
+      )}
     </Page>
   );
 };

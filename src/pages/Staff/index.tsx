@@ -66,8 +66,6 @@ import { MESSAGES_CONFIRM, MESSAGE_ERROR } from "../../consts/messages";
 import AddStaff from "./components/AddStaff";
 import TextFieldCustom from "../../components/TextFieldCustom";
 import Icons from "../../consts/Icons";
-import EditStaff from "./components/EditStaff";
-import ViewStaff from "./components/ViewStaff";
 interface RowDataProps {
   id: number;
   name: string;
@@ -137,7 +135,7 @@ const Staff = () => {
   const [filterContext, setFilterContext] = useState<any>({});
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
-
+  const [userDetail, setUserDetail] = useState(null);
   const [title, setTitle] = useState<string>("");
   const { openConfirmModal } = useSetConfirmModalState();
   const [modalContent, setModalContent] = useState(null);
@@ -161,6 +159,7 @@ const Staff = () => {
     event: React.MouseEvent<HTMLButtonElement>,
     record: RowDataProps
   ) => {
+    setUserDetail(null);
     setAnchorEl(event.currentTarget);
     setSelectedItem(record);
   };
@@ -186,8 +185,6 @@ const Staff = () => {
   };
 
   const handleView = (dataDetail?: any) => {
-    console.log(selectedItem);
-
     setAnchorEl(null);
     setIsViewMode(true);
     setIsOpenModal(true);
@@ -203,12 +200,15 @@ const Staff = () => {
     setTitle("Chỉnh sửa");
   };
 
-  const handleAddNew = (e: any) => {
+  const handleOpenModal = () => {
     setIsOpenModal(true);
-    setAnchorEl(null);
-    setIsViewMode(false);
-    setTitle("Thêm mới user");
-    console.log(e);
+    setSelectedItem(null);
+    setUserDetail(null);
+    setTitle("Thêm mới");
+  };
+  const reloadTable = () => {
+    setLoadingTable(true);
+    getData({});
   };
 
   const handleDelete = () => {
@@ -274,8 +274,6 @@ const Staff = () => {
     getData({});
   };
 
-  const handleOpenModal = () => {};
-
   const getData = async (props: any) => {
     setLoadingTable(true);
     const pageSize =
@@ -305,9 +303,7 @@ const Staff = () => {
         params,
         filters
       );
-      console.log("data", data);
       setTotalCount(data.totalUsers);
-      console.log("totalCount", totalCount);
       setData(data.data);
       setIsLoading(true);
       setLoadingTable(false);
@@ -338,12 +334,64 @@ const Staff = () => {
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Box style={{ marginTop: 2 }}>
-                    <TextFieldCustom
-                      variant="outlined"
-                      fullWidth
-                      name="search"
-                      onChange={() => handleSearch}
-                      placeholder="Tìm kiếm"
+                    <LabelCustom title="Họ và tên" />
+                    <Controller
+                      control={control}
+                      name="name"
+                      render={({
+                        field: { onChange, onBlur, value, ref, name },
+                      }) => (
+                        <TextFieldCustom
+                          name={name}
+                          ref={ref}
+                          value={value}
+                          onChange={onChange}
+                          placeholder="Nhập họ và tên"
+                          type="text"
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Email" />
+                    <Controller
+                      control={control}
+                      name="email"
+                      render={({
+                        field: { onChange, onBlur, value, ref, name },
+                      }) => (
+                        <TextFieldCustom
+                          name={name}
+                          ref={ref}
+                          value={value}
+                          onChange={onChange}
+                          placeholder="Nhập email"
+                          type="text"
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Số điện thoại" />
+                    <Controller
+                      control={control}
+                      name="phone"
+                      render={({
+                        field: { onChange, onBlur, value, ref, name },
+                      }) => (
+                        <TextFieldCustom
+                          name={name}
+                          ref={ref}
+                          value={value}
+                          onChange={onChange}
+                          placeholder="Nhập số điện thoại"
+                          type="text"
+                        />
+                      )}
                     />
                   </Box>
                 </Grid>
@@ -370,7 +418,7 @@ const Staff = () => {
               tooltipTitle="Thêm mới"
               type="add"
               color="darkgreen"
-              onClick={handleAddNew}
+              onClick={handleOpenModal}
             />
           </Box>
         </Grid>
@@ -525,33 +573,16 @@ const Staff = () => {
         </Popover>
       </IF>
 
-      {isOpenModal &&
-        (isViewMode ? (
-          <ViewStaff
-            isOpen={isOpenModal}
-            title={title}
-            onCancel={handleCancel}
-            isEdit={!isViewMode}
-            dataDetail={selectedItem}
-          />
-        ) : title ? (
-          <EditStaff
-            onSave={getData}
-            
-            isOpen={isOpenModal}
-            title={title}
-            onCancel={handleCancel}
-            isEdit={!isViewMode}
-            dataDetail={selectedItem}
-          />
-        ) : (
-          <AddStaff
-            isOpen={isOpenModal}
-            title={title}
-            onCancel={handleCancel}
-            isEdit={isViewMode}
-          />
-        ))}
+      {isOpenModal && (
+        <AddStaff
+          isOpen={isOpenModal}
+          title={title}
+          onCancel={handleCancel}
+          isEdit={!isViewMode}
+          dataDetail={selectedItem}
+          reloadTable={reloadTable}
+        />
+      )}
     </Page>
   );
 };

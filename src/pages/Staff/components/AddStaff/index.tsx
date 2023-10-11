@@ -1,29 +1,23 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import CrudModal from "../../../../components/CrudModal";
-import {
-  Avatar,
-  Card,
-  CardContent,
-  Paper,
-  Typography,
-  Container,
-  TextField,
-  Button,
-  Grid,
-  Box,
-  createTheme,
-} from "@mui/material";
-import { makeStyles } from "@mui/styles";
-import apiService from "../../../../services/api-services";
+import { Grid } from "@mui/material";
+import LabelCustom from "../../../../components/LabelCustom";
+import { Controller, useForm } from "react-hook-form";
+import TextFieldCustom from "../../../../components/TextFieldCustom";
+import { MESSAGE_ERROR } from "../../../../consts/messages";
 import { BASE_URL } from "../../../../services/base-url";
 import URL_PATHS from "../../../../services/url-path";
 import { useSetToastInformationState } from "../../../../redux/store/ToastMessage";
+import apiService from "../../../../services/api-services";
 import { STATUS_TOAST } from "../../../../consts/statusCode";
+
 interface PropsType {
   isOpen: boolean;
+  dataDetail: any;
   title: string;
   onCancel: (parameter: any) => void;
   isEdit: boolean;
+  reloadTable: (parameter: boolean) => void;
 }
 interface UserDetail {
   [x: string]: unknown;
@@ -33,65 +27,72 @@ interface UserDetail {
   address: string;
   // Thêm các trường dữ liệu khác của người dùng tại đây
 }
-
-const theme = createTheme({
-  typography: {
-    allVariants: {
-      fontFamily: [
-        "-apple-system",
-        "BlinkMacSystemFont",
-        '"Segoe UI"',
-        "Roboto",
-        '"Helvetica Neue"',
-        "Arial",
-        "sans-serif",
-        '"Apple Color Emoji"',
-        '"Segoe UI Emoji"',
-        '"Segoe UI Symbol"',
-      ].join(","),
-      fontSize: 16,
-      fontWeight: "500",
-    },
-  },
-});
-const AddStaff = (props: PropsType) => {
-  const { isOpen, title, isEdit, onCancel } = props;
-  const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
-  const [isFormOpen, setIsFormOpen] = useState(true);
-  const [loadingTable, setLoadingTable] = useState<Boolean>(true);
-  // Sử dụng state để lưu thông tin chỉnh sửa
+const AddUser = (props: PropsType) => {
   const [formData, setFormData] = useState<UserDetail | null>(null);
+  const { isOpen, title, isEdit, onCancel, dataDetail, reloadTable } = props;
   const { setToastInformation } = useSetToastInformationState();
-  // Đặt giá trị ban đầu của formData khi có thông tin có sẵn
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (formData) {
-      const { name, value } = e.target;
-      setFormData({
-        ...formData,
-        [name]: value,
-      });
+  const handleCancel = () => {
+    // Gọi onCancel prop để đóng popup
+    onCancel("xoa");
+    reloadTable(true);
+  };
+  const onSubmit = async () => {
+    const formData = getValues();
+    console.log(reloadTable);
+
+    if (title == "Thêm mới") {
+      try {
+        await apiService.post(BASE_URL + URL_PATHS.CREATE_USER, formData);
+        console.log("Updated User Info:", formData);
+        setToastInformation({
+          status: STATUS_TOAST.SUCCESS,
+          message: "Thêm thành công!!!",
+        });
+        // Đóng popup
+        handleCancel();
+      } catch (error) {
+        console.error("Error when creating user:", error);
+        // Xử lý lỗi nếu cần
+      }
+    } else if (title == "Chỉnh sửa") {
+      try {
+        await apiService.put(
+          BASE_URL + URL_PATHS.CREATE_USER + "/" + dataDetail._id,
+          formData
+        );
+        setToastInformation({
+          status: STATUS_TOAST.SUCCESS,
+          message: "Sửa thành công!!!",
+        });
+        // Đóng popup
+        handleCancel();
+      } catch (error) {
+        console.error("Error when editing user:", error);
+        // Xử lý lỗi nếu cần
+      }
     }
   };
-
-  const handleSubmit = async () => {
-    if (formData) {
-      // Xử lý cập nhật thông tin có sẵn dựa trên formData ở đây
-      await apiService.post(BASE_URL + URL_PATHS.CREATE_USER, formData);
-      console.log("Updated User Info:", formData);
-      loadingTable;
-      setToastInformation({
-        status: STATUS_TOAST.SUCCESS,
-        message: "Thêm thành công!!!",
-      });
-    }
-  };
+  const {
+    handleSubmit,
+    control,
+    watch,
+    getValues,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      name: dataDetail ? dataDetail?.name : "",
+      email: dataDetail ? dataDetail?.email : "",
+      phone: dataDetail ? dataDetail?.phone : "",
+      address: dataDetail ? dataDetail?.address : "",
+    },
+  });
 
   return (
     <CrudModal
       isOpen={isOpen}
       formTitle={title}
-      handleSave={isEdit ? handleSubmit : undefined}
+      handleSave={isEdit ? handleSubmit(onSubmit) : undefined}
       handleClose={onCancel}
       cancelBtnLabel="Hủy"
       saveBtnLabel="Lưu"
@@ -100,53 +101,104 @@ const AddStaff = (props: PropsType) => {
         maxWidth: "md",
       }}
     >
-      <section>
-        {formData ? (
-          <Box>
-            <form onSubmit={(e) => e.preventDefault()}>
-              <Grid container spacing={3}>
-                <Grid item xs={6}>
-                <Typography>Số điện thoại</Typography>
-                  <TextField
-                    label="Tên"
-                    variant="outlined"
-                    fullWidth
-                    name="name"
-                    // value={formData.name}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                <Typography>Số điện thoại</Typography>
-                  <TextField
-                    label="Số điện thoại"
-                    variant="outlined"
-                    fullWidth
-                    name="phone"
-                    // value={formData.phone}
-                    onChange={handleChange}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                <Typography>Email</Typography>
-                  <TextField
-                    variant="outlined"
-                    fullWidth
-                    name="email"
-                    // value={formData.email}
-                    onChange={handleChange}
-                   
-                  />
-                </Grid>
-              </Grid>
-            </form>
-          </Box>
-        ) : (
-          <p>Không có thông tin người dùng để hiển thị edit.</p>
-        )}
-      </section>
+      <Grid container>
+        <Grid container item xs={12}>
+          <Grid item xs={5}>
+            <LabelCustom title="Họ và tên" isRequired />
+            <Controller
+              control={control}
+              name="name"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <TextFieldCustom
+                  name={name}
+                  ref={ref}
+                  value={value}
+                  onChange={onChange}
+                  disabled={!isEdit}
+                  placeholder="Nhập họ và tên"
+                  type="text"
+                  errorMessage={errors?.name?.message}
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={2}></Grid>
+          <Grid item xs={5}>
+            <LabelCustom title="Email" isRequired />
+            <Controller
+              control={control}
+              name="email"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <TextFieldCustom
+                  name={name}
+                  ref={ref}
+                  value={value}
+                  onChange={onChange}
+                  placeholder="Nhập email"
+                  disabled={!isEdit}
+                  type="text"
+                  errorMessage={errors?.email?.message}
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+          <Grid item xs={5}>
+            <LabelCustom title="Số điện thoại" isRequired />
+            <Controller
+              control={control}
+              name="phone"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <TextFieldCustom
+                  name={name}
+                  ref={ref}
+                  value={value}
+                  onChange={onChange}
+                  placeholder="Nhập số điện thoại"
+                  disabled={!isEdit}
+                  type="text"
+                  errorMessage={errors?.phone?.message}
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={2}></Grid>
+          <Grid item xs={5}>
+            <LabelCustom title="Địa chỉ" isRequired />
+            <Controller
+              control={control}
+              name="address"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <TextFieldCustom
+                  name={name}
+                  ref={ref}
+                  value={value}
+                  onChange={onChange}
+                  placeholder="Nhập địa chỉ"
+                  disabled={!isEdit}
+                  type="text"
+                  errorMessage={errors?.address?.message}
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+      </Grid>
     </CrudModal>
   );
 };
 
-export default AddStaff;
+export default AddUser;
