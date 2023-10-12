@@ -14,18 +14,14 @@ export const createRole = async (req, res, next) => {
       permissions: [
         {
           resource: {
-            _id: "6524c45732058d8084af1228",
+            _id: "6526c912314b2b5780558db1",
           },
           actions: [
             {
-              _id: "6524c54a57b1b9c39e9345a6",
-              code: "View",
-              name: "Xem",
+              _id: "6526ca06314b2b5780558dbb",
             },
             {
-              _id: "6524c56d96833b994b0a4c4f",
-              code: "Edit",
-              name: "Sửa",
+              _id: "6526ca32314b2b5780558dbd",
             },
           ],
         },
@@ -85,8 +81,8 @@ export const resourceActions = async (req, res) => {
     const _resourceActions = _resource.map((x) => {
       const filterAction = _action.filter((y) => (y?.code === "Export" ? ["User", "Staff"].includes(x?.code) : true));
       return {
-        actions: x,
-        resource: filterAction,
+        resource: x,
+        actions: filterAction,
       };
     });
 
@@ -113,7 +109,7 @@ export const getDetailRole = async (req, res, next) => {
     }).flat();
     const data = {
       id: listRole[0]._id,
-      roleId: listRole[0].roleId,
+      roleName: listRole[0].roleName,
       description: listRole[0].description,
       permissions: permissions
     }
