@@ -8,5 +8,7 @@ const URL_PATHS = {
     DETAIL_USER: "api/users/detail",
     RESOURCE_ACTION: "api/role/resource-actions",
     ROLE_GET_DETAIL: "api/role/get-detail",
+    ROLE_GET: "api/role",
+    ROLE_EDIT: "api/role/edit-role",
 }
 export default URL_PATHS

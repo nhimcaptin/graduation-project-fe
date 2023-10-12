@@ -4,9 +4,15 @@ import { Autocomplete, Grid, styled, Typography } from "@mui/material";
 import LabelCustom from "../../../components/LabelCustom";
 import { Controller, useFieldArray, useForm } from "react-hook-form";
 import TextFieldCustom from "../../../components/TextFieldCustom";
-import { MESSAGE_ERROR } from "../../../consts/messages";
+import { MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../../consts/messages";
 import SelectBox from "../../../components/CheckBoxCustom";
 import COLORS from "../../../consts/colors";
+import { useSetToastInformationState } from "../../../redux/store/ToastMessage";
+import { handleErrorMessage } from "../../../utils/errorMessage";
+import { STATUS_TOAST } from "../../../consts/statusCode";
+import apiService from "../../../services/api-services";
+import URL_PATHS from "../../../services/url-path";
+import { useSetLoadingScreenState } from "../../../redux/store/loadingScreen";
 
 const TextRolePosition = styled(Typography)({
   fontWeight: 500,
@@ -44,8 +50,11 @@ const defaultFormData: IFormData = {
 };
 
 const AddEditRole = (props: any) => {
-  const { title, isOpen, isEdit, handleClose, isLoading, permissionList, roleDetail } = props;
+  const { title, isOpen, isEdit, handleClose, isLoading, permissionList, roleDetail, getListRole } = props;
   const [permissonFieldMap, setPermissonFieldMap] = useState<{ [key: string]: number }>({});
+
+  const { setToastInformation } = useSetToastInformationState();
+  const { setLoadingScreen } = useSetLoadingScreenState();
 
   const {
     control,
@@ -95,10 +104,11 @@ const AddEditRole = (props: any) => {
   };
 
   const onSubmit = async (data: IFormData) => {
+    setLoadingScreen(true);
     const isActivePermiss = data.permissions.filter((x: any) => x.isActive);
 
     const obj: any = {};
-    isActivePermiss.forEach((x: any) => {
+    isActivePermiss?.forEach((x: any) => {
       if (obj[x.idResource]) {
         obj[x.idResource].push({ _id: x.idAction });
       } else {
@@ -106,7 +116,7 @@ const AddEditRole = (props: any) => {
       }
     });
 
-    const permissions = Object.keys(obj).map((x: any) => {
+    const permissions = Object.keys(obj)?.map((x: any) => {
       return {
         resource: { _id: x },
         actions: obj[x],
@@ -118,7 +128,22 @@ const AddEditRole = (props: any) => {
       permissions,
     };
 
-    console.log("dataSubmit", dataSubmit);
+    try {
+      await apiService.put(`${URL_PATHS.ROLE_EDIT}?id=${roleDetail?.id}`, dataSubmit);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: MESSAGE_SUCCESS.UPDATE_ROLE,
+      });
+      handleClose();
+      getListRole();
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
   };
 
   useEffect(() => {
@@ -177,7 +202,7 @@ const AddEditRole = (props: any) => {
               color: "#614C4C",
             }}
           >
-            <LabelCustom title="Mô tả" sx={{ display: "flex", alignItems: "center" }} isRequired />
+            <LabelCustom title="Mô tả" sx={{ display: "flex", alignItems: "center" }} />
           </Grid>
           <Grid item xs={7}>
             <Controller
@@ -203,6 +228,9 @@ const AddEditRole = (props: any) => {
                 );
               }}
             />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography sx={{ fontWeight: 700, fontSize: "16px", color: "#614C4C" }}>Chọn quyền cho vai trò</Typography>
           </Grid>
           {permissionList &&
             permissionList.map((resource: any, _index: number) => (

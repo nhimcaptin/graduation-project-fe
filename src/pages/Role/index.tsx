@@ -33,6 +33,7 @@ import MenuListActions from "../../components/MenuListActions";
 import { ButtonIconCustom } from "../../components/ButtonIconCustom";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
+import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 
 interface RowDataProps {
   id: number;
@@ -46,36 +47,39 @@ interface RowDataProps {
 const headCells = [
   {
     label: "STT",
-    style: { maxWidth: "30%", minWidth: "180px" },
+    style: { width: "5%" },
   },
   {
     label: "Tên vai trò",
-    sort: "roleName",
-    style: { maxWidth: "30%", minWidth: "180px" },
+    // sort: "roleName",
+    style: { width: "30%" },
   },
   {
     label: "Mô tả",
-    sort: "description",
-    style: { maxWidth: "20%", minWidth: "180px" },
+    // sort: "description",
+    style: { width: "60%" },
   },
-  { label: "", style: { minWidth: "5%" } },
+  { label: "", style: { width: "5%" } },
 ];
 
 const Role = () => {
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
-  const [userDetail, setUserDetail] = useState(null);
+  const [isEdit, setIsEdit] = useState(false);
   const [title, setTitle] = useState("");
   const [isOpenModal, setIsOpenModal] = useState(false);
   const [order, setOrder] = useState<Order>("desc");
   const [loadingTable, setLoadingTable] = useState<Boolean>(false);
-  const [userState, setUserState] = useState<any>([]);
+  const [roleState, setRoleState] = useState<any>([]);
   const [totalCount, setTotalCount] = useState<number>(0);
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(rowsPerPageOptions[0]);
   const [permissionList, setPermissionList] = useState<any>([]);
   const [roleDetail, setRoleDetail] = useState<any>([]);
+  const [isLoadingResource, setIsLoadingResource] = useState<boolean>(false);
+
+  const { setLoadingScreen } = useSetLoadingScreenState();
 
   const open = Boolean(anchorEl);
   const menuId = open ? "simple-popover" : undefined;
@@ -87,7 +91,7 @@ const Role = () => {
   const handleOpenMenuAction = (event: React.MouseEvent<HTMLButtonElement>, record: RowDataProps) => {
     setAnchorEl(event.currentTarget);
     setSelectedItem(record);
-    setUserDetail(null);
+    setRoleDetail(null);
   };
 
   const createSortHandler = (property: keyof RowDataProps | string) => (event: React.MouseEvent<unknown>) => {
@@ -97,67 +101,81 @@ const Role = () => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-    // reset({ name: "", phone: "", email: "" });
-    // getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    // setPage(newPage);
-    // reset({ name: "", phone: "", email: "" });
-    // getData({
-    //   pageIndex: newPage,
-    //   pageSize: rowsPerPage,
-    // });
+    setPage(newPage);
   };
 
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    // setRowsPerPage(parseInt(event.target.value));
-    // setPage(0);
-    // reset({ name: "", phone: "", email: "" });
-    // getData({
-    //   pageIndex: 0,
-    //   pageSize: parseInt(event.target.value),
-    // });
-  };
-
-  const handleOpenModal = () => {
-    setIsOpenModal(true);
-    setSelectedItem(null);
-    setUserDetail(null);
-    setTitle("Thêm mới");
+    setRowsPerPage(parseInt(event.target.value));
+    setPage(0);
   };
 
   const handleCloseModal = () => {
     setIsOpenModal(false);
     setSelectedItem(null);
-    setUserDetail(null);
+    setRoleDetail(null);
   };
 
-  const handleView = () => {};
+  const handleView = (dataDetail?: any) => {
+    setAnchorEl(null);
+    setIsEdit(false);
+    getDetailRole(dataDetail?.id);
+    setTitle("Xem chi tiết");
+  };
 
-  const handleEdit = () => {};
+  const handleEdit = (dataDetail?: any) => {
+    setAnchorEl(null);
+    setIsEdit(true);
+    getDetailRole(dataDetail?.id);
+    setTitle("Chỉnh sửa");
+  };
 
   const getResourceActions = async () => {
+    setIsLoadingResource(true);
     try {
       const data: any = await apiService.getFilter(URL_PATHS.RESOURCE_ACTION);
       setPermissionList(data);
-    } catch (error) {}
+    } catch (error) {
+    } finally {
+      setIsLoadingResource(false);
+    }
   };
-  const getDetailRole = async () => {
+
+  const getDetailRole = async (id?: any) => {
+    setLoadingScreen(true);
     try {
-      const data: any = await apiService.getFilter(URL_PATHS.ROLE_GET_DETAIL + "?id=6526ca952f7b4c61131d5ec9");
+      const data: any = await apiService.getFilter(URL_PATHS.ROLE_GET_DETAIL + `?id=${id || selectedItem?._id}`);
       setRoleDetail(data);
-    } catch (error) {}
+      setIsOpenModal(true);
+    } catch (error) {
+    } finally {
+      setLoadingScreen(false || isLoadingResource);
+    }
+  };
+
+  const getListRole = async () => {
+    setLoadingTable(true);
+    try {
+      const data: any = await apiService.getFilter(URL_PATHS.ROLE_GET);
+      setRoleState(data?.data);
+      setTotalCount(data?.totalUsers);
+    } catch (error) {
+    } finally {
+      setLoadingTable(false);
+      setLoadingScreen(false);
+    }
   };
 
   useEffect(() => {
     getResourceActions();
-    getDetailRole();
+    getListRole();
   }, []);
 
   return (
-    <Page className={styles.root} title="Vai trò" isActive>
-      <Grid container style={{ marginBottom: "20px" }}>
+    <Page className={styles.root} title="QUẢN LÝ VAI TRÒ" isActive>
+      {/* <Grid container style={{ marginBottom: "20px" }}>
         <Grid item xs={10}></Grid>
         <Grid item xs={2}>
           <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
@@ -170,7 +188,7 @@ const Role = () => {
             />
           </Box>
         </Grid>
-      </Grid>
+      </Grid> */}
       <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
         <Table stickyHeader>
           <TableHead>
@@ -179,7 +197,7 @@ const Role = () => {
                 if (header.label === "Ngày tạo") {
                   return (
                     <StickyTableCell key={index} style={header.style} className={clsx("background-table-header")}>
-                      {header.sort ? (
+                      {/* {header.sort ? (
                         <TableSortLabel
                           active={orderBy === header.sort}
                           direction={orderBy === header.sort ? order : "asc"}
@@ -194,7 +212,8 @@ const Role = () => {
                         </TableSortLabel>
                       ) : (
                         header.label
-                      )}
+                      )} */}
+                      {header.label}
                     </StickyTableCell>
                   );
                 }
@@ -230,20 +249,18 @@ const Role = () => {
           <TableBody>
             {loadingTable ? (
               <LoadingTableRow colSpan={6} />
-            ) : userState && userState.length > 0 ? (
+            ) : roleState && roleState.length > 0 ? (
               <>
-                {userState.map((data: any, index: number) => {
+                {roleState.map((data: any, index: number) => {
                   return (
                     <TableRow
                       key={index}
                       hover
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
-                      <TableCell>{data.name}</TableCell>
-                      <TableCell>{data.email}</TableCell>
-                      <TableCell>{data.phone}</TableCell>
-                      <TableCell className="">{data.address}</TableCell>
-                      <TableCell>{moment(data.createdAt).format(FORMAT_DATE)}</TableCell>
+                      <TableCell >{page * rowsPerPage + index + 1}</TableCell>
+                      <TableCell>{data.roleName}</TableCell>
+                      <TableCell>{data.description}</TableCell>
                       <TableCell>
                         <IconButton aria-label="more" onClick={(e) => handleOpenMenuAction(e, data)}>
                           <MoreHorizIcon />
@@ -291,7 +308,8 @@ const Role = () => {
           handleClose={handleCloseModal}
           permissionList={permissionList}
           roleDetail={roleDetail}
-          isEdit={true}
+          isEdit={isEdit}
+          getListRole={getListRole}
         />
       )}
     </Page>

@@ -7,68 +7,70 @@ import { getPermissions } from "../util/index.js";
 
 export const createRole = async (req, res, next) => {
   try {
-    await new Role({
-      roleId: new Date().getTime(),
-      roleName: "Admin",
-      description: "Người quản trị viên",
-      permissions: [
-        {
-          resource: {
-            _id: "6526c912314b2b5780558db1",
-          },
-          actions: [
-            {
-              _id: "6526ca06314b2b5780558dbb",
-            },
-            {
-              _id: "6526ca32314b2b5780558dbd",
-            },
-          ],
-        },
-      ],
-    }).save();
-    res.status(200).send("User has been created.");
+    await new Role(
+      {
+        roleName: "Administrator",
+        description: "Người quản trị viên",
+        permissions: [],
+      },
+      {
+        roleName: "Receptionist",
+        description: "Lễ tân cửa hàng",
+        permissions: [],
+      },
+      {
+        roleName: "Doctor",
+        description: "Bác sĩ",
+        permissions: [],
+      }
+    ).save();
+
+    await new Action(
+      { code: "View", name: "Xem" },
+      { code: "Create", name: "Thêm" },
+      { code: "Update", name: "Sửa" },
+      { code: "Delete", name: "Xoá" },
+      { code: "Export", name: "Xuất file" }
+    ).save();
+
+    await new Resource(
+      { code: "Dashboard", name: "Doanh thu thuần" },
+      { code: "User", name: "Người dùng" },
+      { code: "Staff", name: "Nhân Viên" }
+    ).save();
+
+    res.status(200).send("SUCCESS");
   } catch (err) {
     next(err);
   }
 };
 
 export const updateRole = async (req, res, next) => {
+  const id = req.query.id;
   try {
-    const updatedUser = await Role.findOneAndUpdate(
-      { roleId: 1696905458637 },
-      {
-        $set: {
-          permissions: [
-            {
-              resource: {
-                code: "Branches",
-                name: "Cửa hàng",
-              },
-              actions: [
-                {
-                  code: "View",
-                  name: "Xem",
-                },
-                {
-                  code: "Create",
-                  name: "Thêm",
-                },
-                {
-                  code: "Update",
-                  name: "Sửa",
-                },
-                {
-                  code: "Delete",
-                  name: "Xoá",
-                },
-              ],
-            },
-          ],
-        },
-      }
-    );
-    res.status(200).json(updatedUser);
+    await Role.findByIdAndUpdate(id, {
+      $set: {
+        permissions: req?.body?.permissions,
+      },
+    });
+    res.status(200).json();
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getListRole = async (req, res, next) => {
+  try {
+    const listUser = await Role.find({});
+    const data = listUser.map((x) => {
+      return {
+        _id: x?._id,
+        roleName: x.roleName,
+        description: x?.description,
+      };
+    });
+    const totalUsers = listUser.length;
+    res.status(200).json({ data, totalUsers });
   } catch (err) {
     next(err);
   }
@@ -99,20 +101,22 @@ export const getDetailRole = async (req, res, next) => {
     if (!listRole) {
       return next(createError(400, MESSAGE_ERROR.ROLE_NOT_EXISTS));
     }
-    const permissions = (listRole[0].permissions || []).map((x) => {
-      return x?.actions.map((y) => {
-        return {
-          actionCode: y.code,
-          resourceCode: x.resource?.code,
-        };
-      });
-    }).flat();
+    const permissions = (listRole[0].permissions || [])
+      .map((x) => {
+        return x?.actions.map((y) => {
+          return {
+            actionCode: y.code,
+            resourceCode: x.resource?.code,
+          };
+        });
+      })
+      .flat();
     const data = {
       id: listRole[0]._id,
       roleName: listRole[0].roleName,
       description: listRole[0].description,
-      permissions: permissions
-    }
+      permissions: permissions,
+    };
     res.status(200).json(data);
   } catch (error) {
     next(error);
