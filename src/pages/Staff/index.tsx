@@ -315,7 +315,9 @@ const Staff = () => {
     }
   };
 
-  const getUserDetail = async (id: string) => {};
+  const getUserDetail = async (id: string) => {
+    
+  };
 
   useEffect(() => {
     getData({});

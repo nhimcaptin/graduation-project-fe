@@ -25,9 +25,10 @@ const ChangePassword = (props: PropsType) => {
 const {setToastInformation} = useSetToastInformationState()
 
 
+
   const onSubmit = async () => {
     const formData = getValues();
-    if (title == "Thêm mới") {
+    if (title == "Change Password") {
       try {
         await apiService.post(BASE_URL + URL_PATHS.CREATE_USER, formData);
         console.log("Updated User Info:", formData);
@@ -35,14 +36,16 @@ const {setToastInformation} = useSetToastInformationState()
           status: STATUS_TOAST.SUCCESS,
           message: "Thêm thành công!!!",
         });
+   
         // Đóng popup
         // handleCancel();
       } catch (error) {
         console.error("Error when creating user:", error);
         // Xử lý lỗi nếu cần
       }
-    } else if (title == "Chỉnh sửa") {
+    } else if (title == "Edit profile") {
       try {
+ 
         await apiService.put(
           BASE_URL + URL_PATHS.CREATE_USER + "/" + dataDetail._id,
           formData
@@ -67,12 +70,14 @@ const {setToastInformation} = useSetToastInformationState()
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: dataDetail ? dataDetail?.name : "",
-      email: dataDetail ? dataDetail?.email : "",
-      phone: dataDetail ? dataDetail?.phone : "",
-      address: dataDetail ? dataDetail?.address : "",
+      name: dataDetail?.name,
+      email: dataDetail?.email,
+      phone: dataDetail?.phone,
+      address: dataDetail?.address,
     },
   });
+
+  
 
   return (
     <CrudModal

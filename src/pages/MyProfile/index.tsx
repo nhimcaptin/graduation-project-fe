@@ -3,6 +3,7 @@ import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import {
   Avatar,
+  Button,
   Grid,
   Paper,
   Stack,
@@ -14,31 +15,52 @@ import { useSelector } from "react-redux";
 import ChangePassword from "./component/ChangePassword/ChangePassword";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
 import { useForm } from "react-hook-form";
+import CloudUploadIcon from "@mui/icons-material/CloudUpload";
+import styled from "@emotion/styled";
 const MyProfile = () => {
   const isSmallScreen = useMediaQuery("(max-width: 678px)");
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
   const { setToastInformation } = useSetToastInformationState();
-  const [totalCount, setTotalCount] = useState<number>(0);
   const open = Boolean(anchorEl);
   const menuId = open ? "simple-popover" : undefined;
   const { control, handleSubmit, reset, setValue, watch } = useForm();
   const [staffs, setData] = useState<any>([]);
-  const [filterContext, setFilterContext] = useState<any>({});
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
 
   const { currentUser } = useSelector((state: any) => state.currentUser);
-  console.log(currentUser);
-
+  const VisuallyHiddenInput = styled("input")({
+    clip: "rect(0 0 0 0)",
+    clipPath: "inset(50%)",
+    height: 1,
+    overflow: "hidden",
+    position: "absolute",
+    bottom: 0,
+    left: 0,
+    whiteSpace: "nowrap",
+    width: 1,
+  });
   const handleCancel = () => {
     setIsOpenModal(false);
   };
   const handleOpenModal = () => {
     setIsOpenModal(true);
+  };
+  const handleChangePassWord = (dataDetail?: any) => {
+    setAnchorEl(null);
+    setIsViewMode(false);
+    setIsOpenModal(true);
     setTitle("Change Password");
+  };
+
+  const handleEdit = (dataDetail?: any) => {
+    setAnchorEl(null);
+    setIsViewMode(false);
+    setIsOpenModal(true);
+    setTitle("Edit profile");
   };
   return (
     <Page className={styles.root} title="My Profile" isActive>
@@ -126,14 +148,14 @@ const MyProfile = () => {
                   type="button"
                   className={styles.custom_button}
                   title="Change Password"
-                  onClick={handleOpenModal}
+                  onClick={handleChangePassWord}
                 ></ButtonCustom>
               </Grid>
               <Grid item>
                 <ButtonCustom
                   type="button"
                   className={styles.custom_button}
-                  onClick={handleOpenModal}
+                  onClick={handleEdit}
                   title="Edit profile"
                 ></ButtonCustom>
               </Grid>
