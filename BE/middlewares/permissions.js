@@ -42,4 +42,16 @@ export const routers = [
       { method: "GET" },
     ],
   },
+  {
+    url: "/api/booking/create",
+    permissions: [
+      { method: "POST" },
+    ],
+  },
+  {
+    url: "/api/detail-booking/:id",
+    permissions: [
+      { method: "GET" },
+    ],
+  },
 ];

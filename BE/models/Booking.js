@@ -27,6 +27,11 @@ const BookingSchema = new mongoose.Schema(
     service:{
       type: String
     },
+    status:{
+      type: String,
+      required: true,
+      default: "Waiting",
+    }
   },
   { timestamps: true }
 );
