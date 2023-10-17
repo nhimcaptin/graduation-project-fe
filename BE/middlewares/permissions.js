@@ -66,4 +66,10 @@ export const routers = [
       { method: "GET" },
     ],
   },
+  {
+    url: "/api/main-service/getAll",
+    permissions: [
+      { method: "GET" },
+    ],
+  },
 ];

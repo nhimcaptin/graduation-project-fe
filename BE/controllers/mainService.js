@@ -19,5 +19,28 @@ export const createMainService = async (req, res, next) => {
     }
   };
 
+  export const getMainService = async (req, res, next) => {
+    try {
+      const mainServiceId = req.params.id; 
+      const mainService = await MainService.findById(mainServiceId).select('-_id -createdAt -updatedAt -__v').lean();
+  
+      if (!mainService) {
+        return next(createError(404, 'Dịch vụ k tồn tại.'));
+      }
+        res.status(200).json(mainService);
+    } catch (err) {
+      next(err);
+    }
+  };
+  export const getAllMainServices = async (req, res, next) => {
+    try {
+      const mainServices = await MainService.find({}, '-_id -createdAt -updatedAt -__v').lean();
+  
+      res.status(200).json(mainServices);
+    } catch (err) {
+      next(err);
+    }
+  };
+  
   
   
