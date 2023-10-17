@@ -1,7 +1,7 @@
 import { MESSAGE_ERROR } from '../const/messages.js';
 import { createError } from '../middlewares/error.js';
 import Booking from '../models/Booking.js';
-import User from '../models/User.js'; // Import mô hình User từ tệp model
+import User from '../models/User.js'; 
 
 export const createBooking = async (req, res, next) => {
   try {

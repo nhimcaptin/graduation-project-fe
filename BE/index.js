@@ -4,6 +4,8 @@ import mongoose from "mongoose";
 import authRoute from "./routes/auth.js";
 import usersRoute from "./routes/users.js";
 import bookingRoute from "./routes/booking.js"
+import mainServiceRoute from "./routes/mainService.js"
+
 import cookieParser from "cookie-parser";
 import cors from "cors";
 import bodyParser from "body-parser";
@@ -41,6 +43,7 @@ app.use(session({
 app.use("/api/auth", authRoute);
 app.use("/api/users", usersRoute);
 app.use("/api/booking", bookingRoute);
+app.use("/api/main-service", mainServiceRoute);
 
 
 app.use((err, req, res, next) => {

@@ -49,7 +49,19 @@ export const routers = [
     ],
   },
   {
-    url: "/api/detail-booking/:id",
+    url: "/api/booking/detail-booking/:id",
+    permissions: [
+      { method: "GET" },
+    ],
+  },
+  {
+    url: "/api/main-service/create",
+    permissions: [
+      { method: "POST" },
+    ],
+  },
+  {
+    url: "/api/main-service/get/:id",
     permissions: [
       { method: "GET" },
     ],
