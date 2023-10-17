@@ -33,3 +33,36 @@ export const createBooking = async (req, res, next) => {
     next(err);
   }
 };
+export const getBooking = async (req, res, next) => {
+  try {
+    const bookingId = req.params.id; 
+    const booking = await Booking.findById(bookingId);
+
+    if (!booking) {
+      return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
+    }
+    const doctor = await User.findOne({ _id: booking.doctorId, role: 'Doctor' });
+
+    if (!doctor) {
+      return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
+    }
+   const patient = await User.findOne({ _id: booking.patientId, role: 'User' });
+
+    if (!patient) {
+      return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
+    }
+  res.status(200).json({
+      booking: {...booking._doc},
+      doctor: {
+        _id: doctor._id,
+        name: doctor.name,
+      },
+      patient: {
+        _id: patient._id,
+        name: patient.name,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
