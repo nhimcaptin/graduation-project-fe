@@ -5,22 +5,18 @@ const BookingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId, ref: 'User', 
       required: true 
     },
-
     doctorId: { 
       type: mongoose.Schema.Types.ObjectId, ref: 'User', 
       required: true 
     },
-
     date: { 
       type: Date, 
       required: true 
     },
-
-    timeType: {
-      type: String,
+    timeTypeId: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'TimeType', 
       require: true
     },
-
     description:{
       type: String,
     },
