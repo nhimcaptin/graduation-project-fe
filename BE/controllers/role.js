@@ -30,13 +30,15 @@ export const createRole = async (req, res, next) => {
       { code: "Create", name: "Thêm" },
       { code: "Update", name: "Sửa" },
       { code: "Delete", name: "Xoá" },
-      { code: "Export", name: "Xuất file" }
+      { code: "Export", name: "Xuất file" },
+      { code: "LoginAdmin", name: "" }
     ).save();
 
     await new Resource(
+      { code: "LoginAdmin", name: "Đăng nhập Admin" },
       { code: "Dashboard", name: "Doanh thu thuần" },
       { code: "User", name: "Người dùng" },
-      { code: "Staff", name: "Nhân Viên" }
+      { code: "Staff", name: "Nhân Viên" },
     ).save();
 
     res.status(200).send("SUCCESS");
@@ -81,7 +83,18 @@ export const resourceActions = async (req, res) => {
     const _resource = await Resource.find();
     const _action = await Action.find();
     const _resourceActions = _resource.map((x) => {
-      const filterAction = _action.filter((y) => (y?.code === "Export" ? ["User", "Staff"].includes(x?.code) : true));
+      const filterAction = _action.filter((y) => {
+        if (y?.code === "Export") return ["User", "Staff"].includes(x?.code);
+        if (y?.code !== "LoginAdmin") {
+          if (x?.code === "LoginAdmin" ) return false;
+          return true;
+        }
+        if (y?.code === "LoginAdmin") {
+          if (x?.code === "LoginAdmin" ) return true;
+          return false;
+        }
+        return true;
+      });
       return {
         resource: x,
         actions: filterAction,

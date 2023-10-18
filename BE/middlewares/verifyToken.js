@@ -3,6 +3,8 @@ import { createError } from "../middlewares/error.js";
 import { routers } from "./permissions.js";
 import User from "../models/User.js";
 import { MESSAGE_ERROR } from "../const/messages.js";
+import Role from "../models/Role.js";
+import Resource from "../models/Resource.js";
 
 export const verifyToken = (req, res, next, verifyPermissions) => {
   const token = req.header("authorization").replace("Bearer ", "");
@@ -46,6 +48,16 @@ export const verifyAdmin = (req, res, next) => {
 const checkPermissions = async (req) => {
   const decoded = jwt.verify(req.token, process.env.JWT);
   const data = await User.findOne({ _id: decoded.id });
-  const _path = routers.find((x) => x.url === req.baseUrl);
-  return _path && _path.permissions.find((x) => x.method === req.method).role.indexOf(data.role) >= 0 || true;
+  const role = await Role.findById(data.role);
+  const _resource = await Resource.find();
+  let idLogin;
+  (_resource || []).forEach((x) => {
+    if (x?.code === "LoginAdmin") {
+      idLogin = x._id;
+    }
+  });
+  const isLogin = (role?.permissions || []).find((x) => {
+    return x.resource.toString() == idLogin.toString();
+  });
+  return !!isLogin;
 };
