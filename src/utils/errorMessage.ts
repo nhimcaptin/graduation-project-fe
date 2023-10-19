@@ -1,4 +1,4 @@
-import { MESSAGE_ERROR } from "../consts/messages";
+import { MESSAGE_ERROR_API } from "../consts/messages";
 
 export interface IMessage {
   message: string;
@@ -8,5 +8,5 @@ export interface IMessage {
 }
 
 export const handleErrorMessage = (err: IMessage) => {
-  return MESSAGE_ERROR[err.message] || MESSAGE_ERROR.ERROR_SYSTEM;
+  return MESSAGE_ERROR_API[err.message] || MESSAGE_ERROR_API.ERROR_SYSTEM;
 };

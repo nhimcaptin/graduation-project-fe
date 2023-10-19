@@ -1,7 +1,7 @@
 import ROUTERS_PATHS from "../consts/router-paths";
 import React, { Suspense, Fragment, lazy } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
-import LoadingScreen from "../components/LoadingScreen/index";
+import SlashScreen from "../components/SlashScreen";
 
 import AuthGuard from "../components/AuthGuard";
 import GuestGuard from "../components/GuestGuard";
@@ -25,7 +25,7 @@ interface IRoutesState {
 }
 
 export const renderRoutes = (routes: IRoutesState[]) => (
-  <Suspense fallback={<LoadingScreen />}>
+  <Suspense fallback={<SlashScreen />}>
     <Routes>
       {routes.map((route, i) => {
         const Guard = route.guard || Fragment;
@@ -76,8 +76,13 @@ const routes: IRoutesState[] = [
         component: lazy(() => import("../pages/Staff")),
       },
       {
+<<<<<<< HEAD
         path: ROUTERS_PATHS.MY_PROFILE,
         component: lazy(() => import("../pages/MyProfile")),
+=======
+        path: ROUTERS_PATHS.Role,
+        component: lazy(() => import("../pages/Role")),
+>>>>>>> 55e54dbd6866d17fb5fbdd819840a0ec1c8fda87
       },
       {
         path: "*",

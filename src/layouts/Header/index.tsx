@@ -133,8 +133,8 @@ const Header = () => {
                   })}
                   onClick={() => handleClosePopover()}
                 >
-                  Tài khoản
-                  <Icons.Profile style={{ marginLeft: "10px" }} />
+                  <span style={{ marginRight: "10px" }}>Tài khoản</span>
+                  <Icons.Profile  />
                 </MenuItem>
               </Link>
 

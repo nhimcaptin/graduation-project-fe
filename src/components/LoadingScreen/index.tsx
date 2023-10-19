@@ -1,35 +1,24 @@
-import { useEffect } from "react";
-import NProgress from "nprogress";
-import  LinearProgress  from "@mui/material/LinearProgress";
-import  makeStyles  from "@mui/styles/makeStyles";
-
-const useStyles = makeStyles(() => ({
-  root: {
-    height: "100%",
-    minHeight: "100%",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-  },
-}));
+import { Backdrop } from '@mui/material';
+import CircularProgress from '@mui/material/CircularProgress';
+import { useSelector } from 'react-redux';
+import COLORS from '../../consts/colors';
 
 const LoadingScreen = () => {
-  const classes = useStyles();
+    const isLoadingScreen = useSelector((state: any) => state.loadingScreen.isLoading);
 
-  useEffect(() => {
-    NProgress.start();
-
-    return () => {
-      NProgress.done();
-    };
-  }, []);
-
-  return (
-    <div className={classes.root}>
-      <LinearProgress />
-    </div>
-  );
+    return (
+        <Backdrop
+            transitionDuration={0}
+            sx={{
+                color: '#ffffff',
+                zIndex: (theme) => theme.zIndex.drawer + 10000,
+                backgroundColor: COLORS.BACKGROUND_LOADING
+            }}
+            open={isLoadingScreen}
+        >
+            <CircularProgress color="inherit" />
+        </Backdrop>
+    );
 };
 
 export default LoadingScreen;

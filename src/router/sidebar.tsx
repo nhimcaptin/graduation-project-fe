@@ -17,6 +17,14 @@ export const sidebar = [
     subMenu: [],
   },
   {
+    key: "ROLE",
+    title: "Quản lý vai trò",
+    icon: Icons.RoleUser,
+    href: ROUTERS_PATHS.Role,
+    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    subMenu: [],
+  },
+  {
     key: "CUSTOMER",
     title: "Khách hàng",
     icon: Icons.Customer,
