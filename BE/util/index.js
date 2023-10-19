@@ -43,7 +43,10 @@ export const getPermissions = async (id) => {
         role.push({ ..._role._doc, permissions });
       }
     }
-    return role && role.length > 0 && role;
+    if (role.length === 0 && listRole.length > 0) {
+      role.push({ ...listRole[0]._doc, permissions: [] });
+    }
+    return role;
   } catch (err) {
     return err;
   }

@@ -18,7 +18,7 @@ dotenv.config();
 const connect = async () => {
   try {
    // console.log("process.env.JWT",process.env.JWT)
-    await mongoose.connect("mongodb://localhost:27017/nodejs-React");
+    await mongoose.connect(process.env.MONGO);
     console.log("Connected to mongoDB.");
   } catch (error) {
     throw error;

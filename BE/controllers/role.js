@@ -114,7 +114,7 @@ export const getDetailRole = async (req, res, next) => {
     if (!listRole) {
       return next(createError(400, MESSAGE_ERROR.ROLE_NOT_EXISTS));
     }
-    const permissions = (listRole[0].permissions || [])
+    const permissions = (listRole[0]?.permissions || [])
       .map((x) => {
         return x?.actions.map((y) => {
           return {
@@ -125,9 +125,9 @@ export const getDetailRole = async (req, res, next) => {
       })
       .flat();
     const data = {
-      id: listRole[0]._id,
-      roleName: listRole[0].roleName,
-      description: listRole[0].description,
+      id: listRole[0]?._id,
+      roleName: listRole[0]?.roleName,
+      description: listRole[0]?.description,
       permissions: permissions,
     };
     res.status(200).json(data);
