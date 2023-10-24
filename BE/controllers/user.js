@@ -94,7 +94,7 @@ export const getListUser = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
-    const total = User.find({});
+    const total = User.find(_filter?.isAdmin ? {isAdmin: _filter.isAdmin} : {});
     const query = User.find(_filter);
     const users = await query
       .skip((page - 1) * pageSize)

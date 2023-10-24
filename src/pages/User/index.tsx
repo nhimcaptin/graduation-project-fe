@@ -222,9 +222,9 @@ const User = () => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
-    const name = !!props && props.hasOwnProperty("name") ? props.name || 0 : page;
-    const phone = !!props && props.hasOwnProperty("phone") ? props.phone || 0 : page;
-    const email = !!props && props.hasOwnProperty("email") ? props.email || 0 : page;
+    const name = !!props && props.hasOwnProperty("name") ? props.name : "";
+    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : "";
+    const email = !!props && props.hasOwnProperty("email") ? props.email : "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -236,7 +236,7 @@ const User = () => {
       Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
     };
 
-    const filters = { unEncoded: { name: name, phone: phone, email: email } };
+    const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { isAdmin: 'false' } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
       setTotalCount(data?.totalUsers);
