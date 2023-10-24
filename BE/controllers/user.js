@@ -4,6 +4,7 @@ import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
 import { convertFilter } from "../util/index.js";
+import Role from "../models/Role.js";
 
 export const createUser = async (req, res, next) => {
   try {
@@ -16,7 +17,8 @@ export const createUser = async (req, res, next) => {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync("admin123456", salt);
     await new User({
-      ...req.body,
+      ...data,
+      isAdmin: !!data?.role,
       password: hash,
     }).save();
     res.status(200).send("User has been created.");
@@ -37,7 +39,17 @@ export const updateUser = async (req, res, next) => {
 export const detailUser = async (req, res, next) => {
   try {
     const detailUser = await User.findById(req.params.id).exec();
-    const data = { ...detailUser._doc, password: null };
+    const roleDetail = detailUser?.role ? await Role.findById(detailUser.role) : null;
+    const data = {
+      ...detailUser._doc,
+      ...(roleDetail && {
+        role: {
+          value: roleDetail?._id,
+          label: roleDetail.roleName,
+        },
+      }),
+      password: null,
+    };
     delete data.password;
     return res.status(200).json(data);
   } catch (err) {
@@ -47,9 +59,9 @@ export const detailUser = async (req, res, next) => {
 
 export const detailDoctor = async (req, res, next) => {
   try {
-    const doctor = await User.findOne({ _id: req.params.id, role: 'Doctor' }).exec();
+    const doctor = await User.findOne({ _id: req.params.id, role: "Doctor" }).exec();
     if (!doctor) {
-      return res.status(404).json({ message: 'Bác sĩ không tồn tại.' });
+      return res.status(404).json({ message: "Bác sĩ không tồn tại." });
     }
 
     const data = { ...doctor._doc, password: null };
@@ -94,12 +106,12 @@ export const getListUser = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
-    const total = User.find({});
+    const total = User.find(_filter?.isAdmin ? { isAdmin: _filter.isAdmin } : {});
     const query = User.find(_filter);
     const users = await query
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .sort(Sorts)
+      .sort(Sorts);
     const totalUsers = await User.countDocuments(total);
     const data = users?.map((x) => {
       return {
@@ -124,16 +136,15 @@ export const getListDoctors = async (req, res, next) => {
     const { Page, PageSize, Sorts, filters } = req.query;
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
-    const query = User.find({ role: 'Doctor' }); 
+    const query = User.find({ role: "Doctor" });
     const doctors = await query
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts);
-    const totalDoctors = await User.countDocuments({ role: 'Doctor' }); 
+    const totalDoctors = await User.countDocuments({ role: "Doctor" });
 
     res.json({ doctors, totalDoctors });
   } catch (error) {
     next(error);
   }
 };
-

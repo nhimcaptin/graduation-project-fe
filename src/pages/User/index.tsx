@@ -40,7 +40,7 @@ import { handleErrorMessage } from "../../utils/errorMessage";
 import moment from "moment";
 import AddUser from "./components/AddUser";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
-import { MESSAGES_CONFIRM } from "../../consts/messages";
+import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
 import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
@@ -216,15 +216,32 @@ const User = () => {
     });
   };
 
-  const onDelete = () => {};
+  const onDelete = async () => {
+    setLoadingScreen(true);
+    try {
+      await apiService.delete(`${URL_PATHS.CREATE_USER}/${selectedItem?._id}`);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: MESSAGE_SUCCESS.DELETE_USER,
+      });
+      getData && getData({});
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
+  };
 
   const getData = async (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
-    const name = !!props && props.hasOwnProperty("name") ? props.name || 0 : page;
-    const phone = !!props && props.hasOwnProperty("phone") ? props.phone || 0 : page;
-    const email = !!props && props.hasOwnProperty("email") ? props.email || 0 : page;
+    const name = !!props && props.hasOwnProperty("name") ? props.name : "";
+    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : "";
+    const email = !!props && props.hasOwnProperty("email") ? props.email : "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -236,7 +253,7 @@ const User = () => {
       Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
     };
 
-    const filters = { unEncoded: { name: name, phone: phone, email: email } };
+    const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { isAdmin: "false" } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
       setTotalCount(data?.totalUsers);
@@ -479,6 +496,7 @@ const User = () => {
           onCancel={handleCancel}
           isEdit={!isViewMode}
           dataDetail={userDetail}
+          getData={getData}
         />
       )}
     </Page>

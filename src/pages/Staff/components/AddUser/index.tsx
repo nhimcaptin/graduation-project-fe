@@ -5,12 +5,12 @@ import LabelCustom from "../../../../components/LabelCustom";
 import { Controller, useForm } from "react-hook-form";
 import TextFieldCustom from "../../../../components/TextFieldCustom";
 import { MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../../../consts/messages";
+import ReactSelect from "../../../../components/ReactSelectView";
+import { useSetToastInformationState } from "../../../../redux/store/ToastMessage";
 import apiService from "../../../../services/api-services";
 import URL_PATHS from "../../../../services/url-path";
-import { useSetToastInformationState } from "../../../../redux/store/ToastMessage";
-import { handleErrorMessage } from "../../../../utils/errorMessage";
 import { STATUS_TOAST } from "../../../../consts/statusCode";
-import ReactSelect from "../../../../components/ReactSelectView";
+import { handleErrorMessage } from "../../../../utils/errorMessage";
 
 interface PropsType {
   isOpen: boolean;
@@ -26,6 +26,7 @@ const AddUser = (props: PropsType) => {
   const { setToastInformation } = useSetToastInformationState();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSelect, setIsLoadingSelect] = useState(false);
 
   const {
     handleSubmit,
@@ -42,6 +43,48 @@ const AddUser = (props: PropsType) => {
     },
   });
 
+  const getCustomerGroupOptions = async (searchText: string, page: number, perPage: number) => {
+    setIsLoadingSelect(true);
+    const params = {
+      page,
+      perPage,
+    };
+
+    const filters = {
+      name: searchText,
+    };
+    try {
+      const res: any = await apiService.getFilter(URL_PATHS.ROLE_GET, params, filters);
+      const resultItems: any[] = res?.data;
+      if (resultItems.length >= 0) {
+        const items: any[] = resultItems.map((item) => {
+          const result = {
+            ...item,
+            label: item?.roleName || "",
+            value: item?._id || "",
+          };
+          return result;
+        });
+        console.log("items", items);
+        return {
+          options: items,
+          hasMore: res?.totalUsers / perPage > page,
+        };
+      }
+      return {
+        options: [],
+        hasMore: false,
+      };
+    } catch (error) {
+      return {
+        options: [],
+        hasMore: false,
+      };
+    } finally {
+      setIsLoadingSelect(false);
+    }
+  };
+
   const onSubmit = async (data: any) => {
     setIsLoading(true);
     try {
@@ -49,16 +92,15 @@ const AddUser = (props: PropsType) => {
         await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, data);
         setToastInformation({
           status: STATUS_TOAST.SUCCESS,
-          message: MESSAGE_SUCCESS.EDIT_USER,
+          message: MESSAGE_SUCCESS.EDIT_STAFF,
         });
       } else {
         await apiService.post(URL_PATHS.CREATE_USER, data);
         setToastInformation({
           status: STATUS_TOAST.SUCCESS,
-          message: MESSAGE_SUCCESS.CREATE_USER,
+          message: MESSAGE_SUCCESS.CREATE_STAFF,
         });
       }
-
       onCancel && onCancel();
       getData && getData({});
     } catch (error: any) {
@@ -175,6 +217,39 @@ const AddUser = (props: PropsType) => {
                   disabled={!isEdit}
                   type="text"
                   errorMessage={errors?.address?.message}
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+          <Grid item xs={5}>
+            <LabelCustom title="Vai trò" isRequired />
+            <Controller
+              control={control}
+              name="role"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <ReactSelect
+                  isClearable
+                  getOptions={(searchText: string, page: number, perPage: number) =>
+                    getCustomerGroupOptions(searchText, page, perPage)
+                  }
+                  getOptionLabel={(option: any) => option.label}
+                  getOptionValue={(option: any) => option.value}
+                  value={value}
+                  onChange={(value: any) => {
+                    onChange(value);
+                  }}
+                  fieldName={name}
+                  maxMenuHeight={200}
+                  placeholder="Chọn vai trò"
+                  inputRef={ref}
+                  isValidationFailed
+                  isDisabled={!isEdit}
+                  isLoading={isLoadingSelect}
                 />
               )}
             />
