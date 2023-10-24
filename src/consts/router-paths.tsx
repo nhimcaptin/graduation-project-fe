@@ -7,6 +7,7 @@ const ROUTERS_PATHS = {
   CUSTOMER: "/customer",
   USER: "/staff",
   Role: "/list-of-positions",
+  BOOKING: "/list-of-booking",
   MY_PROFILE: "/my-profile",
 };
 

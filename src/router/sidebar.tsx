@@ -40,4 +40,12 @@ export const sidebar = [
     role: [Role.Administrator, Role.Doctor, Role.Receptionist],
     subMenu: [],
   },
+  {
+    key: "BOOKING",
+    title: "Đặt Lịch",
+    icon: Icons.User,
+    href: ROUTERS_PATHS.BOOKING,
+    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    subMenu: [],
+  },
 ];

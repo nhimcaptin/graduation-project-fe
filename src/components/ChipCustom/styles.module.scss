@@ -1,0 +1,22 @@
+@import '../../assets//css/variable';
+.active {
+  background: $light-green;
+  color: $text;
+}
+
+.inactive {
+  background-color: $red;
+  color: #ffffff;
+}
+
+.warning {
+  background: $yellow;
+  color: $text;
+}
+
+.chipStyles {
+  font-weight: 700;
+  border-radius: 6px;
+  font-size: 14px;
+  line-height: 21px;
+}

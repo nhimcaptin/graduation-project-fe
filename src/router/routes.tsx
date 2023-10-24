@@ -80,6 +80,10 @@ const routes: IRoutesState[] = [
         component: lazy(() => import("../pages/Role")),
       },
       {
+        path: ROUTERS_PATHS.BOOKING,
+        component: lazy(() => import("../pages/Booking")),
+      },
+      {
         path: "*",
         component: () => <Navigate to={ROUTERS_PATHS.DASHBOARD} replace />,
       },
