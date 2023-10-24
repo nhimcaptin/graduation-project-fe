@@ -5,22 +5,18 @@ const BookingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId, ref: 'User', 
       required: true 
     },
-
     doctorId: { 
       type: mongoose.Schema.Types.ObjectId, ref: 'User', 
       required: true 
     },
-
     date: { 
       type: Date, 
       required: true 
     },
-
-    timeType: {
-      type: String,
+    timeSlot: {
+      type: String, 
       require: true
     },
-
     description:{
       type: String,
     },
@@ -31,6 +27,10 @@ const BookingSchema = new mongoose.Schema(
       type: String,
       required: true,
       default: "Waiting",
+    },
+    bookingType:{
+      type: String,
+      default: "Online",
     }
   },
   { timestamps: true }

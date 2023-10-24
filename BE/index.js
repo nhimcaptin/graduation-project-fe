@@ -4,8 +4,9 @@ import mongoose from "mongoose";
 import authRoute from "./routes/auth.js";
 import usersRoute from "./routes/users.js";
 import roleRoute from "./routes/role.js";
-import bookingRoute from "./routes/booking.js"
-import mainServiceRoute from "./routes/mainService.js"
+import bookingRoute from "./routes/booking.js";
+import mainServiceRoute from "./routes/mainService.js";
+import timeTypeRoute from "./routes/timeType.js";
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -18,6 +19,7 @@ dotenv.config();
 const connect = async () => {
   try {
    // console.log("process.env.JWT",process.env.JWT)
+    //await mongoose.connect("mongodb://localhost:27017/nodejs-React");
     await mongoose.connect(process.env.MONGO);
     console.log("Connected to mongoDB.");
   } catch (error) {
@@ -46,6 +48,8 @@ app.use("/api/users", usersRoute);
 app.use("/api/role", roleRoute);
 app.use("/api/booking", bookingRoute);
 app.use("/api/main-service", mainServiceRoute);
+app.use("/api/time-type", timeTypeRoute);
+
 
 
 app.use((err, req, res, next) => {
