@@ -26,3 +26,8 @@ export const convertSearchString = (value: string) => {
     });
   return newStr;
 };
+
+export const stripHTML = (html: string) => {
+  let doc = new DOMParser().parseFromString(html, 'text/html');
+  return doc.body.textContent || '';
+};

@@ -1,0 +1,248 @@
+@import 'src/assets/css/_variable.scss';
+.tab-content {
+    background-color: $background;
+    box-shadow: 0px 2px 24px -2px rgba(0, 0, 0, 0.1);
+    border-radius: 8px 8px 8px 8px;
+    padding: 12px 30px;
+}
+
+.tab-content-first {
+    border-radius: 0px 8px 8px 8px;
+}
+
+.tab-content-end {
+    border-radius: 8px 8px 0px 8px;
+}
+
+.tab-header {
+    .MuiTabs-scroller {
+        .MuiTabs-indicator {
+            height: 0px;
+        }
+
+        .MuiTabs-flexContainer {
+            .MuiButtonBase-root {
+                font-size: 12px;
+                color: $shade;
+            }
+
+            .Mui-selected {
+                background-color: $background;
+                box-shadow: 0px 2px 24px -2px rgba(0, 0, 0, 0.1);
+                border-radius: 8px 8px 0px 0px;
+                color: $text;
+            }
+        }
+    }
+}
+
+.dropzone-custom {
+    min-height: 170px;
+    border-radius: 12px;
+    justify-content: center;
+}
+
+.txt-error-add-blog {
+    color: #d32f2f !important;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+    font-weight: 400;
+    font-size: 0.75rem;
+    line-height: 1.66;
+    letter-spacing: 0.03333em;
+    text-align: left;
+    margin-top: -35px;
+    margin-right: 14px;
+    margin-bottom: 0;
+    margin-left: 14px;
+}
+
+.button-adornment {
+    width: 80px;
+    height: 26px;
+    background: #dedede;
+    border-radius: 4px;
+    align-items: center;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+    font-style: normal;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 15px;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+    color: #4a484f;
+    text-transform: none;
+}
+
+.button-adornment:hover {
+    border: 1px solid #d1d1e4;
+    box-shadow: 2px 2px 4px 1px #dedede;
+    color: #4a484f;
+}
+
+.button-adornment:disabled {
+    cursor: pointer !important;
+    // background: red;
+}
+
+.txt-Tags {
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 15px;
+    margin-left: 20px;
+    margin-top: 4px;
+    display: flex;
+    align-items: center;
+    margin-bottom: 3px;
+}
+
+.rdw-editor-wrapper {
+    border: 1px solid #d9d9d9 !important;
+    border-radius: 4px;
+    padding: 2px;
+}
+
+.editorClassName {
+    min-height: 100px !important;
+}
+
+.edit-blog-icon {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    display: flex;
+    padding-left: 3px;
+}
+
+.edit-blog-icon:hover {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    box-shadow: 2px 2px 4px 1px #dedede;
+}
+
+.edit-blog {
+    // width: 100px;
+
+    input {
+        height: 11px;
+        font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+        font-style: normal;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 15px;
+    }
+}
+
+.edit-blog-dis {
+    .MuiOutlinedInput-notchedOutline {
+        border: none;
+    }
+}
+
+.rdw-image-modal {
+    left: -107px !important;
+}
+
+textarea {
+    border: 1px solid rgba(0, 0, 0, 0.23);
+    border-radius: 4px;
+    width: 100%;
+    font-style: normal;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 14px;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif;
+}
+
+.css-fksjaj {
+    justify-content: center;
+}
+
+.sun-editor {
+    border-radius: 4px;
+    overflow: hidden;
+    font-family: 'Roboto', 'Helvetica', 'Arial', sans-serif !important;
+
+    .se-container {
+        border-radius: 4px;
+    }
+
+    .se-toolbar {
+        outline: none !important;
+        border-top-left-radius: 4px;
+        border-top-right-radius: 4px;
+        border-bottom: 1px solid #dadada;
+    }
+}
+
+.descriptionError {
+    .se-container {
+        border-radius: 4px;
+        border: 1px solid #d32f2f;
+        overflow: hidden;
+    }
+
+    .se-toolbar {
+        border-bottom: 1px solid #dadada;
+    }
+}
+
+.display-none {
+    input {
+        display: none;
+    }
+
+    fieldset {
+        display: none;
+    }
+}
+
+.txtContent {
+    text-transform: none;
+
+    input {
+        font-size: 12px;
+        height: 23px;
+    }
+
+    textarea {
+        font-size: 12px;
+    }
+}
+
+.se-list-font-family {
+    max-height: 300px;
+    overflow: auto;
+}
+
+.uploadVideo {
+    .css-13xfq8m-MuiTabPanel-root {
+        padding: 0;
+        margin-top: 5px;
+    }
+}
+
+.txtErrors {
+    color: #d32f2f;
+    font-weight: 400;
+    font-size: 0.75rem;
+    line-height: 1.66;
+    letter-spacing: 0.03333em;
+    text-align: left;
+    margin-top: 4px;
+    margin-right: 14px;
+    margin-bottom: 0;
+    margin-left: 14px;
+}
+
+.descriptionHeight {
+    min-height: 452px;
+    padding-bottom: 20px;
+}
+
+.sun-editor .se-dialog .se-dialog-inner .se-dialog-form .se-input-form {
+    padding: 4px 4px;
+}

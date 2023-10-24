@@ -43,6 +43,7 @@ import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
 import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
+import AddUser from "./components/AddNew";
 
 interface RowDataProps {
   id: number;
@@ -488,7 +489,7 @@ const Booking = () => {
         </Popover>
       </IF>
 
-      {/* {isOpenModal && (
+      {isOpenModal && (
         <AddUser
           isOpen={isOpenModal}
           title={title}
@@ -497,7 +498,7 @@ const Booking = () => {
           dataDetail={userDetail}
           getData={getData}
         />
-      )} */}
+      )}
     </Page>
   );
 };
