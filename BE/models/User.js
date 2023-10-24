@@ -25,7 +25,7 @@ const UserSchema = new mongoose.Schema(
     img: {
       type: String,
     },
-    role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role', required: true },
+    role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role'},
     isAdmin: {
       type: Boolean,
       default: false,

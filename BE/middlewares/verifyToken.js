@@ -46,18 +46,22 @@ export const verifyAdmin = (req, res, next) => {
 };
 
 const checkPermissions = async (req) => {
-  const decoded = jwt.verify(req.token, process.env.JWT);
-  const data = await User.findOne({ _id: decoded.id });
-  const role = await Role.findById(data.role);
-  const _resource = await Resource.find();
-  let idLogin;
-  (_resource || []).forEach((x) => {
-    if (x?.code === "LoginAdmin") {
-      idLogin = x._id;
-    }
-  });
-  const isLogin = (role?.permissions || []).find((x) => {
-    return x.resource.toString() == idLogin.toString();
-  });
-  return !!isLogin;
+  try {
+    const decoded = jwt.verify(req.token, process.env.JWT);
+    const data = await User.findOne({ _id: decoded.id });
+    const role = await Role.findById(data.role);
+    const _resource = await Resource.find();
+    let idLogin;
+    (_resource || []).forEach((x) => {
+      if (x?.code === "LoginAdmin") {
+        idLogin = x._id;
+      }
+    });
+    const isLogin = (role?.permissions || []).find((x) => {
+      return x.resource.toString() == idLogin.toString();
+    });
+    return !!isLogin;
+  } catch (error) {
+    return false;
+  }
 };

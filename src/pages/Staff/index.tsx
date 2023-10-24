@@ -40,7 +40,7 @@ import { handleErrorMessage } from "../../utils/errorMessage";
 import moment from "moment";
 import AddUser from "./components/AddUser";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
-import { MESSAGES_CONFIRM } from "../../consts/messages";
+import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
 import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
@@ -208,7 +208,7 @@ const Staff = () => {
     openConfirmModal({
       isOpen: true,
       title: "Xóa",
-      message: MESSAGES_CONFIRM.DeleteUser,
+      message: MESSAGES_CONFIRM.DeleteSatff,
       cancelBtnLabel: "Hủy",
       okBtnLabel: "Xóa",
       isDeleteConfirm: true,
@@ -216,7 +216,24 @@ const Staff = () => {
     });
   };
 
-  const onDelete = () => {};
+  const onDelete = async () => {
+    setLoadingScreen(true);
+    try {
+      await apiService.delete(`${URL_PATHS.CREATE_USER}/${selectedItem?._id}`);
+        setToastInformation({
+          status: STATUS_TOAST.SUCCESS,
+          message: MESSAGE_SUCCESS.DELETE_STAFF,
+        });
+      getData && getData({});
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
+  };
 
   const getData = async (props: any) => {
     setLoadingTable(true);
@@ -236,7 +253,7 @@ const Staff = () => {
       Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
     };
 
-    const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { isAdmin: 'true' } };
+    const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { isAdmin: "true" } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
       setTotalCount(data?.totalUsers);
@@ -479,6 +496,7 @@ const Staff = () => {
           onCancel={handleCancel}
           isEdit={!isViewMode}
           dataDetail={userDetail}
+          getData={getData}
         />
       )}
     </Page>

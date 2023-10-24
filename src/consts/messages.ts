@@ -4,6 +4,14 @@ export const MESSAGE_ERROR: any = {
 
 export const MESSAGE_SUCCESS: any = {
   UPDATE_ROLE: "Bạn cập nhập vai trò thành công",
+
+  CREATE_USER: "Tạo mới khách hàng thành công",
+  EDIT_USER: "Sửa khách hàng thành công",
+  DELETE_USER: "Xóa khách hàng thành công",
+
+  CREATE_STAFF: "Tạo mới nhân viên thành công",
+  EDIT_STAFF: "Sửa nhân viên thành công",
+  DELETE_STAFF: "Xóa nhân viên thành công",
 };
 
 export const MESSAGE_ERROR_API: any = {
@@ -14,4 +22,5 @@ export const MESSAGE_ERROR_API: any = {
 
 export const MESSAGES_CONFIRM = {
   DeleteUser: "Bạn có chắc muốn xóa người dùng này? Người dùng đã xóa không thể khôi phục lại.",
+  DeleteSatff: "Bạn có chắc muốn xóa nhân viên này? Người dùng đã xóa không thể khôi phục lại.",
 };

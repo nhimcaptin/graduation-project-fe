@@ -3,7 +3,7 @@ import { createError } from "../middlewares/error.js";
 import Action from "../models/Action.js";
 import Resource from "../models/Resource.js";
 import Role from "../models/Role.js";
-import { getPermissions } from "../util/index.js";
+import { convertFilter, getPermissions } from "../util/index.js";
 
 export const createRole = async (req, res, next) => {
   try {
@@ -38,7 +38,7 @@ export const createRole = async (req, res, next) => {
       { code: "LoginAdmin", name: "Đăng nhập Admin" },
       { code: "Dashboard", name: "Doanh thu thuần" },
       { code: "User", name: "Người dùng" },
-      { code: "Staff", name: "Nhân Viên" },
+      { code: "Staff", name: "Nhân Viên" }
     ).save();
 
     res.status(200).send("SUCCESS");
@@ -63,15 +63,22 @@ export const updateRole = async (req, res, next) => {
 
 export const getListRole = async (req, res, next) => {
   try {
-    const listUser = await Role.find({});
-    const data = listUser.map((x) => {
+    const { Page, PageSize, Sorts, filters } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+    const _filter = convertFilter(filters);
+    const listRole = await Role.find(_filter)
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .sort(Sorts);
+    const data = listRole.map((x) => {
       return {
         _id: x?._id,
         roleName: x.roleName,
         description: x?.description,
       };
     });
-    const totalUsers = listUser.length;
+    const totalUsers = listRole.length;
     res.status(200).json({ data, totalUsers });
   } catch (err) {
     next(err);
@@ -86,11 +93,11 @@ export const resourceActions = async (req, res) => {
       const filterAction = _action.filter((y) => {
         if (y?.code === "Export") return ["User", "Staff"].includes(x?.code);
         if (y?.code !== "LoginAdmin") {
-          if (x?.code === "LoginAdmin" ) return false;
+          if (x?.code === "LoginAdmin") return false;
           return true;
         }
         if (y?.code === "LoginAdmin") {
-          if (x?.code === "LoginAdmin" ) return true;
+          if (x?.code === "LoginAdmin") return true;
           return false;
         }
         return true;

@@ -1,21 +1,31 @@
-import React from "react";
+import React, { useState } from "react";
 import CrudModal from "../../../../components/CrudModal";
 import { Grid } from "@mui/material";
 import LabelCustom from "../../../../components/LabelCustom";
 import { Controller, useForm } from "react-hook-form";
 import TextFieldCustom from "../../../../components/TextFieldCustom";
-import { MESSAGE_ERROR } from "../../../../consts/messages";
+import { MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../../../consts/messages";
+import apiService from "../../../../services/api-services";
+import URL_PATHS from "../../../../services/url-path";
+import { useSetToastInformationState } from "../../../../redux/store/ToastMessage";
+import { handleErrorMessage } from "../../../../utils/errorMessage";
+import { STATUS_TOAST } from "../../../../consts/statusCode";
+import ReactSelect from "../../../../components/ReactSelectView";
 
 interface PropsType {
   isOpen: boolean;
   dataDetail: any;
   title: string;
-  onCancel: (parameter: any) => void;
+  onCancel: () => void;
+  getData: (params: any) => void;
   isEdit: boolean;
 }
 
 const AddUser = (props: PropsType) => {
-  const { isOpen, title, isEdit, onCancel, dataDetail } = props;
+  const { isOpen, title, isEdit, onCancel, getData, dataDetail } = props;
+  const { setToastInformation } = useSetToastInformationState();
+
+  const [isLoading, setIsLoading] = useState(false);
 
   const {
     handleSubmit,
@@ -28,17 +38,48 @@ const AddUser = (props: PropsType) => {
       email: dataDetail ? dataDetail?.email : "",
       phone: dataDetail ? dataDetail?.phone : "",
       address: dataDetail ? dataDetail?.address : "",
+      role: dataDetail ? dataDetail?.role : "",
     },
   });
+
+  const onSubmit = async (data: any) => {
+    setIsLoading(true);
+    try {
+      if (!!dataDetail) {
+        await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, data);
+        setToastInformation({
+          status: STATUS_TOAST.SUCCESS,
+          message: MESSAGE_SUCCESS.EDIT_USER,
+        });
+      } else {
+        await apiService.post(URL_PATHS.CREATE_USER, data);
+        setToastInformation({
+          status: STATUS_TOAST.SUCCESS,
+          message: MESSAGE_SUCCESS.CREATE_USER,
+        });
+      }
+
+      onCancel && onCancel();
+      getData && getData({});
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   return (
     <CrudModal
       isOpen={isOpen}
       formTitle={title}
-      handleSave={isEdit ? () => {} : undefined}
+      handleSave={isEdit ? handleSubmit(onSubmit) : undefined}
       handleClose={onCancel}
       cancelBtnLabel="Hủy"
       saveBtnLabel="Lưu"
+      loading={isLoading}
       dialogProps={{
         fullWidth: true,
         maxWidth: "md",
