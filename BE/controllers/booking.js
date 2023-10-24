@@ -2,20 +2,28 @@ import { MESSAGE_ERROR } from '../const/messages.js';
 import { createError } from '../middlewares/error.js';
 import Booking from '../models/Booking.js';
 import User from '../models/User.js'; 
+import TimeType from '../models/TimeType.js';
+import { log } from 'console';
 
 export const createBooking = async (req, res, next) => {
   try {
     const data = req.body;
-    const { patientId, doctorId, date, timeType, description, service, status,bookingType } = data;
+    const { patientId, doctorId, date, timeTypeId, description, service, status,bookingType } = data;
 
     // const isExists = await Booking.findOne({ patientId,doctorId, date, timeType });
 
     // if (isExists) {
     //   return next(createError(400, 'Cuộc hẹn đã tồn tại.'));
     // }
-    const existingBooking = await Booking.findOne({ doctorId, date, timeType });
+    const existingBooking = await Booking.findOne({ doctorId, date, timeTypeId });
     if (existingBooking) {
       return res.status(400).json({ message: "Cuộc hẹn trùng lặp." });
+    }
+
+    const time = await TimeType.findById(timeTypeId);
+    console.log(time);
+    if (!time) {
+      return res.status(400).json({ message: "Không tìm thấy khung giờ khám" });
     }
     // const doctor = await User.findOne({ _id: doctorId, role: 'Doctor' });
     // if (!doctor) {
@@ -25,7 +33,7 @@ export const createBooking = async (req, res, next) => {
       patientId,
       doctorId,
       date,
-      timeType,
+      timeTypeId,
       description,
       service,
       status,

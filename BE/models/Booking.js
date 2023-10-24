@@ -13,8 +13,8 @@ const BookingSchema = new mongoose.Schema(
       type: Date, 
       required: true 
     },
-    timeSlot: {
-      type: String, 
+    timeTypeId: {
+      type: mongoose.Schema.Types.ObjectId, ref: 'TimeType', 
       require: true
     },
     description:{
