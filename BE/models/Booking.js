@@ -13,8 +13,8 @@ const BookingSchema = new mongoose.Schema(
       type: Date, 
       required: true 
     },
-    timeTypeId: {
-      type: mongoose.Schema.Types.ObjectId, ref: 'TimeType', 
+    timeSlot: {
+      type: String, 
       require: true
     },
     description:{
@@ -27,6 +27,10 @@ const BookingSchema = new mongoose.Schema(
       type: String,
       required: true,
       default: "Waiting",
+    },
+    bookingType:{
+      type: String,
+      default: "Online",
     }
   },
   { timestamps: true }
