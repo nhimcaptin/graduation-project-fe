@@ -65,7 +65,6 @@ const AddUser = (props: PropsType) => {
           };
           return result;
         });
-        console.log("items", items);
         return {
           options: items,
           hasMore: res?.totalUsers / perPage > page,

@@ -10,5 +10,6 @@ const URL_PATHS = {
     ROLE_GET_DETAIL: "api/role/get-detail",
     ROLE_GET: "api/role",
     ROLE_EDIT: "api/role/edit-role",
+    GET_BOOKING: "api/booking/get-list",
 }
 export default URL_PATHS

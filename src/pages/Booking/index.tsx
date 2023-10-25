@@ -30,7 +30,7 @@ import SearchPopover from "../../components/SearchPopover";
 import LabelCustom from "../../components/LabelCustom";
 import { ButtonIconCustom } from "../../components/ButtonIconCustom";
 import { Controller, useForm } from "react-hook-form";
-import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
+import { FORMAT_DATE, getRowStatus, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
 import DISPLAY_TEXTS from "../../consts/display-texts";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
@@ -44,14 +44,16 @@ import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
 import AddUser from "./components/AddNew";
+import ChipCustom from "../../components/ChipCustom";
 
 interface RowDataProps {
   id: number;
-  name: string;
-  email: string;
-  phone: string;
-  address: string;
-  createdAt: string;
+  patientId: string;
+  doctorId: string;
+  bookingType: string;
+  date: string;
+  service: string;
+  status: string;
   [x: string]: string | number | boolean | undefined;
   [x: number]: string | number | undefined;
 }
@@ -59,28 +61,33 @@ interface RowDataProps {
 const headCells = [
   {
     label: "Tên bệnh nhân",
-    sort: "name",
-    style: { maxWidth: "30%", minWidth: "180px" },
+    sort: "patientId",
+    style: { maxWidth: "25%", minWidth: "180px" },
   },
   {
     label: "Tên bác sĩ",
-    sort: "email",
-    style: { maxWidth: "30%", minWidth: "180px" },
+    sort: "doctorId",
+    style: { maxWidth: "25%", minWidth: "180px" },
   },
   {
     label: "Hình thức",
-    sort: "phone",
-    style: { maxWidth: "25%", minWidth: "180px" },
+    sort: "bookingType",
+    style: { maxWidth: "10%", minWidth: "180px" },
+  },
+  {
+    label: "Dịch vụ",
+    sort: "service",
+    style: { maxWidth: "15%", minWidth: "180px" },
   },
   {
     label: "Ngày giờ đặt lịch",
-    sort: "phone",
-    style: { maxWidth: "25%", minWidth: "180px" },
+    sort: "date",
+    style: { maxWidth: "10%", minWidth: "180px" },
   },
   {
     label: "Trạng thái",
-    sort: "address",
-    style: { maxWidth: "10%", minWidth: "180px" },
+    sort: "status",
+    style: { maxWidth: "10%", minWidth: "80px" },
   },
   { label: "", style: { minWidth: "5%" } },
 ];
@@ -253,9 +260,9 @@ const Booking = () => {
       Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
     };
 
-    const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { isAdmin: "false" } };
+    const filters = { unEncoded: { name: name, phone: phone, email: email } };
     try {
-      const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
+      const data: any = await apiService.getFilter(URL_PATHS.GET_BOOKING, params, filters);
       setTotalCount(data?.totalUsers);
       setUserState(data?.data);
     } catch (error: any) {
@@ -437,17 +444,23 @@ const Booking = () => {
             ) : userState && userState.length > 0 ? (
               <>
                 {userState.map((data: any, index: number) => {
+                  let statusContext = getRowStatus(data.status);
                   return (
                     <TableRow
                       key={index}
                       hover
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
-                      <TableCell>{data.name}</TableCell>
-                      <TableCell>{data.email}</TableCell>
-                      <TableCell>{data.phone}</TableCell>
-                      <TableCell className="">{data.address}</TableCell>
-                      <TableCell>{moment(data.createdAt).format(FORMAT_DATE)}</TableCell>
+                      <TableCell>{data.patientName}</TableCell>
+                      <TableCell>{data.doctorName}</TableCell>
+                      <TableCell>{data.bookingType}</TableCell>
+                      <TableCell className="">{data.service}</TableCell>
+                      <TableCell>
+                        {data.timeTypeId} | {moment(data.date).format(FORMAT_DATE)}
+                      </TableCell>
+                      <TableCell className="">
+                        <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
+                      </TableCell>
                       <TableCell>
                         <IconButton aria-label="more" onClick={(e) => handleOpenMenuAction(e, data)}>
                           <MoreHorizIcon />
