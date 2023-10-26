@@ -1,5 +1,6 @@
 import { LabelDisplayedRowsArgs } from "@mui/material";
 import DISPLAY_TEXTS from "../consts/display-texts";
+import { statusOptions } from "../consts/statusCode";
 
 export const FORMAT_DATE = "DD/MM/YYYY"
 export const rowsPerPageOptions = [10, 20, 50];
@@ -30,4 +31,13 @@ export const convertSearchString = (value: string) => {
 export const stripHTML = (html: string) => {
   let doc = new DOMParser().parseFromString(html, 'text/html');
   return doc.body.textContent || '';
+};
+
+export const getRowStatus = (value: any) => {
+  let result = statusOptions.find((s) => s.value === value) || {
+      label: '',
+      chipType: '',
+      value: ''
+  };
+  return result;
 };

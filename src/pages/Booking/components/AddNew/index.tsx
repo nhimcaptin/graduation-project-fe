@@ -30,6 +30,7 @@ const AddUser = (props: PropsType) => {
   const { setToastInformation } = useSetToastInformationState();
 
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingPatient, setIsLoadingPatient] = useState(false);
 
   const {
     handleSubmit,
@@ -39,10 +40,7 @@ const AddUser = (props: PropsType) => {
   } = useForm({
     defaultValues: {
       description: dataDetail ? dataDetail?.description : "",
-      //   email: dataDetail ? dataDetail?.email : "",
-      //   phone: dataDetail ? dataDetail?.phone : "",
-      //   address: dataDetail ? dataDetail?.address : "",
-      role: dataDetail ? dataDetail?.role : "",
+      patient: dataDetail ? dataDetail?.patient : "",
     },
   });
 
@@ -81,6 +79,48 @@ const AddUser = (props: PropsType) => {
     return stripedValue === "" ? "" : newValue;
   };
 
+  const getPatientOptions = async (searchText: string, page: number, perPage: number) => {
+    setIsLoadingPatient(true)
+    const params = {
+      page,
+      perPage,
+    };
+
+    const filters = {
+      name: searchText,
+      equals: { isAdmin: "false" },
+    };
+    try {
+      const res: any = await await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
+      const resultItems: any[] = res?.data;
+      if (resultItems.length >= 0) {
+        const items: any[] = resultItems.map((item) => {
+          const result = {
+            ...item,
+            label: item?.name || "",
+            value: item?._id || "",
+          };
+          return result;
+        });
+        return {
+          options: items,
+          hasMore: res?.totalUsers / perPage > page,
+        };
+      }
+      return {
+        options: [],
+        hasMore: false,
+      };
+    } catch (error) {
+      return {
+        options: [],
+        hasMore: false,
+      };
+    } finally {
+      setIsLoadingPatient(false)
+    }
+  };
+
   return (
     <CrudModal
       isOpen={isOpen}
@@ -97,11 +137,10 @@ const AddUser = (props: PropsType) => {
     >
       <Grid container>
         <Grid item xs={12} mt={1}>
-          <LabelCustom title="Mô tả chi tiết" isRequired />
+          <LabelCustom title="Mô tả chi tiết" />
           <Controller
             control={control}
             name="description"
-            rules={{ required: MESSAGE_ERROR.fieldRequired }}
             render={({ field: { value, onChange, onBlur, ref } }) => (
               <>
                 <FocusHiddenInput ref={ref}></FocusHiddenInput>
@@ -123,6 +162,37 @@ const AddUser = (props: PropsType) => {
           {errors?.description && (
             <ErrorMessage style={{ marginTop: "-10px" }}>{errors?.description?.message}</ErrorMessage>
           )}
+        </Grid>
+        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+          <Grid item xs={5}>
+            <LabelCustom title="Bệnh nhân" isRequired />
+            <Controller
+              control={control}
+              name="patient"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <ReactSelect
+                  isClearable
+                  getOptions={getPatientOptions}
+                  getOptionLabel={(option: any) => option.label}
+                  getOptionValue={(option: any) => option.value}
+                  value={value}
+                  onChange={(value: any) => {
+                    onChange(value);
+                  }}
+                  fieldName={name}
+                  maxMenuHeight={200}
+                  placeholder="Chọn vai trò"
+                  inputRef={ref}
+                  isValidationFailed
+                  isDisabled={!isEdit}
+                  isLoading={isLoadingPatient}
+                />
+              )}
+            />
+          </Grid>
         </Grid>
       </Grid>
     </CrudModal>

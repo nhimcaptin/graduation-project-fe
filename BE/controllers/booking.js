@@ -1,9 +1,8 @@
-import { MESSAGE_ERROR } from '../const/messages.js';
-import { createError } from '../middlewares/error.js';
-import Booking from '../models/Booking.js';
-import User from '../models/User.js'; 
-import TimeType from '../models/TimeType.js';
-import { log } from 'console';
+import { MESSAGE_ERROR } from "../const/messages.js";
+import { createError } from "../middlewares/error.js";
+import Booking from "../models/Booking.js";
+import User from "../models/User.js";
+import { convertFilter } from "../util/index.js";
 
 export const createBooking = async (req, res, next) => {
   try {
@@ -41,15 +40,15 @@ export const createBooking = async (req, res, next) => {
     });
 
     await newBooking.save();
-    res.status(200).json({  booking: newBooking, request: req.body });
+    res.status(200).json({ booking: newBooking, request: req.body });
   } catch (err) {
     next(err);
   }
 };
 
-export const getBooking = async (req, res, next) => {
+export const getDetailBooking = async (req, res, next) => {
   try {
-    const bookingId = req.params.id; 
+    const bookingId = req.params.id;
     const booking = await Booking.findById(bookingId);
     if (!booking) {
       return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
@@ -60,12 +59,12 @@ export const getBooking = async (req, res, next) => {
       return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
     }
 
-   const patient = await User.findOne({ _id: booking.patientId });
+    const patient = await User.findOne({ _id: booking.patientId });
     if (!patient) {
       return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
     }
-  res.status(200).json({
-      booking: {...booking._doc},
+    res.status(200).json({
+      booking: { ...booking._doc },
       doctor: {
         //_id: doctor._id,
         name: doctor.name,
@@ -75,6 +74,34 @@ export const getBooking = async (req, res, next) => {
         name: patient.name,
       },
     });
+  } catch (err) {
+    next(err);
+  }
+};
+export const getBooking = async (req, res, next) => {
+  try {
+    const { Page, PageSize, Sorts, filters } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+    const _filter = convertFilter(filters);
+    const booking = await Booking.find(_filter)
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .sort(Sorts);
+    const totalUsers = booking.length;
+    const listData = [];
+    for (let item of booking) {
+      const doctor = await User.findOne({ _id: item.doctorId });
+      const patient = await User.findOne({ _id: item.patientId });
+      if (doctor && patient) {
+        listData.push({
+          ...item._doc,
+          patientName: patient.name,
+          doctorName: doctor.name,
+        });
+      }
+    }
+    res.status(200).json({ data: listData, totalUsers });
   } catch (err) {
     next(err);
   }
