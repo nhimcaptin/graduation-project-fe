@@ -95,11 +95,13 @@ export const getBooking = async (req, res, next) => {
       const doctor = await User.findOne({ _id: item.doctorId });
       const patient = await User.findOne({ _id: item.patientId });
       const timeType = await TimeType.findOne({ _id: item.timeTypeId });
+      const service = await TimeType.findOne({ _id: item.service });
       if (doctor && patient && timeType) {
         listData.push({
           ...item._doc,
           patientName: patient.name,
           doctorName: doctor.name,
+          service: service?.name || "",
           timeSlot: timeType.timeSlot,
         });
       }

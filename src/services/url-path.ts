@@ -13,5 +13,7 @@ const URL_PATHS = {
     GET_BOOKING: "api/booking/get-list",
     GET_DOCTOR: "api/users/get-list-doctor",
     GET_LIST_MAIN_SERVICE: "api/main-service/getAll",
+    GET_LIST_TIME_TYPE: "api/time-type/get-list",
+    CREATE_BOOKING: "api/booking/create",
 }
 export default URL_PATHS

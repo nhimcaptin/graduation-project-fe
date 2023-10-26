@@ -19,6 +19,7 @@ import DateTimePickerCustom from "../../../../components/DateTimePickerCustom";
 import moment from "moment";
 import clsx from "clsx";
 import styles from "./styles.module.scss";
+import { useSetLoadingScreenState } from "../../../../redux/store/loadingScreen";
 
 interface PropsType {
   isOpen: boolean;
@@ -33,15 +34,10 @@ const AddUser = (props: PropsType) => {
   const { isOpen, title, isEdit, onCancel, getData, dataDetail } = props;
   const { setToastInformation } = useSetToastInformationState();
 
-  const [isLoading, setIsLoading] = useState(false);
+  const { setLoadingScreen } = useSetLoadingScreenState();
   const [isLoadingPatient, setIsLoadingPatient] = useState(false);
   const [isLoadingHour, setIsLoadingHour] = useState(false);
-  const [hourInDateData, setHourInDateData] = useState([
-    { id: 1, timeSlot: "7:00 - 8:00", isDisabled: true },
-    { id: 2, timeSlot: "8:00 - 9:00", isDisabled: true },
-    { id: 3, timeSlot: "9:00 - 10:00", isDisabled: true },
-    { id: 4, timeSlot: "10:00 - 11:00", isDisabled: true },
-  ]);
+  const [hourInDateData, setHourInDateData] = useState([]);
 
   const dataType = [
     {
@@ -66,29 +62,29 @@ const AddUser = (props: PropsType) => {
       patient: dataDetail ? dataDetail?.patient : "",
       doctor: dataDetail ? dataDetail?.doctor : "",
       bookingType: dataDetail ? dataDetail?.bookingType : "",
-      date: dataDetail ? dataDetail?.date : "",
+      date: dataDetail ? dataDetail?.date : new Date(),
       timeTypeId: dataDetail ? dataDetail?.timeTypeId : "",
       mainService: dataDetail ? dataDetail?.mainService : "",
     },
   });
 
   const onSubmit = async (data: any) => {
-    setIsLoading(true);
+    const item = {
+      patientId: data?.patient._id,
+      doctorId: data?.doctor._id,
+      date: moment(data?.date).format("YYYY/MM/DD"),
+      timeTypeId: data?.timeTypeId._id,
+      description: data?.description,
+      service: data?.mainService._id,
+      bookingType: data?.bookingType.value,
+    };
+    setLoadingScreen(true);
     try {
-      if (!!dataDetail) {
-        await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, data);
-        setToastInformation({
-          status: STATUS_TOAST.SUCCESS,
-          message: MESSAGE_SUCCESS.EDIT_USER,
-        });
-      } else {
-        await apiService.post(URL_PATHS.CREATE_USER, data);
-        setToastInformation({
-          status: STATUS_TOAST.SUCCESS,
-          message: MESSAGE_SUCCESS.CREATE_USER,
-        });
-      }
-
+      await apiService.post(URL_PATHS.CREATE_BOOKING, item);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: MESSAGE_SUCCESS.CREATE_BOOKING,
+      });
       onCancel && onCancel();
       getData && getData({});
     } catch (error: any) {
@@ -97,7 +93,7 @@ const AddUser = (props: PropsType) => {
         message: handleErrorMessage(error),
       });
     } finally {
-      setIsLoading(false);
+      setLoadingScreen(false);
     }
   };
 
@@ -225,7 +221,25 @@ const AddUser = (props: PropsType) => {
     }
   };
 
-  useEffect(() => {}, []);
+  const getListTimeType = async (date: any) => {
+    setIsLoadingHour(true);
+    try {
+      const params = {
+        equals: {
+          date,
+        },
+      };
+      const res: any = await apiService.getFilter(URL_PATHS.GET_LIST_TIME_TYPE, null, params);
+      setHourInDateData(res);
+    } catch (error) {
+    } finally {
+      setIsLoadingHour(false);
+    }
+  };
+
+  useEffect(() => {
+    getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
+  }, []);
 
   return (
     <CrudModal
@@ -235,7 +249,6 @@ const AddUser = (props: PropsType) => {
       handleClose={onCancel}
       cancelBtnLabel="Hủy"
       saveBtnLabel="Lưu"
-      loading={isLoading}
       dialogProps={{
         fullWidth: true,
         maxWidth: "md",
@@ -418,6 +431,8 @@ const AddUser = (props: PropsType) => {
                   value={value}
                   onChange={(e: any) => {
                     onChange(e);
+                    getListTimeType(moment(e).format("YYYY/MM/DD"));
+                    setValue("timeTypeId", "");
                   }}
                   inputFormat="DD/MM/YYYY"
                 />
@@ -435,20 +450,30 @@ const AddUser = (props: PropsType) => {
             render={({ field: { value, onChange } }: any) => {
               return (
                 <>
-                  {hourInDateData.map((item: any, index: number) => (
-                    <Button
-                      disabled={!isEdit}
-                      variant={value?.id === item.id ? "contained" : "outlined"}
-                      className={clsx({ [styles.active]: value?.id === item.id }, `${styles.btnHour}`)}
-                      onClick={(e: any) => {
-                        setValue("timeTypeId", item);
-                      }}
-                    >
-                      <Typography className={clsx({ [styles.active]: value?.id === item.id }, `${styles.title}`)}>
-                        {item.timeSlot}
-                      </Typography>
-                    </Button>
-                  ))}
+                  {hourInDateData.map((item: any, index: number) => {
+                    const dateHour = item?.timeSlot.split("-")[1];
+                    const dateEnd = moment(new Date().getHours() + 1).format("YYYY-MM-DD HH:mm");
+                    const date = moment(new Date()).format("YYYY-MM-DD");
+                    return (
+                      <Button
+                        disabled={!isEdit}
+                        variant={value?._id === item._id ? "contained" : "outlined"}
+                        className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
+                          // [styles.isDisabled]:
+                          //   moment(`${date} ${dateHour}`).isAfter(`${dateEnd}`) || item.isDisabled || !isEdit,
+                        })}
+                        onClick={(e: any) => {
+                          setValue("timeTypeId", item);
+                        }}
+                      >
+                        <Typography
+                          className={clsx({ [styles.titleActive]: value?._id === item._id }, `${styles.title}`)}
+                        >
+                          {item.timeSlot}
+                        </Typography>
+                      </Button>
+                    );
+                  })}
                 </>
               );
             }}
