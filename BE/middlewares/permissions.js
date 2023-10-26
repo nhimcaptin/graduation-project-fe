@@ -55,6 +55,12 @@ export const routers = [
     ],
   },
   {
+    url: "/api/booking/update-status/:id",
+    permissions: [
+      { method: "PUT" },
+    ],
+  },
+  {
     url: "/api/main-service/create",
     permissions: [
       { method: "POST" },

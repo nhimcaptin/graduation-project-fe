@@ -109,3 +109,30 @@ export const getBooking = async (req, res, next) => {
     next(err);
   }
 };
+ 
+
+// Controller to update booking status
+export const updateBookingStatus = async (req, res, next) => {
+  try {
+    const { id } = req.params; // Lấy bookingId từ URL
+    const { status } = req.body; // Lấy trạng thái mới từ request body
+
+    // Tìm cuộc hẹn theo bookingId
+    const booking = await Booking.findById(id);
+    console.log(id)
+    if (!booking) {
+      return res.status(404).json({ message: "Cuộc hẹn không tồn tại." });
+    }
+
+    // Cập nhật trạng thái cuộc hẹn
+    booking.status = status;
+
+    // Lưu trạng thái mới vào cơ sở dữ liệu
+    await booking.save();
+
+    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", booking });
+  } catch (err) {
+    next(err);
+  }
+};
+
