@@ -1,12 +1,12 @@
 import express from "express";
-import { createBooking, getBooking, getDetailBooking, updateBookingStatus } from "../controllers/booking.js";
+import { createBooking, getAllBoking, getBooking, updateBooking } from "../controllers/booking.js";
 
 const router = express.Router();
 
 router.post("/create", createBooking);
-router.get("/detail-booking/:id", getDetailBooking);
-router.get("/get-list", getBooking);
-router.put("/update-status/:id", updateBookingStatus)
+router.get("/detail-booking/:id", getBooking);
+router.get("/detail-booking", getAllBoking);
+router.get("/detail-booking/update/:id", updateBooking);
 
 
 export default router
