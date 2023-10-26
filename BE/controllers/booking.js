@@ -116,14 +116,48 @@ export const updateBookingStatus = async (req, res, next) => {
     const { status } = req.body; 
     const booking = await Booking.findById(id);
     console.log(id)
+    
     if (!booking) {
       return res.status(404).json({ message: "Cuộc hẹn không tồn tại." });
     }
-    booking.status = status;
-    await booking.save();
+
+    if (status !== booking.status) {
+      // Chỉ cập nhật thời gian nếu trạng thái thay đổi
+      booking.status = status;
+      booking.updatedAt = new Date(); // Cập nhật thời gian cập nhật
+
+      await booking.save();
+    }
+
    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", booking });
   } catch (err) {
     next(err);
   }
 };
+
+export const updateBookingDetail = async (req, res, next) => {
+  try {
+    const bookingId = req.params.id; 
+    const updatedData = req.body; 
+
+    const updatedBooking = await Booking.findOneAndUpdate(
+      { _id: bookingId }, 
+      { $set: updatedData }, 
+      { new: true } 
+    );
+
+    if (!updatedBooking) {
+      res.status(401).json({ message: "không tìm thấy lịch hẹn" }); 
+      return;
+    }
+
+    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", updatedBooking }); // Trả về bản ghi đã cập nhật dưới dạng JSON
+  } catch (error) {
+    next(error); // Xử lý lỗi nếu có
+  }
+};
+
+
+
+
 
