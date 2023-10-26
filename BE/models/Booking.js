@@ -21,7 +21,7 @@ const BookingSchema = new mongoose.Schema(
       type: String,
     },
     service:{
-      type: String
+      type: mongoose.Schema.Types.ObjectId, ref: 'MainService',
     },
     status:{
       type: String,

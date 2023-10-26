@@ -8,7 +8,7 @@ import { convertFilter } from "../util/index.js";
 export const createBooking = async (req, res, next) => {
   try {
     const data = req.body;
-    const { patientId, doctorId, date, timeTypeId, description, service, status, bookingType } = data;
+    const { patientId, doctorId, date, timeTypeId, description, serviceId, status, bookingType } = data;
 
     // const isExists = await Booking.findOne({ patientId,doctorId, date, timeType });
 
@@ -35,7 +35,7 @@ export const createBooking = async (req, res, next) => {
       date,
       timeTypeId,
       description,
-      service,
+      serviceId,
       status,
       bookingType,
     });
@@ -95,12 +95,15 @@ export const getBooking = async (req, res, next) => {
       const doctor = await User.findOne({ _id: item.doctorId });
       const patient = await User.findOne({ _id: item.patientId });
       const timeType = await TimeType.findOne({ _id: item.timeTypeId });
-      if (doctor && patient && timeType) {
+      const service = await TimeType.findOne({ _id: item.serviceId });
+
+      if (doctor && patient && timeType && service) {
         listData.push({
           ...item._doc,
           patientName: patient.name,
           doctorName: doctor.name,
           timeSlot: timeType.timeSlot,
+          serviceId: timeType.serviceId,
         });
       }
     }
