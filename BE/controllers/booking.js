@@ -2,6 +2,7 @@ import { MESSAGE_ERROR } from "../const/messages.js";
 import { createError } from "../middlewares/error.js";
 import Booking from "../models/Booking.js";
 import User from "../models/User.js";
+import TimeType from "../models/TimeType.js";
 import { convertFilter } from "../util/index.js";
 
 export const createBooking = async (req, res, next) => {
@@ -19,11 +20,11 @@ export const createBooking = async (req, res, next) => {
       return res.status(400).json({ message: "Cuộc hẹn trùng lặp." });
     }
 
-    const time = await TimeType.findById(timeTypeId);
-    console.log(time);
-    if (!time) {
-      return res.status(400).json({ message: "Không tìm thấy khung giờ khám" });
-    }
+    // const time = await TimeType.findById(timeTypeId);
+    // console.log(time);
+    // if (!time) {
+    //   return res.status(400).json({ message: "Không tìm thấy khung giờ khám" });
+    // }
     // const doctor = await User.findOne({ _id: doctorId, role: 'Doctor' });
     // if (!doctor) {
     //   return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
@@ -93,11 +94,13 @@ export const getBooking = async (req, res, next) => {
     for (let item of booking) {
       const doctor = await User.findOne({ _id: item.doctorId });
       const patient = await User.findOne({ _id: item.patientId });
-      if (doctor && patient) {
+      const timeType =  await TimeType.findOne({ _id: item.timeTypeId})
+      if (doctor && patient && timeType) {
         listData.push({
           ...item._doc,
           patientName: patient.name,
           doctorName: doctor.name,
+          timeSlot: timeType.timeSlot,
         });
       }
     }
