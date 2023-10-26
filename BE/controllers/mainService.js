@@ -42,5 +42,20 @@ export const createMainService = async (req, res, next) => {
     }
   };
   
+export const updateMainServices = async (req, res, next) => {
+    try {
+      const mainServices = await MainService.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+      res.status(200).json(mainServices);
+    } catch (err) {
+      next(err);
+    }
+};
   
-  
+export const deleteMainServices = async (req, res, next) => {
+  try {
+    await MainService.findByIdAndDelete(req.params.id);
+    res.status(200).json("MainServices has been deleted.");
+  } catch (err) {
+    next(err);
+  }
+};
