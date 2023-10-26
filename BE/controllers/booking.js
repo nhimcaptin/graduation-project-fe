@@ -154,3 +154,25 @@ export const updateBookingDetail = async (req, res, next) => {
     next(err); 
   }
 };
+
+export const getUserAndBookings = async (req, res, next) => {
+  try {
+    const userId = req.params.id; 
+
+    const user = await User.findById(userId);
+    console.log(userId)
+    if (!user) {
+      return res.status(401).json({ message: "không tìm thấy người dùng" });
+    }
+    const bookings = await Booking.find({
+      $or: [{ patientId: userId }],
+    });
+    const result = {
+      user,
+      bookings,
+    };
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
