@@ -114,6 +114,8 @@ export const updateBookingStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+    const { statusUpdateTime } = req.body;
+
     const booking = await Booking.findById(id);
     console.log(id);
 
@@ -124,7 +126,7 @@ export const updateBookingStatus = async (req, res, next) => {
     if (status !== booking.status) {
       // Chỉ cập nhật thời gian nếu trạng thái thay đổi
       booking.status = status;
-      booking.updatedAt = new Date(); // Cập nhật thời gian cập nhật
+      booking.statusUpdateTime = statusUpdateTime;
 
       await booking.save();
     }
@@ -147,8 +149,8 @@ export const updateBookingDetail = async (req, res, next) => {
       return;
     }
 
-    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", updatedBooking }); // Trả về bản ghi đã cập nhật dưới dạng JSON
-  } catch (error) {
-    next(error); // Xử lý lỗi nếu có
+    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", updatedBooking }); 
+  } catch (err) {
+    next(err); 
   }
 };

@@ -33,7 +33,7 @@ const BookingSchema = new mongoose.Schema(
       default: "Online",
     },
     statusUpdateTime:{
-      type: String
+      type: Date,
     }
   },
   { timestamps: true }
