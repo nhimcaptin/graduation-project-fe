@@ -8,7 +8,7 @@ import { convertFilter } from "../util/index.js";
 export const createBooking = async (req, res, next) => {
   try {
     const data = req.body;
-    const { patientId, doctorId, date, timeTypeId, description, service, status, bookingType } = data;
+    const { patientId, doctorId, date, timeTypeId, description, serviceId, status, bookingType } = data;
 
     // const isExists = await Booking.findOne({ patientId,doctorId, date, timeType });
 
@@ -35,7 +35,7 @@ export const createBooking = async (req, res, next) => {
       date,
       timeTypeId,
       description,
-      service,
+      serviceId,
       status,
       bookingType,
     });
@@ -95,14 +95,16 @@ export const getBooking = async (req, res, next) => {
       const doctor = await User.findOne({ _id: item.doctorId });
       const patient = await User.findOne({ _id: item.patientId });
       const timeType = await TimeType.findOne({ _id: item.timeTypeId });
-      const service = await TimeType.findOne({ _id: item.service });
-      if (doctor && patient && timeType) {
+      const service = await TimeType.findOne({ _id: item.serviceId });
+
+      if (doctor && patient && timeType && service) {
         listData.push({
           ...item._doc,
           patientName: patient.name,
           doctorName: doctor.name,
           service: service?.name || "",
           timeSlot: timeType.timeSlot,
+          serviceId: timeType.serviceId,
         });
       }
     }
@@ -116,6 +118,8 @@ export const updateBookingStatus = async (req, res, next) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
+    const { statusUpdateTime } = req.body;
+
     const booking = await Booking.findById(id);
     console.log(id);
 
@@ -126,7 +130,7 @@ export const updateBookingStatus = async (req, res, next) => {
     if (status !== booking.status) {
       // Chỉ cập nhật thời gian nếu trạng thái thay đổi
       booking.status = status;
-      booking.updatedAt = new Date(); // Cập nhật thời gian cập nhật
+      booking.statusUpdateTime = statusUpdateTime;
 
       await booking.save();
     }
@@ -149,8 +153,80 @@ export const updateBookingDetail = async (req, res, next) => {
       return;
     }
 
-    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", updatedBooking }); // Trả về bản ghi đã cập nhật dưới dạng JSON
-  } catch (error) {
-    next(error); // Xử lý lỗi nếu có
+    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", updatedBooking }); 
+  } catch (err) {
+    next(err); 
   }
 };
+
+export const getUserAndBookings = async (req, res, next) => {
+  try {
+    const userId = req.params.id; 
+
+    const user = await User.findById(userId);
+    console.log(userId)
+    if (!user) {
+      return res.status(401).json({ message: "không tìm thấy người dùng" });
+    }
+    const bookings = await Booking.find({
+      $or: [{ patientId: userId }],
+    });
+    const result = {
+      user,
+      bookings,
+    };
+    res.status(200).json(result);
+  } catch (err) {
+    next(err);
+  }
+};
+
+
+export const getListApprovedBookings = async (req, res, next) => {
+  try {
+    const { Page, PageSize } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+
+    const approvedBookings = await Booking.find({ status: 'approved' })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json(approvedBookings); 
+  } catch (err) {
+    next(err); 
+  }
+};
+
+export const getListCancelBookings = async (req, res, next) => {
+  try {
+    const { Page, PageSize } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+
+    const approvedBookings = await Booking.find({ status: 'cancel' })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json(approvedBookings); 
+  } catch (err) {
+    next(err); 
+  }
+};
+export const getListWaitingBookings = async (req, res, next) => {
+  try {
+    const { Page, PageSize } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+
+    const approvedBookings = await Booking.find({ status: 'Waiting' })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json(approvedBookings); 
+  } catch (err) {
+    next(err); 
+  }
+};
+
+
