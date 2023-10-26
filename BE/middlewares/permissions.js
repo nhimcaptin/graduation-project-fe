@@ -1,5 +1,6 @@
 export const routers = [
   {
+    //USER
     url: "/api/users",
     permissions: [
       { method: "POST", role: ["Admin",] },
@@ -42,6 +43,7 @@ export const routers = [
       { method: "GET" },
     ],
   },
+//BOOKING
   {
     url: "/api/booking/create",
     permissions: [
@@ -60,6 +62,7 @@ export const routers = [
       { method: "PUT" },
     ],
   },
+//MAIN-SERVICE
   {
     url: "/api/main-service/create",
     permissions: [
