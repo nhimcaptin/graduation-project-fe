@@ -11,5 +11,7 @@ const URL_PATHS = {
     ROLE_GET: "api/role",
     ROLE_EDIT: "api/role/edit-role",
     GET_BOOKING: "api/booking/get-list",
+    GET_DOCTOR: "api/users/get-list-doctor",
+    GET_LIST_MAIN_SERVICE: "api/main-service/getAll",
 }
 export default URL_PATHS

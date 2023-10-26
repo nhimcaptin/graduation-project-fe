@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import CrudModal from "../../../../components/CrudModal";
-import { Grid } from "@mui/material";
+import { Button, Grid, Typography } from "@mui/material";
 import LabelCustom from "../../../../components/LabelCustom";
 import { Controller, useForm } from "react-hook-form";
 import TextFieldCustom from "../../../../components/TextFieldCustom";
@@ -15,6 +15,10 @@ import FocusHiddenInput from "../../../../components/FocusHiddenInput";
 import SunEditorShare from "../../../../components/SunEditorStyled";
 import { stripHTML } from "../../../../utils";
 import ErrorMessage from "../../../../components/ErrorMessage/ErrorMessage";
+import DateTimePickerCustom from "../../../../components/DateTimePickerCustom";
+import moment from "moment";
+import clsx from "clsx";
+import styles from "./styles.module.scss";
 
 interface PropsType {
   isOpen: boolean;
@@ -31,16 +35,40 @@ const AddUser = (props: PropsType) => {
 
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingPatient, setIsLoadingPatient] = useState(false);
+  const [isLoadingHour, setIsLoadingHour] = useState(false);
+  const [hourInDateData, setHourInDateData] = useState([
+    { id: 1, timeSlot: "7:00 - 8:00", isDisabled: true },
+    { id: 2, timeSlot: "8:00 - 9:00", isDisabled: true },
+    { id: 3, timeSlot: "9:00 - 10:00", isDisabled: true },
+    { id: 4, timeSlot: "10:00 - 11:00", isDisabled: true },
+  ]);
+
+  const dataType = [
+    {
+      value: "Online",
+      label: "Online",
+    },
+    {
+      value: "Tại quầy",
+      label: "Tại quầy",
+    },
+  ];
 
   const {
     handleSubmit,
     control,
     watch,
+    setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
       description: dataDetail ? dataDetail?.description : "",
       patient: dataDetail ? dataDetail?.patient : "",
+      doctor: dataDetail ? dataDetail?.doctor : "",
+      bookingType: dataDetail ? dataDetail?.bookingType : "",
+      date: dataDetail ? dataDetail?.date : "",
+      timeTypeId: dataDetail ? dataDetail?.timeTypeId : "",
+      mainService: dataDetail ? dataDetail?.mainService : "",
     },
   });
 
@@ -80,7 +108,7 @@ const AddUser = (props: PropsType) => {
   };
 
   const getPatientOptions = async (searchText: string, page: number, perPage: number) => {
-    setIsLoadingPatient(true)
+    setIsLoadingPatient(true);
     const params = {
       page,
       perPage,
@@ -117,9 +145,87 @@ const AddUser = (props: PropsType) => {
         hasMore: false,
       };
     } finally {
-      setIsLoadingPatient(false)
+      setIsLoadingPatient(false);
     }
   };
+
+  const getDoctorOptions = async (searchText: string, page: number, perPage: number) => {
+    const params = {
+      page,
+      perPage,
+    };
+
+    const filters = {
+      name: searchText,
+    };
+    try {
+      const res: any = await await apiService.getFilter(URL_PATHS.GET_DOCTOR, params, filters);
+      const resultItems: any[] = res?.doctors;
+      if (resultItems.length >= 0) {
+        const items: any[] = resultItems.map((item) => {
+          const result = {
+            ...item,
+            label: item?.name || "",
+            value: item?._id || "",
+          };
+          return result;
+        });
+        return {
+          options: items,
+          hasMore: res?.totalUsers / perPage > page,
+        };
+      }
+      return {
+        options: [],
+        hasMore: false,
+      };
+    } catch (error) {
+      return {
+        options: [],
+        hasMore: false,
+      };
+    }
+  };
+
+  const getMainServiceOptions = async (searchText: string, page: number, perPage: number) => {
+    const params = {
+      page,
+      perPage,
+    };
+
+    const filters = {
+      name: searchText,
+    };
+    try {
+      const res: any = await await apiService.getFilter(URL_PATHS.GET_LIST_MAIN_SERVICE, params, filters);
+      const resultItems: any[] = res?.mainServices;
+      if (resultItems.length >= 0) {
+        const items: any[] = resultItems.map((item) => {
+          const result = {
+            ...item,
+            label: item?.name || "",
+            value: item?._id || "",
+          };
+          return result;
+        });
+        return {
+          options: items,
+          hasMore: res?.totalUsers / perPage > page,
+        };
+      }
+      return {
+        options: [],
+        hasMore: false,
+      };
+    } catch (error) {
+      return {
+        options: [],
+        hasMore: false,
+      };
+    }
+  };
+
+  useEffect(() => {}, []);
 
   return (
     <CrudModal
@@ -165,6 +271,69 @@ const AddUser = (props: PropsType) => {
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "15px" }}>
           <Grid item xs={5}>
+            <LabelCustom title="Hình thức" isRequired />
+            <Controller
+              control={control}
+              name="bookingType"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <ReactSelect
+                  isClearable
+                  options={dataType}
+                  getOptionLabel={(option: any) => option.label}
+                  getOptionValue={(option: any) => option.value}
+                  value={value}
+                  onChange={(value: any) => {
+                    onChange(value);
+                  }}
+                  fieldName={name}
+                  maxMenuHeight={200}
+                  placeholder="Chọn hình thức"
+                  inputRef={ref}
+                  isValidationFailed
+                  isDisabled={!isEdit}
+                  isLoading={isLoadingPatient}
+                  errorMessage={errors?.bookingType?.message as string}
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={2}></Grid>
+          <Grid item xs={5}>
+            <LabelCustom title="Dịch vụ" isRequired />
+            <Controller
+              control={control}
+              name="mainService"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <ReactSelect
+                  isClearable
+                  getOptions={getMainServiceOptions}
+                  getOptionLabel={(option: any) => option.label}
+                  getOptionValue={(option: any) => option.value}
+                  value={value}
+                  onChange={(value: any) => {
+                    onChange(value);
+                  }}
+                  fieldName={name}
+                  maxMenuHeight={200}
+                  placeholder="Chọn hình thức"
+                  inputRef={ref}
+                  isValidationFailed
+                  isDisabled={!isEdit}
+                  isLoading={isLoadingPatient}
+                  errorMessage={errors?.bookingType?.message as string}
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+          <Grid item xs={5}>
             <LabelCustom title="Bệnh nhân" isRequired />
             <Controller
               control={control}
@@ -184,15 +353,111 @@ const AddUser = (props: PropsType) => {
                   }}
                   fieldName={name}
                   maxMenuHeight={200}
-                  placeholder="Chọn vai trò"
+                  placeholder="Chọn bệnh nhân"
                   inputRef={ref}
                   isValidationFailed
                   isDisabled={!isEdit}
                   isLoading={isLoadingPatient}
+                  errorMessage={errors?.patient?.message as string}
                 />
               )}
             />
           </Grid>
+          <Grid item xs={2}></Grid>
+          <Grid item xs={5}>
+            <LabelCustom title="Bác sĩ" isRequired />
+            <Controller
+              control={control}
+              name="doctor"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <ReactSelect
+                  isClearable
+                  getOptions={getDoctorOptions}
+                  getOptionLabel={(option: any) => option.label}
+                  getOptionValue={(option: any) => option.value}
+                  value={value}
+                  onChange={(value: any) => {
+                    onChange(value);
+                  }}
+                  fieldName={name}
+                  maxMenuHeight={200}
+                  placeholder="Chọn bác sĩ"
+                  inputRef={ref}
+                  isValidationFailed
+                  isDisabled={!isEdit}
+                  isLoading={isLoadingPatient}
+                  errorMessage={errors?.doctor?.message as string}
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+          <Grid item xs={5}>
+            <LabelCustom title="Ngày đặt lịch" isRequired />
+            <Controller
+              control={control}
+              name="date"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { value, onChange } }) => (
+                <DateTimePickerCustom
+                  inputProps={{
+                    errorMessage: errors?.date?.message,
+                  }}
+                  staticDateTimePickerProps={{
+                    disabled: !isEdit,
+                    minDateTime: new Date(),
+                    views: ["year", "day"],
+                    ampm: true,
+                  }}
+                  value={value}
+                  onChange={(e: any) => {
+                    onChange(e);
+                  }}
+                  inputFormat="DD/MM/YYYY"
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} sx={{ marginTop: "10px", position: "relative" }}>
+          <Controller
+            control={control}
+            name="timeTypeId"
+            rules={{
+              required: MESSAGE_ERROR.fieldRequired,
+            }}
+            render={({ field: { value, onChange } }: any) => {
+              return (
+                <>
+                  {hourInDateData.map((item: any, index: number) => (
+                    <Button
+                      disabled={!isEdit}
+                      variant={value?.id === item.id ? "contained" : "outlined"}
+                      className={clsx({ [styles.active]: value?.id === item.id }, `${styles.btnHour}`)}
+                      onClick={(e: any) => {
+                        setValue("timeTypeId", item);
+                      }}
+                    >
+                      <Typography className={clsx({ [styles.active]: value?.id === item.id }, `${styles.title}`)}>
+                        {item.timeSlot}
+                      </Typography>
+                    </Button>
+                  ))}
+                </>
+              );
+            }}
+          />
+          {isLoadingHour && (
+            <div className={styles.loadingHour}>
+              <div className={styles.loader}></div>
+            </div>
+          )}
         </Grid>
       </Grid>
     </CrudModal>

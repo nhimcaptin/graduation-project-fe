@@ -136,12 +136,14 @@ export const getListDoctors = async (req, res, next) => {
     const { Page, PageSize, Sorts, filters } = req.query;
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
-    const query = User.find({ role: "Doctor" });
+    const _filter = convertFilter(filters);
+    const role =  await Role.findOne({roleName: "Doctor"});
+    const query = User.find({ role: role?._id, ..._filter });
     const doctors = await query
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts);
-    const totalDoctors = await User.countDocuments({ role: "Doctor" });
+    const totalDoctors = await User.countDocuments({ role: role?._id, ..._filter });
 
     res.json({ doctors, totalDoctors });
   } catch (error) {
