@@ -176,3 +176,53 @@ export const getUserAndBookings = async (req, res, next) => {
     next(err);
   }
 };
+
+
+export const getListApprovedBookings = async (req, res, next) => {
+  try {
+    const { Page, PageSize } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+
+    const approvedBookings = await Booking.find({ status: 'approved' })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json(approvedBookings); 
+  } catch (err) {
+    next(err); 
+  }
+};
+
+export const getListCancelBookings = async (req, res, next) => {
+  try {
+    const { Page, PageSize } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+
+    const approvedBookings = await Booking.find({ status: 'cancel' })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json(approvedBookings); 
+  } catch (err) {
+    next(err); 
+  }
+};
+export const getListWaitingBookings = async (req, res, next) => {
+  try {
+    const { Page, PageSize } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+
+    const approvedBookings = await Booking.find({ status: 'Waiting' })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json(approvedBookings); 
+  } catch (err) {
+    next(err); 
+  }
+};
+
+
