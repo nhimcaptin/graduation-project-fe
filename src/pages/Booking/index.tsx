@@ -185,9 +185,10 @@ const Booking = () => {
   };
 
   const handleOpenModal = () => {
+    setUserDetail(null);
+    setIsViewMode(false);
     setIsOpenModal(true);
     setSelectedItem(null);
-    setUserDetail(null);
     setTitle("Thêm mới");
   };
 
@@ -201,26 +202,6 @@ const Booking = () => {
     setIsViewMode(true);
     getUserDetail(dataDetail?.id);
     setTitle("Xem chi tiết");
-  };
-
-  const handleEdit = (dataDetail?: any) => {
-    setAnchorEl(null);
-    setIsViewMode(false);
-    getUserDetail(dataDetail?.id);
-    setTitle("Chỉnh sửa");
-  };
-
-  const handleDelete = () => {
-    setAnchorEl(null);
-    openConfirmModal({
-      isOpen: true,
-      title: "Xóa",
-      message: MESSAGES_CONFIRM.DeleteUser,
-      cancelBtnLabel: "Hủy",
-      okBtnLabel: "Xóa",
-      isDeleteConfirm: true,
-      onOk: () => onDelete(),
-    });
   };
 
   const onDelete = async () => {
@@ -440,7 +421,7 @@ const Booking = () => {
           </TableHead>
           <TableBody>
             {loadingTable ? (
-              <LoadingTableRow colSpan={6} />
+              <LoadingTableRow colSpan={7} />
             ) : userState && userState.length > 0 ? (
               <>
                 {userState.map((data: any, index: number) => {
@@ -456,7 +437,7 @@ const Booking = () => {
                       <TableCell>{data.bookingType}</TableCell>
                       <TableCell className="">{data.service}</TableCell>
                       <TableCell>
-                        {data.timeTypeId} | {moment(data.date).format(FORMAT_DATE)}
+                        {data.timeSlot} | {moment(data.date).format(FORMAT_DATE)}
                       </TableCell>
                       <TableCell className="">
                         <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
@@ -498,7 +479,7 @@ const Booking = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={handleView} actionEdit={handleEdit} actionDelete={handleDelete} />
+          <MenuListActions actionView={handleView} />
         </Popover>
       </IF>
 

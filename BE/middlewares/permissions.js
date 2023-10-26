@@ -57,6 +57,24 @@ export const routers = [
     ],
   },
   {
+    url: "/api/booking/get-list-waiting-booking",
+    permissions: [
+      { method: "GET" },
+    ],
+  },
+  {
+    url: "/api/booking/get-list-cancel-booking",
+    permissions: [
+      { method: "GET" },
+    ],
+  },
+  {
+    url: "/api/booking/get-list-approved-booking",
+    permissions: [
+      { method: "GET" },
+    ],
+  },
+  {
     url: "/api/booking/update-status/:id",
     permissions: [
       { method: "PUT" },

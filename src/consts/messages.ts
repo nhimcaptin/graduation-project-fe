@@ -12,6 +12,10 @@ export const MESSAGE_SUCCESS: any = {
   CREATE_STAFF: "Tạo mới nhân viên thành công",
   EDIT_STAFF: "Sửa nhân viên thành công",
   DELETE_STAFF: "Xóa nhân viên thành công",
+
+  CREATE_BOOKING: "Đặt lịch thành công",
+  EDIT_BOOKING: "Sửa thông tin đặt lịch thành công",
+  // DELETE_STAFF: "Xóa nhân viên thành công",
 };
 
 export const MESSAGE_ERROR_API: any = {
