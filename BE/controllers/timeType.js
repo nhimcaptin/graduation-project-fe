@@ -22,5 +22,15 @@ export const createTimeType = async (req, res, next) => {
       next(err);
     }
   };
+
+  export const getListTimeTypes = async (req, res, next) => {
+    try {
+      const timeTypes = await TimeType.find({}, '-_id -__v').lean();
+  
+      res.status(200).json(timeTypes); 
+    } catch (err) {
+      next(err); 
+    }
+  };
   
 

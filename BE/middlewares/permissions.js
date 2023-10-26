@@ -81,4 +81,13 @@ export const routers = [
       { method: "GET" },
     ],
   },
+
+  //TIME-TYPE
+  {
+    url: "/api/time-type/get",
+    permissions: [
+      { method: "GET" },
+    ],
+  },
+
 ];

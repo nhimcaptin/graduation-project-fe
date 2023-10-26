@@ -31,6 +31,9 @@ const BookingSchema = new mongoose.Schema(
     bookingType:{
       type: String,
       default: "Online",
+    },
+    statusUpdateTime:{
+      type: String
     }
   },
   { timestamps: true }

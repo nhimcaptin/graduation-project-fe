@@ -8,7 +8,7 @@ import { convertFilter } from "../util/index.js";
 export const createBooking = async (req, res, next) => {
   try {
     const data = req.body;
-    const { patientId, doctorId, date, timeTypeId, description, service, status,bookingType } = data;
+    const { patientId, doctorId, date, timeTypeId, description, service, status, bookingType } = data;
 
     // const isExists = await Booking.findOne({ patientId,doctorId, date, timeType });
 
@@ -94,7 +94,7 @@ export const getBooking = async (req, res, next) => {
     for (let item of booking) {
       const doctor = await User.findOne({ _id: item.doctorId });
       const patient = await User.findOne({ _id: item.patientId });
-      const timeType =  await TimeType.findOne({ _id: item.timeTypeId})
+      const timeType = await TimeType.findOne({ _id: item.timeTypeId });
       if (doctor && patient && timeType) {
         listData.push({
           ...item._doc,
@@ -109,21 +109,46 @@ export const getBooking = async (req, res, next) => {
     next(err);
   }
 };
- 
+
 export const updateBookingStatus = async (req, res, next) => {
   try {
-    const { id } = req.params; 
-    const { status } = req.body; 
+    const { id } = req.params;
+    const { status } = req.body;
     const booking = await Booking.findById(id);
-    console.log(id)
+    console.log(id);
+
     if (!booking) {
       return res.status(404).json({ message: "Cuộc hẹn không tồn tại." });
     }
-    booking.status = status;
-    await booking.save();
-   res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", booking });
+
+    if (status !== booking.status) {
+      // Chỉ cập nhật thời gian nếu trạng thái thay đổi
+      booking.status = status;
+      booking.updatedAt = new Date(); // Cập nhật thời gian cập nhật
+
+      await booking.save();
+    }
+
+    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", booking });
   } catch (err) {
     next(err);
   }
 };
 
+export const updateBookingDetail = async (req, res, next) => {
+  try {
+    const bookingId = req.params.id;
+    const updatedData = req.body;
+
+    const updatedBooking = await Booking.findOneAndUpdate({ _id: bookingId }, { $set: updatedData }, { new: true });
+
+    if (!updatedBooking) {
+      res.status(401).json({ message: "không tìm thấy lịch hẹn" });
+      return;
+    }
+
+    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", updatedBooking }); // Trả về bản ghi đã cập nhật dưới dạng JSON
+  } catch (error) {
+    next(error); // Xử lý lỗi nếu có
+  }
+};
