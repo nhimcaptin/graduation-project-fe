@@ -29,7 +29,7 @@ export const statusOptions: IStatusType[] = [
   },
   {
     label: 'Xác nhận',
-    value: "approved",
+    value: "Approved",
     chipType: STATUS_CHIP.ACTIVE
   }
 ];

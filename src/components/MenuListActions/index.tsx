@@ -7,6 +7,7 @@ import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { MenuItem, MenuList, Typography } from "@mui/material";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
+import CheckIcon from '@mui/icons-material/Check';
 
 interface MenuListActionsProps {
   actionEdit?: (param: any) => void | undefined;
@@ -14,7 +15,7 @@ interface MenuListActionsProps {
   actionDelete?: (param: any) => void | undefined;
   actionActive?: (param: any) => void | undefined;
   actionShowReview?: (param: any) => void;
-  actionHideReview?: (param: any) => void;
+  actionConfirm?: (param: any) => void;
   actionAnswerReview?: (param: any) => void | undefined;
   actionRemoveAnswerReview?: (param: any) => void | undefined;
   actionHandle?: (param: any) => void | undefined;
@@ -31,7 +32,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
     actionActive,
     dataSelected,
     actionShowReview,
-    actionHideReview,
+    actionConfirm,
     actionAnswerReview,
     actionRemoveAnswerReview,
     actionHandle,
@@ -78,9 +79,9 @@ const MenuListActions = (props: MenuListActionsProps) => {
       action: actionShowReview,
     },
     {
-      icon: <VisibilityOffIcon className="icon-view" />,
-      label: "Ẩn đánh giá",
-      action: actionHideReview,
+      icon: <CheckIcon className="icon-view" />,
+      label: "Xác nhận tới khám",
+      action: actionConfirm,
     },
     // {
     //   icon: null,

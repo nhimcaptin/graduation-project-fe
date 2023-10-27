@@ -123,6 +123,8 @@ const Booking = () => {
   const open = Boolean(anchorEl);
   const menuId = open ? "simple-popover" : undefined;
 
+  console.log('anchorEl', anchorEl)
+
   const createSortHandler = (property: keyof RowDataProps | string) => (event: React.MouseEvent<unknown>) => {
     handleRequestSort(event, property);
   };
@@ -204,6 +206,38 @@ const Booking = () => {
     setTitle("Xem chi tiết");
   };
 
+  const handleConfirm = (dataDetail?: any) => {
+    setAnchorEl(null);
+    setIsViewMode(true);
+    confirmBooking(dataDetail?.id);
+    setTitle("Xem chi tiết");
+  };
+
+  const confirmBooking = async (id: any) => {
+    setLoadingScreen(true);
+    try {
+      const dateHour = selectedItem?.timeSlot && selectedItem?.timeSlot.split("-")[1];
+      const date = dateHour ? `${moment(selectedItem?.date).format("YYYY-MM-DD")} ${dateHour}` : moment(new Date()).format("YYYY-MM-DD HH:mm")
+      const data = {
+        status: "Approved",
+        statusUpdateTime: date
+      };
+      await apiService.put(`${URL_PATHS.CONFIRM_BOOKING}/${id || selectedItem?._id}`, data);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: MESSAGE_SUCCESS.CONFIRM_BOOKING,
+      });
+      getData && getData({});
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
+  };
+
   const onDelete = async () => {
     setLoadingScreen(true);
     try {
@@ -259,7 +293,7 @@ const Booking = () => {
   const getUserDetail = async (id: string | number) => {
     setLoadingScreen(true);
     try {
-      const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_USER}/${id || selectedItem?._id}`);
+      const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_BOOKING}/${id || selectedItem?._id}`);
       setUserDetail(data);
       setIsOpenModal(true);
     } catch (error: any) {
@@ -437,7 +471,7 @@ const Booking = () => {
                       <TableCell>{data.bookingType}</TableCell>
                       <TableCell className="">{data.service}</TableCell>
                       <TableCell>
-                        {data.timeSlot} | {moment(data.date).format(FORMAT_DATE)}
+                        {data.timeSlot ? `${data.timeSlot} | ${moment(data.date).format(FORMAT_DATE)}` : ""}
                       </TableCell>
                       <TableCell className="">
                         <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
@@ -479,7 +513,7 @@ const Booking = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={handleView} />
+          <MenuListActions actionView={handleView} actionConfirm={handleConfirm} />
         </Popover>
       </IF>
 

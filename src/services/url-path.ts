@@ -15,5 +15,7 @@ const URL_PATHS = {
     GET_LIST_MAIN_SERVICE: "api/main-service/getAll",
     GET_LIST_TIME_TYPE: "api/time-type/get-list",
     CREATE_BOOKING: "api/booking/create",
+    DETAIL_BOOKING: "api/booking/detail-booking",
+    CONFIRM_BOOKING: "api/booking/update-status",
 }
 export default URL_PATHS

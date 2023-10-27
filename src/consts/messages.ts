@@ -16,6 +16,8 @@ export const MESSAGE_SUCCESS: any = {
   CREATE_BOOKING: "Đặt lịch thành công",
   EDIT_BOOKING: "Sửa thông tin đặt lịch thành công",
   // DELETE_STAFF: "Xóa nhân viên thành công",
+
+  CONFIRM_BOOKING: "Xác nhận lịch khám thành công",
 };
 
 export const MESSAGE_ERROR_API: any = {
