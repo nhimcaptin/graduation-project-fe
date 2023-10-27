@@ -43,7 +43,7 @@ export const sidebar = [
   {
     key: "BOOKING",
     title: "Đặt Lịch",
-    icon: Icons.User,
+    icon: Icons.Schedule,
     href: ROUTERS_PATHS.BOOKING,
     role: [Role.Administrator, Role.Doctor, Role.Receptionist],
     subMenu: [],
@@ -51,7 +51,7 @@ export const sidebar = [
   {
     key: "QUEUE_LIST",
     title: "Danh sách khám",
-    icon: Icons.User,
+    icon: Icons.List,
     href: ROUTERS_PATHS.QUEUE_LIST,
     role: [Role.Administrator, Role.Doctor, Role.Receptionist],
     subMenu: [],
@@ -59,7 +59,7 @@ export const sidebar = [
   {
     key: "GET_LIST_HISTORY",
     title: "Lịch sử đặt lịch",
-    icon: Icons.User,
+    icon: Icons.History,
     href: ROUTERS_PATHS.GET_LIST_HISTORY,
     role: [Role.Administrator, Role.Doctor, Role.Receptionist],
     subMenu: [],
