@@ -92,6 +92,10 @@ const routes: IRoutesState[] = [
         component: lazy(() => import("../pages/ViewBookingDoctor")),
       },
       {
+        path: ROUTERS_PATHS.GET_LIST_HISTORY,
+        component: lazy(() => import("../pages/History")),
+      },
+      {
         path: "*",
         component: () => <Navigate to={ROUTERS_PATHS.DASHBOARD} replace />,
       },

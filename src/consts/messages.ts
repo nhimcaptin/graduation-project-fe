@@ -18,6 +18,8 @@ export const MESSAGE_SUCCESS: any = {
   // DELETE_STAFF: "Xóa nhân viên thành công",
 
   CONFIRM_BOOKING: "Xác nhận lịch khám thành công",
+
+  UPDATE_STATUS: "Cập nhập thành công",
 };
 
 export const MESSAGE_ERROR_API: any = {

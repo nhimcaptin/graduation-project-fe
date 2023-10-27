@@ -14,6 +14,9 @@ import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
 import { useParams } from "react-router-dom";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
+import { useSetToastInformationState } from "../../redux/store/ToastMessage";
+import { STATUS_TOAST } from "../../consts/statusCode";
+import { MESSAGE_SUCCESS } from "../../consts/messages";
 
 const ViewBookingDoctor = () => {
   const {
@@ -36,15 +39,22 @@ const ViewBookingDoctor = () => {
     nameService: "",
   });
   const { setLoadingScreen } = useSetLoadingScreenState();
+  const { setToastInformation } = useSetToastInformationState();
   const params = useParams();
 
   const onSubmit = async (data: any) => {
+    setLoadingScreen(true);
     const _item = {
       ...dataUser,
-      ...data
-    }
+      ...data,
+      id: params?.id,
+    };
     try {
       const data: any = await apiService.post(URL_PATHS.CREATE_HISTORY, _item);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: MESSAGE_SUCCESS.UPDATE_STATUS,
+      });
     } catch (error) {
     } finally {
       setLoadingScreen(false);
@@ -149,7 +159,7 @@ const ViewBookingDoctor = () => {
           )}
         </Grid>
       </Grid>
-      <Grid container item xs={6} sx={{ marginTop: "15px", display: "flex", justifyContent: "end" }}>
+      <Grid container item xs={6} sx={{ marginTop: "0px", display: "flex", justifyContent: "end" }}>
         <ButtonCustom type="submit" title="Lưu" color="yellow" onClick={handleSubmit(onSubmit)} />
       </Grid>
     </Page>

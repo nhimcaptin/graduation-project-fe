@@ -102,7 +102,7 @@ export const getBooking = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
-    const booking = await Booking.find(_filter)
+    const booking = await Booking.find({ status: { $ne: "Done" }, ..._filter })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts);
@@ -252,15 +252,13 @@ export const getDetailComeCheck = async (req, res, next) => {
     console.log("approvedBookings", approvedBookings);
     const service = await MainServices.findById(approvedBookings.service);
     const user = await User.findById(approvedBookings?.patientId).select("-password").lean();
-    res
-      .status(200)
-      .json({
-        user,
-        service,
-        doctorId: approvedBookings?.doctorId,
-        timeTypeId: approvedBookings?.timeTypeId,
-        bookingType: approvedBookings?.bookingType,
-      });
+    res.status(200).json({
+      user,
+      service,
+      doctorId: approvedBookings?.doctorId,
+      timeTypeId: approvedBookings?.timeTypeId,
+      bookingType: approvedBookings?.bookingType,
+    });
   } catch (err) {
     next(err);
   }
