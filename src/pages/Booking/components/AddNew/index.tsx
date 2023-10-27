@@ -45,7 +45,7 @@ const AddUser = (props: PropsType) => {
       label: "Online",
     },
     {
-      value: "Tại quầy",
+      value: "Offline",
       label: "Tại quầy",
     },
   ];
@@ -58,13 +58,13 @@ const AddUser = (props: PropsType) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      description: dataDetail ? dataDetail?.description : "",
-      patient: dataDetail ? dataDetail?.patient : "",
-      doctor: dataDetail ? dataDetail?.doctor : "",
-      bookingType: dataDetail ? dataDetail?.bookingType : "",
-      date: dataDetail ? dataDetail?.date : new Date(),
-      timeTypeId: dataDetail ? dataDetail?.timeTypeId : "",
-      mainService: dataDetail ? dataDetail?.mainService : "",
+      description: dataDetail ? dataDetail?.booking?.description : "",
+      patient: dataDetail ? { value: dataDetail?.booking?.patientId, label: dataDetail?.patient?.name } : "",
+      doctor: dataDetail ? { value: dataDetail?.booking?.doctorId, label: dataDetail?.doctor?.name } : "",
+      bookingType: dataDetail ? dataType.find((x) => x.value === dataDetail?.booking?.bookingType) : null,
+      date: dataDetail ? dataDetail?.booking?.date : new Date(),
+      timeTypeId: dataDetail ? { _id: dataDetail?.booking?.timeTypeId, timeSlot: dataDetail?.timeType?.name } : "",
+      mainService: dataDetail ? { value: dataDetail?.booking?.service, label: dataDetail?.service?.name } : "",
     },
   });
 
@@ -72,11 +72,14 @@ const AddUser = (props: PropsType) => {
     const item = {
       patientId: data?.patient._id,
       doctorId: data?.doctor._id,
-      date: moment(data?.date).format("YYYY/MM/DD"),
+      date: data?.bookingType.value === "Online" ? moment(data?.date).format("YYYY/MM/DD") : undefined,
       timeTypeId: data?.timeTypeId._id,
       description: data?.description,
       service: data?.mainService._id,
       bookingType: data?.bookingType.value,
+      status: data?.bookingType.value === "Offline" ? "Approved" : "Waiting",
+      statusUpdateTime:
+        data?.bookingType.value === "Online" ? moment(new Date()).format("YYYY/MM/DD HH:mm") : undefined,
     };
     setLoadingScreen(true);
     try {
@@ -408,82 +411,87 @@ const AddUser = (props: PropsType) => {
             />
           </Grid>
         </Grid>
-        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
-          <Grid item xs={5}>
-            <LabelCustom title="Ngày đặt lịch" isRequired />
+        {watch("bookingType")?.value === "Online" && (
+          <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+            <Grid item xs={5}>
+              <LabelCustom title="Ngày đặt lịch" isRequired />
+              <Controller
+                control={control}
+                name="date"
+                rules={{
+                  required: MESSAGE_ERROR.fieldRequired,
+                }}
+                render={({ field: { value, onChange } }) => (
+                  <DateTimePickerCustom
+                    inputProps={{
+                      errorMessage: errors?.date?.message,
+                    }}
+                    staticDateTimePickerProps={{
+                      disabled: !isEdit,
+                      minDateTime: new Date(),
+                      views: ["year", "day"],
+                      ampm: true,
+                    }}
+                    value={value}
+                    onChange={(e: any) => {
+                      onChange(e);
+                      getListTimeType(moment(e).format("YYYY/MM/DD"));
+                      setValue("timeTypeId", "");
+                    }}
+                    inputFormat="DD/MM/YYYY"
+                  />
+                )}
+              />
+            </Grid>
+          </Grid>
+        )}
+        {watch("bookingType")?.value === "Online" && (
+          <Grid container item xs={12} sx={{ marginTop: "10px", position: "relative" }}>
             <Controller
+              key={watch("bookingType")?.value}
               control={control}
-              name="date"
+              name="timeTypeId"
               rules={{
                 required: MESSAGE_ERROR.fieldRequired,
               }}
-              render={({ field: { value, onChange } }) => (
-                <DateTimePickerCustom
-                  inputProps={{
-                    errorMessage: errors?.date?.message,
-                  }}
-                  staticDateTimePickerProps={{
-                    disabled: !isEdit,
-                    minDateTime: new Date(),
-                    views: ["year", "day"],
-                    ampm: true,
-                  }}
-                  value={value}
-                  onChange={(e: any) => {
-                    onChange(e);
-                    getListTimeType(moment(e).format("YYYY/MM/DD"));
-                    setValue("timeTypeId", "");
-                  }}
-                  inputFormat="DD/MM/YYYY"
-                />
-              )}
-            />
-          </Grid>
-        </Grid>
-        <Grid container item xs={12} sx={{ marginTop: "10px", position: "relative" }}>
-          <Controller
-            control={control}
-            name="timeTypeId"
-            rules={{
-              required: MESSAGE_ERROR.fieldRequired,
-            }}
-            render={({ field: { value, onChange } }: any) => {
-              return (
-                <>
-                  {hourInDateData.map((item: any, index: number) => {
-                    const dateHour = item?.timeSlot.split("-")[1];
-                    const dateEnd = moment(new Date().getHours() + 1).format("YYYY-MM-DD HH:mm");
-                    const date = moment(new Date()).format("YYYY-MM-DD");
-                    return (
-                      <Button
-                        disabled={!isEdit}
-                        variant={value?._id === item._id ? "contained" : "outlined"}
-                        className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
-                          // [styles.isDisabled]:
-                          //   moment(`${date} ${dateHour}`).isAfter(`${dateEnd}`) || item.isDisabled || !isEdit,
-                        })}
-                        onClick={(e: any) => {
-                          setValue("timeTypeId", item);
-                        }}
-                      >
-                        <Typography
-                          className={clsx({ [styles.titleActive]: value?._id === item._id }, `${styles.title}`)}
+              render={({ field: { value, onChange } }: any) => {
+                return (
+                  <>
+                    {hourInDateData.map((item: any, index: number) => {
+                      const dateHour = item?.timeSlot.split("-")[1];
+                      const dateEnd = moment(new Date().getHours() + 1).format("YYYY-MM-DD HH:mm");
+                      const date = moment(new Date()).format("YYYY-MM-DD");
+                      return (
+                        <Button
+                          disabled={!isEdit}
+                          variant={value?._id === item._id ? "contained" : "outlined"}
+                          className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
+                            // [styles.isDisabled]:
+                            //   moment(`${date} ${dateHour}`).isAfter(`${dateEnd}`) || item.isDisabled || !isEdit,
+                          })}
+                          onClick={(e: any) => {
+                            setValue("timeTypeId", item);
+                          }}
                         >
-                          {item.timeSlot}
-                        </Typography>
-                      </Button>
-                    );
-                  })}
-                </>
-              );
-            }}
-          />
-          {isLoadingHour && (
-            <div className={styles.loadingHour}>
-              <div className={styles.loader}></div>
-            </div>
-          )}
-        </Grid>
+                          <Typography
+                            className={clsx({ [styles.titleActive]: value?._id === item._id }, `${styles.title}`)}
+                          >
+                            {item.timeSlot}
+                          </Typography>
+                        </Button>
+                      );
+                    })}
+                  </>
+                );
+              }}
+            />
+            {isLoadingHour && (
+              <div className={styles.loadingHour}>
+                <div className={styles.loader}></div>
+              </div>
+            )}
+          </Grid>
+        )}
       </Grid>
     </CrudModal>
   );

@@ -11,11 +11,9 @@ const BookingSchema = new mongoose.Schema(
     },
     date: { 
       type: Date, 
-      required: true 
     },
     timeTypeId: {
       type: mongoose.Schema.Types.ObjectId, ref: 'TimeType', 
-      require: true
     },
     description:{
       type: String,

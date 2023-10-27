@@ -22,7 +22,7 @@ import { Order } from "../../utils/sortTable";
 import { Box } from "@mui/system";
 import { visuallyHidden } from "@mui/utils";
 import LoadingTableRow from "../../components/LoadingTableRow";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import NoDataTableRow from "../../components/NoDataTableRow";
 import MenuListActions from "../../components/MenuListActions";
@@ -43,8 +43,9 @@ import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
 import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
-import AddUser from "./components/AddNew";
 import ChipCustom from "../../components/ChipCustom";
+import ROUTERS_PATHS from "../../consts/router-paths";
+import { URL_LOCAL } from "../../services/base-url";
 
 interface RowDataProps {
   id: number;
@@ -59,6 +60,10 @@ interface RowDataProps {
 }
 
 const headCells = [
+  {
+    label: "STT",
+    style: { maxWidth: "10%", minWidth: "50px" },
+  },
   {
     label: "Tên bệnh nhân",
     sort: "patientId",
@@ -80,11 +85,6 @@ const headCells = [
     style: { maxWidth: "15%", minWidth: "180px" },
   },
   {
-    label: "Ngày giờ đặt lịch",
-    sort: "date",
-    style: { maxWidth: "10%", minWidth: "180px" },
-  },
-  {
     label: "Trạng thái",
     sort: "status",
     style: { maxWidth: "10%", minWidth: "80px" },
@@ -92,7 +92,30 @@ const headCells = [
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const Booking = () => {
+const headCellsAction = [
+  {
+    label: "Tên bệnh nhân",
+    sort: "patientId",
+    style: { maxWidth: "25%", minWidth: "180px" },
+  },
+  {
+    label: "Tên bác sĩ",
+    sort: "doctorId",
+    style: { maxWidth: "25%", minWidth: "180px" },
+  },
+  {
+    label: "Hình thức",
+    sort: "bookingType",
+    style: { maxWidth: "10%", minWidth: "180px" },
+  },
+  {
+    label: "Dịch vụ",
+    sort: "service",
+    style: { maxWidth: "15%", minWidth: "180px" },
+  },
+];
+
+const BookingDoctor = () => {
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
@@ -100,16 +123,11 @@ const Booking = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(rowsPerPageOptions[0]);
   const [totalCount, setTotalCount] = useState<number>(0);
-  const [userState, setUserState] = useState<any>([]);
+  const [tableState, setUserState] = useState<any>([]);
   const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
-  const [filterContext, setFilterContext] = useState<any>({});
-  const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
-  const [isViewMode, setIsViewMode] = useState<boolean>(false);
-  const [title, setTitle] = useState<string>("");
-  const [userDetail, setUserDetail] = useState(null);
+  const [dataComeCheck, setDataComeCheck] = useState([])
 
   const { setToastInformation } = useSetToastInformationState();
-  const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
 
   const { control, handleSubmit, reset, setValue, watch } = useForm({
@@ -138,7 +156,6 @@ const Booking = () => {
   const handleOpenMenuAction = (event: React.MouseEvent<HTMLButtonElement>, record: RowDataProps) => {
     setAnchorEl(event.currentTarget);
     setSelectedItem(record);
-    setUserDetail(null);
   };
 
   const handleCloseActionMenu = () => {
@@ -164,52 +181,8 @@ const Booking = () => {
     });
   };
 
-  const handleSearch = (handleCloseSearch?: () => void) => {
-    setPage(0);
-    handleSubmit((data) => onSubmitFilter({ ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 }))();
-    handleCloseSearch && handleCloseSearch();
-  };
 
-  const onSubmitFilter = (data: any) => {
-    setFilterContext(data);
-    getData(data);
-  };
 
-  const handleClearSearch = () => {
-    reset({ name: "", phone: "", email: "" });
-  };
-
-  const handleRefresh = () => {
-    reset({ name: "", phone: "", email: "" });
-    getData({});
-  };
-
-  const handleOpenModal = () => {
-    setUserDetail(null);
-    setIsViewMode(false);
-    setIsOpenModal(true);
-    setSelectedItem(null);
-    setTitle("Thêm mới");
-  };
-
-  const handleCancel = () => {
-    setIsOpenModal(false);
-    setSelectedItem(null);
-  };
-
-  const handleView = (dataDetail?: any) => {
-    setAnchorEl(null);
-    setIsViewMode(true);
-    getUserDetail(dataDetail?.id);
-    setTitle("Xem chi tiết");
-  };
-
-  const handleConfirm = (dataDetail?: any) => {
-    setAnchorEl(null);
-    setIsViewMode(true);
-    confirmBooking(dataDetail?.id);
-    setTitle("Xem chi tiết");
-  };
 
   const confirmBooking = async (id: any) => {
     setLoadingScreen(true);
@@ -290,21 +263,15 @@ const Booking = () => {
     }
   };
 
-  const getUserDetail = async (id: string | number) => {
-    setLoadingScreen(true);
-    try {
-      const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_BOOKING}/${id || selectedItem?._id}`);
-      setUserDetail(data);
-      setIsOpenModal(true);
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    } finally {
-      setLoadingScreen(false);
-    }
-  };
+  const handleComeCheck = () => {
+    setAnchorEl(null);
+    const _dataCome = tableState.filter((item: any) => item._id === selectedItem._id);
+    const _tableState = tableState.filter((item: any) => item._id !== selectedItem._id);
+    setDataComeCheck(_dataCome);
+    setUserState(_tableState);
+    window.open(URL_LOCAL + ROUTERS_PATHS.QUEUE_DETAIL.replace(':id', selectedItem._id + ''))
+  }
+
 
   useEffect(() => {
     getData({});
@@ -312,90 +279,94 @@ const Booking = () => {
 
   return (
     <Page className={styles.root} title="Danh sách đặt lịch" isActive>
-      <Grid container style={{ marginBottom: "20px" }}>
-        <Grid item xs={10}>
-          <Box>
-            <SearchPopover contentWidth="40rem" onFilter={handleSearch} onClear={handleClearSearch}>
-              <Grid container spacing={2}>
-                <Grid item xs={6}>
-                  <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Họ và tên" />
-                    <Controller
-                      control={control}
-                      name="name"
-                      render={({ field: { onChange, onBlur, value, ref, name } }) => (
-                        <TextFieldCustom
-                          name={name}
-                          ref={ref}
-                          value={value}
-                          onChange={onChange}
-                          placeholder="Nhập họ và tên"
-                          type="text"
-                        />
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <LabelCustom title="Bệnh nhân vào khám" sx={{ fontSize: "18px !important" }} />
+        <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
+          <Table stickyHeader>
+            <TableHead>
+              <TableRow>
+                {headCellsAction.map((header: any, index: number) => {
+                  if (header.label === "Ngày tạo") {
+                    return (
+                      <StickyTableCell key={index} style={header.style} className={clsx("background-table-header")}>
+                        {header.sort ? (
+                          <TableSortLabel
+                            active={orderBy === header.sort}
+                            direction={orderBy === header.sort ? order : "asc"}
+                            onClick={createSortHandler(header.sort)}
+                          >
+                            {header.label}
+                            {orderBy === header.sort ? (
+                              <Box component="span" sx={visuallyHidden}>
+                                {order === "desc" ? "sorted descending" : "sorted ascending"}
+                              </Box>
+                            ) : null}
+                          </TableSortLabel>
+                        ) : (
+                          header.label
+                        )}
+                      </StickyTableCell>
+                    );
+                  }
+                  return (
+                    <TableCell
+                      key={index}
+                      style={header.style}
+                      sx={{ fontWeight: "bold", marginTop: "5%" }}
+                      className={clsx("background-table-header")}
+                      sortDirection={orderBy === header.sort ? order : false}
+                    >
+                      {header.sort ? (
+                        <TableSortLabel
+                          active={orderBy === header.sort}
+                          direction={orderBy === header.sort ? order : "asc"}
+                          onClick={createSortHandler(header.sort)}
+                        >
+                          {header.label}
+                          {orderBy === header.sort ? (
+                            <Box component="span" sx={visuallyHidden}>
+                              {order === "desc" ? "sorted descending" : "sorted ascending"}
+                            </Box>
+                          ) : null}
+                        </TableSortLabel>
+                      ) : (
+                        header.label
                       )}
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={6}>
-                  <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Email" />
-                    <Controller
-                      control={control}
-                      name="email"
-                      render={({ field: { onChange, onBlur, value, ref, name } }) => (
-                        <TextFieldCustom
-                          name={name}
-                          ref={ref}
-                          value={value}
-                          onChange={onChange}
-                          placeholder="Nhập email"
-                          type="text"
-                        />
-                      )}
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={6}>
-                  <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Số điện thoại" />
-                    <Controller
-                      control={control}
-                      name="phone"
-                      render={({ field: { onChange, onBlur, value, ref, name } }) => (
-                        <TextFieldCustom
-                          name={name}
-                          ref={ref}
-                          value={value}
-                          onChange={onChange}
-                          placeholder="Nhập số điện thoại"
-                          type="text"
-                        />
-                      )}
-                    />
-                  </Box>
-                </Grid>
-              </Grid>
-            </SearchPopover>
-            <ButtonIconCustom
-              className="mg-l-10"
-              tooltipTitle="Làm mới"
-              type="refresh"
-              color="lightgreen"
-              onClick={handleRefresh}
-            />
-          </Box>
-        </Grid>
-        <Grid item xs={2}>
-          <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
-            <ButtonIconCustom
-              className="mg-l-10"
-              tooltipTitle="Thêm mới"
-              type="add"
-              color="darkgreen"
-              onClick={handleOpenModal}
-            />
-          </Box>
-        </Grid>
+                    </TableCell>
+                  );
+                })}
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {false ? (
+                <LoadingTableRow colSpan={7} />
+              ) : dataComeCheck && dataComeCheck.length > 0 ? (
+                <>
+                  {dataComeCheck.map((data: any, index: number) => {
+                    let statusContext = getRowStatus(data.status);
+                    return (
+                      <TableRow
+                        key={index}
+                        hover
+                        className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
+                      >
+                        <TableCell>{data.patientName}</TableCell>
+                        <TableCell>{data.doctorName}</TableCell>
+                        <TableCell>{data.bookingType}</TableCell>
+                        <TableCell className="">{data.service}</TableCell>
+                      </TableRow>
+                    );
+                  })}
+                </>
+              ) : (
+                <NoDataTableRow colSpan={6} />
+              )}
+            </TableBody>
+          </Table>
+        </TableContainer>
+      </Grid>
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <LabelCustom title="Danh sách thứ tự" sx={{ fontSize: "18px !important" }} />
       </Grid>
       <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
         <Table stickyHeader>
@@ -456,9 +427,9 @@ const Booking = () => {
           <TableBody>
             {loadingTable ? (
               <LoadingTableRow colSpan={7} />
-            ) : userState && userState.length > 0 ? (
+            ) : tableState && tableState.length > 0 ? (
               <>
-                {userState.map((data: any, index: number) => {
+                {tableState.map((data: any, index: number) => {
                   let statusContext = getRowStatus(data.status);
                   return (
                     <TableRow
@@ -466,13 +437,11 @@ const Booking = () => {
                       hover
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
+                      <TableCell>{page * rowsPerPage + index + 1}</TableCell>
                       <TableCell>{data.patientName}</TableCell>
                       <TableCell>{data.doctorName}</TableCell>
                       <TableCell>{data.bookingType}</TableCell>
                       <TableCell className="">{data.service}</TableCell>
-                      <TableCell>
-                        {data.timeSlot ? `${data.timeSlot} | ${moment(data.date).format(FORMAT_DATE)}` : ""}
-                      </TableCell>
                       <TableCell className="">
                         <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
                       </TableCell>
@@ -514,24 +483,12 @@ const Booking = () => {
           }}
         >
           <MenuListActions
-            actionView={handleView}
-            actionConfirm={selectedItem?.status == "Approved" ? undefined : () => handleConfirm()}
+            actionComeCheck={handleComeCheck}
           />
         </Popover>
       </IF>
-
-      {isOpenModal && (
-        <AddUser
-          isOpen={isOpenModal}
-          title={title}
-          onCancel={handleCancel}
-          isEdit={!isViewMode}
-          dataDetail={userDetail}
-          getData={getData}
-        />
-      )}
     </Page>
   );
 };
 
-export default Booking;
+export default BookingDoctor;

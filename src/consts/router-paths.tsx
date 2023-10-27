@@ -8,6 +8,9 @@ const ROUTERS_PATHS = {
   USER: "/staff",
   Role: "/list-of-positions",
   BOOKING: "/list-of-booking",
+  QUEUE_LIST: "/queue-list",
+  QUEUE_DETAIL: "/detail-queue/:id",
+  GET_LIST_HISTORY: "/history",
   MY_PROFILE: "/my-profile",
 };
 

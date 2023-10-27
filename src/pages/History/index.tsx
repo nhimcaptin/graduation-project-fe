@@ -43,7 +43,6 @@ import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
 import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
-import AddUser from "./components/AddNew";
 import ChipCustom from "../../components/ChipCustom";
 
 interface RowDataProps {
@@ -80,19 +79,14 @@ const headCells = [
     style: { maxWidth: "15%", minWidth: "180px" },
   },
   {
-    label: "Ngày giờ đặt lịch",
+    label: "Ngày khám",
     sort: "date",
     style: { maxWidth: "10%", minWidth: "180px" },
-  },
-  {
-    label: "Trạng thái",
-    sort: "status",
-    style: { maxWidth: "10%", minWidth: "80px" },
   },
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const Booking = () => {
+const History = () => {
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
@@ -192,11 +186,6 @@ const Booking = () => {
     setTitle("Thêm mới");
   };
 
-  const handleCancel = () => {
-    setIsOpenModal(false);
-    setSelectedItem(null);
-  };
-
   const handleView = (dataDetail?: any) => {
     setAnchorEl(null);
     setIsViewMode(true);
@@ -204,12 +193,6 @@ const Booking = () => {
     setTitle("Xem chi tiết");
   };
 
-  const handleConfirm = (dataDetail?: any) => {
-    setAnchorEl(null);
-    setIsViewMode(true);
-    confirmBooking(dataDetail?.id);
-    setTitle("Xem chi tiết");
-  };
 
   const confirmBooking = async (id: any) => {
     setLoadingScreen(true);
@@ -226,25 +209,6 @@ const Booking = () => {
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
         message: MESSAGE_SUCCESS.CONFIRM_BOOKING,
-      });
-      getData && getData({});
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    } finally {
-      setLoadingScreen(false);
-    }
-  };
-
-  const onDelete = async () => {
-    setLoadingScreen(true);
-    try {
-      await apiService.delete(`${URL_PATHS.CREATE_USER}/${selectedItem?._id}`);
-      setToastInformation({
-        status: STATUS_TOAST.SUCCESS,
-        message: MESSAGE_SUCCESS.DELETE_USER,
       });
       getData && getData({});
     } catch (error: any) {
@@ -277,7 +241,7 @@ const Booking = () => {
 
     const filters = { unEncoded: { name: name, phone: phone, email: email } };
     try {
-      const data: any = await apiService.getFilter(URL_PATHS.GET_BOOKING, params, filters);
+      const data: any = await apiService.getFilter(URL_PATHS.GET_HISTORY, params, filters);
       setTotalCount(data?.totalUsers);
       setUserState(data?.data);
     } catch (error: any) {
@@ -311,7 +275,7 @@ const Booking = () => {
   }, []);
 
   return (
-    <Page className={styles.root} title="Danh sách đặt lịch" isActive>
+    <Page className={styles.root} title="Lịch sử đặt lịch" isActive>
       <Grid container style={{ marginBottom: "20px" }}>
         <Grid item xs={10}>
           <Box>
@@ -470,12 +434,7 @@ const Booking = () => {
                       <TableCell>{data.doctorName}</TableCell>
                       <TableCell>{data.bookingType}</TableCell>
                       <TableCell className="">{data.service}</TableCell>
-                      <TableCell>
-                        {data.timeSlot ? `${data.timeSlot} | ${moment(data.date).format(FORMAT_DATE)}` : ""}
-                      </TableCell>
-                      <TableCell className="">
-                        <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
-                      </TableCell>
+                      <TableCell>{moment(data.date).format(FORMAT_DATE)}</TableCell>
                       <TableCell>
                         <IconButton aria-label="more" onClick={(e) => handleOpenMenuAction(e, data)}>
                           <MoreHorizIcon />
@@ -515,23 +474,11 @@ const Booking = () => {
         >
           <MenuListActions
             actionView={handleView}
-            actionConfirm={selectedItem?.status == "Approved" ? undefined : () => handleConfirm()}
           />
         </Popover>
       </IF>
-
-      {isOpenModal && (
-        <AddUser
-          isOpen={isOpenModal}
-          title={title}
-          onCancel={handleCancel}
-          isEdit={!isViewMode}
-          dataDetail={userDetail}
-          getData={getData}
-        />
-      )}
     </Page>
   );
 };
 
-export default Booking;
+export default History;
