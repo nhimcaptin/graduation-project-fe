@@ -63,6 +63,11 @@ const headCells = [
     style: { maxWidth: "30%", minWidth: "180px" },
   },
   {
+    label: "Vai trò",
+    sort: "role",
+    style: { maxWidth: "20%", minWidth: "180px" },
+  },
+  {
     label: "Email",
     sort: "email",
     style: { maxWidth: "20%", minWidth: "180px" },
@@ -433,7 +438,7 @@ const Staff = () => {
           </TableHead>
           <TableBody>
             {loadingTable ? (
-              <LoadingTableRow colSpan={6} />
+              <LoadingTableRow colSpan={7} />
             ) : userState && userState.length > 0 ? (
               <>
                 {userState.map((data: any, index: number) => {
@@ -444,6 +449,7 @@ const Staff = () => {
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
                       <TableCell>{data.name}</TableCell>
+                      <TableCell>{data.role}</TableCell>
                       <TableCell>{data.email}</TableCell>
                       <TableCell>{data.phone}</TableCell>
                       <TableCell className="">{data.address}</TableCell>
@@ -458,7 +464,7 @@ const Staff = () => {
                 })}
               </>
             ) : (
-              <NoDataTableRow colSpan={6} />
+              <NoDataTableRow colSpan={7} />
             )}
           </TableBody>
         </Table>

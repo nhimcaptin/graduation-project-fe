@@ -88,13 +88,13 @@ const AddUser = (props: PropsType) => {
     setIsLoading(true);
     try {
       if (!!dataDetail) {
-        await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, data);
+        await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, {...data, role: data?.role?.value});
         setToastInformation({
           status: STATUS_TOAST.SUCCESS,
           message: MESSAGE_SUCCESS.EDIT_STAFF,
         });
       } else {
-        await apiService.post(URL_PATHS.CREATE_USER, data);
+        await apiService.post(URL_PATHS.CREATE_USER, {...data, role: data?.role?.value});
         setToastInformation({
           status: STATUS_TOAST.SUCCESS,
           message: MESSAGE_SUCCESS.CREATE_STAFF,
