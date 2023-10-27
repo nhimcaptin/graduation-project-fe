@@ -202,9 +202,10 @@ export const getListApprovedBookings = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
 
-    const approvedBookings = await Booking.find({ status: "approved" })
+    const approvedBookings = await Booking.find({ status: "Approved" })
       .skip((page - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .sort({ statusUpdateTime: 1 });
 
     res.status(200).json(approvedBookings);
   } catch (err) {
@@ -220,7 +221,8 @@ export const getListCancelBookings = async (req, res, next) => {
 
     const approvedBookings = await Booking.find({ status: "cancel" })
       .skip((page - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .sort({ date: 1 });
 
     res.status(200).json(approvedBookings);
   } catch (err) {
@@ -238,6 +240,27 @@ export const getListWaitingBookings = async (req, res, next) => {
       .limit(pageSize);
 
     res.status(200).json(approvedBookings);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getDetailComeCheck = async (req, res, next) => {
+  try {
+    const Id = req.params.id;
+    const approvedBookings = await Booking.findById(Id);
+    console.log("approvedBookings", approvedBookings);
+    const service = await MainServices.findById(approvedBookings.service);
+    const user = await User.findById(approvedBookings?.patientId).select("-password").lean();
+    res
+      .status(200)
+      .json({
+        user,
+        service,
+        doctorId: approvedBookings?.doctorId,
+        timeTypeId: approvedBookings?.timeTypeId,
+        bookingType: approvedBookings?.bookingType,
+      });
   } catch (err) {
     next(err);
   }

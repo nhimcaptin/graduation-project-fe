@@ -84,6 +84,14 @@ const routes: IRoutesState[] = [
         component: lazy(() => import("../pages/Booking")),
       },
       {
+        path: ROUTERS_PATHS.QUEUE_LIST,
+        component: lazy(() => import("../pages/BookingDoctor")),
+      },
+      {
+        path: ROUTERS_PATHS.QUEUE_DETAIL,
+        component: lazy(() => import("../pages/ViewBookingDoctor")),
+      },
+      {
         path: "*",
         component: () => <Navigate to={ROUTERS_PATHS.DASHBOARD} replace />,
       },

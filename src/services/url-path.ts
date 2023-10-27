@@ -17,5 +17,8 @@ const URL_PATHS = {
     CREATE_BOOKING: "api/booking/create",
     DETAIL_BOOKING: "api/booking/detail-booking",
     CONFIRM_BOOKING: "api/booking/update-status",
+    GET_DETAIL_COME_CHECK: "api/booking/get-detail-come-check",
+    GET_HISTORY: "api/history/get-list",
+    CREATE_HISTORY: "api/history/create",
 }
 export default URL_PATHS

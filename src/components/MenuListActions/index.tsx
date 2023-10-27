@@ -16,6 +16,7 @@ interface MenuListActionsProps {
   actionActive?: (param: any) => void | undefined;
   actionShowReview?: (param: any) => void;
   actionConfirm?: (param: any) => void;
+  actionComeCheck?: (param: any) => void;
   actionAnswerReview?: (param: any) => void | undefined;
   actionRemoveAnswerReview?: (param: any) => void | undefined;
   actionHandle?: (param: any) => void | undefined;
@@ -33,6 +34,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
     dataSelected,
     actionShowReview,
     actionConfirm,
+    actionComeCheck,
     actionAnswerReview,
     actionRemoveAnswerReview,
     actionHandle,
@@ -82,6 +84,11 @@ const MenuListActions = (props: MenuListActionsProps) => {
       icon: <CheckIcon className="icon-view" />,
       label: "Xác nhận tới khám",
       action: actionConfirm,
+    },
+    {
+      icon: <CheckIcon className="icon-view" />,
+      label: "Vào khám",
+      action: actionComeCheck,
     },
     // {
     //   icon: null,

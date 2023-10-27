@@ -77,7 +77,9 @@ const AddUser = (props: PropsType) => {
       description: data?.description,
       service: data?.mainService._id,
       bookingType: data?.bookingType.value,
-      status: data?.bookingType.value === "Offline" ? "Approved" : "",
+      status: data?.bookingType.value === "Offline" ? "Approved" : "Waiting",
+      statusUpdateTime:
+        data?.bookingType.value === "Online" ? moment(new Date()).format("YYYY/MM/DD HH:mm") : undefined,
     };
     setLoadingScreen(true);
     try {
