@@ -1,38 +1,60 @@
 import mongoose from "mongoose";
 const BookingSchema = new mongoose.Schema(
   {
-    patientId: { 
-      type: mongoose.Schema.Types.ObjectId, ref: 'User', 
-      required: true 
-    },
-    doctorId: { 
-      type: mongoose.Schema.Types.ObjectId, ref: 'User', 
-      required: true 
-    },
-    date: { 
-      type: Date, 
-    },
-    timeTypeId: {
-      type: mongoose.Schema.Types.ObjectId, ref: 'TimeType', 
-    },
-    description:{
+    setType: {
       type: String,
     },
-    service:{
-      type: mongoose.Schema.Types.ObjectId, ref: 'MainService',
+    patientId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
     },
-    status:{
+    nameCustomer: {
+      type: String,
+    },
+    birthdayCustomer: {
+      type: Date,
+    },
+    numberPhoneCustomer: {
+      type: String,
+    },
+    emailCustomer: {
+      type: String,
+    },
+    genderCustomer: {
+      type: String,
+    },
+    doctorId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+    date: {
+      type: Date,
+    },
+    timeTypeId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "TimeType",
+    },
+    description: {
+      type: String,
+    },
+    service: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "MainService",
+    },
+    status: {
       type: String,
       required: true,
       default: "Waiting",
     },
-    bookingType:{
+    bookingType: {
       type: String,
       default: "Online",
     },
-    statusUpdateTime:{
+    statusUpdateTime: {
       type: Date,
-    }
+    },
   },
   { timestamps: true }
 );

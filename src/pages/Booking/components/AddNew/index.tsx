@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import CrudModal from "../../../../components/CrudModal";
-import { Button, Grid, Typography } from "@mui/material";
+import { Box, Button, FormControl, Grid, RadioGroup, Typography } from "@mui/material";
 import LabelCustom from "../../../../components/LabelCustom";
 import { Controller, useForm } from "react-hook-form";
 import TextFieldCustom from "../../../../components/TextFieldCustom";
@@ -20,6 +20,7 @@ import moment from "moment";
 import clsx from "clsx";
 import styles from "./styles.module.scss";
 import { useSetLoadingScreenState } from "../../../../redux/store/loadingScreen";
+import RadioCustom from "../../../../components/RadioCustom";
 
 interface PropsType {
   isOpen: boolean;
@@ -65,8 +66,11 @@ const AddUser = (props: PropsType) => {
       date: dataDetail ? dataDetail?.booking?.date : new Date(),
       timeTypeId: dataDetail ? { _id: dataDetail?.booking?.timeTypeId, timeSlot: dataDetail?.timeType?.name } : "",
       mainService: dataDetail ? { value: dataDetail?.booking?.service, label: dataDetail?.service?.name } : "",
+      setType: dataDetail ? { value: dataDetail?.booking?.service, label: dataDetail?.service?.name } : "",
     },
   });
+
+  console.log("setType", watch("setType"));
 
   const onSubmit = async (data: any) => {
     const item = {
@@ -240,6 +244,14 @@ const AddUser = (props: PropsType) => {
     }
   };
 
+  const handleChangeSetType = (item: any) => {
+    if (item === watch("setType")) {
+      setValue("setType", "");
+    } else {
+      setValue("setType", item);
+    }
+  };
+
   useEffect(() => {
     getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
   }, []);
@@ -284,6 +296,31 @@ const AddUser = (props: PropsType) => {
           {errors?.description && (
             <ErrorMessage style={{ marginTop: "-10px" }}>{errors?.description?.message}</ErrorMessage>
           )}
+        </Grid>
+        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+          <Grid item xs={5}>
+            <LabelCustom title="Kiểu đặt" />
+            <Box>
+              <FormControl>
+                <Controller
+                  control={control}
+                  name="setType"
+                  render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                    <RadioGroup
+                      name="setTypeRadio"
+                      value={value}
+                      onChange={(e) => {
+                        onChange(e.target.value);
+                      }}
+                    >
+                      <RadioCustom disabled={!isEdit} value="ReserveFor" label="Đặt hộ cho người thân" />
+                      <RadioCustom disabled={!isEdit} value="Migrant" label="Khách vãng lai" />
+                    </RadioGroup>
+                  )}
+                />
+              </FormControl>
+            </Box>
+          </Grid>
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "15px" }}>
           <Grid item xs={5}>
@@ -466,8 +503,7 @@ const AddUser = (props: PropsType) => {
                           disabled={!isEdit}
                           variant={value?._id === item._id ? "contained" : "outlined"}
                           className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
-                            [styles.isDisabled]:
-                               item.isDisabled || !isEdit,
+                            [styles.isDisabled]: item.isDisabled || !isEdit,
                           })}
                           onClick={(e: any) => {
                             setValue("timeTypeId", item);
