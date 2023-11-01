@@ -57,6 +57,7 @@ interface DateTimePickerCustomProps {
     sx?: SxProps;
     ref?: any;
     transformOrigin?: any;
+    placeholder?: any;
     anchorOriginRight?: boolean;
 }
 
@@ -72,7 +73,8 @@ const DateTimePickerCustom = React.forwardRef((props: DateTimePickerCustomProps,
         maxDate,
         sx,
         transformOrigin,
-        anchorOriginRight
+        anchorOriginRight,
+        placeholder
     } = props;
     const [valueDate, setValueDate] = useState(null);
     const [anchorEl, setAnchorEl] = React.useState(null);
@@ -96,7 +98,7 @@ const DateTimePickerCustom = React.forwardRef((props: DateTimePickerCustomProps,
                 disabled={!!staticDateTimePickerProps?.disabled}
                 size="small"
                 fullWidth
-                placeholder={'dd/mm/yyyy - hh:mm'}
+                placeholder={placeholder || 'dd/mm/yyyy - hh:mm'}
                 onClick={(e) => {
                     if (staticDateTimePickerProps.disabled) return;
                     inputProps.onClick && inputProps.onClick(e);
