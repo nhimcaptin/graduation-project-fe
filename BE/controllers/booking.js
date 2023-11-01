@@ -12,7 +12,6 @@ export const createBooking = async (req, res, next) => {
     const { patientId, doctorId, date, timeTypeId, description, service, status, bookingType } = data;
 
     // const isExists = await Booking.findOne({ patientId,doctorId, date, timeType });
-
     // if (isExists) {
     //   return next(createError(400, 'Cuộc hẹn đã tồn tại.'));
     // }
@@ -20,7 +19,6 @@ export const createBooking = async (req, res, next) => {
     if (existingBooking) {
       return res.status(400).json({ message: "Cuộc hẹn trùng lặp." });
     }
-
     // const time = await TimeType.findById(timeTypeId);
     // console.log(time);
     // if (!time) {
@@ -247,19 +245,18 @@ export const getListDoneBookings = async (req, res, next) => {
   }
 };
 //get list bookings có status waiting và tái khám (re-examination)
-export const getListWaitingAndReExaminationBookings = async (req, res, next) => {
+export const getListWaitingBookings = async (req, res, next) => {
   try {
     const { Page, PageSize } = req.query;
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
 
-    const waitingAndReExaminationBookings = await Booking.find({
-      status: { $in: ["Waiting", "reExamination"] }
-    })
+    const approvedBookings = await Booking.find({ status: "Waiting" })
       .skip((page - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .sort({ date: 1 });
 
-    res.status(200).json(waitingAndReExaminationBookings);
+    res.status(200).json(approvedBookings);
   } catch (err) {
     next(err);
   }
