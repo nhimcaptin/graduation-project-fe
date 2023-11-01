@@ -168,7 +168,7 @@ export const updateBookingDetail = async (req, res, next) => {
       return;
     }
 
-    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", updatedBooking });
+    res.status(200).json({ message: "lịch hẹn đã được cập nhật.", updatedBooking });
   } catch (err) {
     next(err);
   }
@@ -219,7 +219,7 @@ export const getListCancelBookings = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
 
-    const approvedBookings = await Booking.find({ status: "cancel" })
+    const approvedBookings = await Booking.find({ status: "Cancel" })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort({ date: 1 });
@@ -229,21 +229,42 @@ export const getListCancelBookings = async (req, res, next) => {
     next(err);
   }
 };
-export const getListWaitingBookings = async (req, res, next) => {
+
+export const getListDoneBookings = async (req, res, next) => {
   try {
     const { Page, PageSize } = req.query;
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
 
-    const approvedBookings = await Booking.find({ status: "Waiting" })
+    const approvedBookings = await Booking.find({ status: "Done" })
       .skip((page - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .sort({ date: 1 });
 
     res.status(200).json(approvedBookings);
   } catch (err) {
     next(err);
   }
 };
+//get list bookings có status waiting và tái khám (re-examination)
+export const getListWaitingAndReExaminationBookings = async (req, res, next) => {
+  try {
+    const { Page, PageSize } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+
+    const waitingAndReExaminationBookings = await Booking.find({
+      status: { $in: ["Waiting", "reExamination"] }
+    })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+
+    res.status(200).json(waitingAndReExaminationBookings);
+  } catch (err) {
+    next(err);
+  }
+};
+
 
 export const getDetailComeCheck = async (req, res, next) => {
   try {
