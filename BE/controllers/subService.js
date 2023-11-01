@@ -1,6 +1,8 @@
 
 import  SubService from '../models/SubService.js'
 import MainService from "../models/MainServices.js";
+import { convertFilter } from "../util/index.js";
+
 
 export const creatSubservice = async (req, res, next) => {
     try {
@@ -31,11 +33,11 @@ export const creatSubservice = async (req, res, next) => {
 
 export const updateSubservice = async (req, res, next) => {
     try {
-        const subservicerId = req.params.id;
+        const subservicerId = req?.params?.id;
         const data = req.body;
-        const checkID = await SubService.findOne({ _id: subservicerId });
+        const checkID = await SubService.findOne({ _id: subservicerId});
         console.log("checkID", checkID);
-        if (checkID === null) {
+        if (!checkID) {
           return res.status(404).json({ message: "dich vu khong ton tai" });
         }
         const updateSubservice = await SubService.findOneAndUpdate(
@@ -58,4 +60,32 @@ export const updateSubservice = async (req, res, next) => {
         res.status(500).json({ message: "Lỗi server." });
       }
   };
+export const deleteSubservice = async (req, res, next) => {
+    try {
+      await SubService.findByIdAndDelete(req.params.id);
+      res.status(200).json("SubService has been deleted.");
+    } catch (err) {
+      next(err);
+    }
+  };
+  export const getSubservice = async (req, res, next) => {
+    try {
+      const { Page, PageSize, Sorts, filters } = req.query;
+      const page = parseInt(Page) || 1;
+      const pageSize = parseInt(PageSize) || 10;
+      const _filter = convertFilter(filters);
+      const getSubservice = await SubService.find(_filter, "-createdAt -updatedAt -__v")
+        .find()
+        .skip((page - 1) * pageSize)
+        .limit(pageSize)
+        .sort(Sorts)
+        .lean();
+      const total = SubService.find(_filter);
+      const totalUsers = await SubService.countDocuments(total);
   
+      res.status(200).json({ getSubservice, totalUsers });
+      } catch (err) {
+        next(err);
+      }
+    };
+    

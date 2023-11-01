@@ -113,18 +113,20 @@ export const getListUser = async (req, res, next) => {
       .limit(pageSize)
       .sort(Sorts);
     const totalUsers = await User.countDocuments(total);
-    const data = users?.map((x) => {
-      return {
+    const data = [];
+    for (let x of users) {
+      const role = x?.role ? await Role.findById(x?.role) : "";
+      data.push({
         _id: x.id,
         address: x?.address,
         email: x?.email,
         img: x?.img,
         name: x?.name,
         phone: x?.phone,
-        role: x?.role,
+        role: role?.roleName,
         createdAt: x?.createdAt,
-      };
-    });
+      });
+    }
     res.json({ data, totalUsers });
   } catch (error) {
     next(error);
@@ -137,7 +139,7 @@ export const getListDoctors = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
-    const role =  await Role.findOne({roleName: "Doctor"});
+    const role = await Role.findOne({ roleName: "Doctor" });
     const query = User.find({ role: role?._id, ..._filter });
     const doctors = await query
       .skip((page - 1) * pageSize)
