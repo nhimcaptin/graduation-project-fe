@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import CrudModal from "../../../../components/CrudModal";
 import {
   Box,
@@ -32,6 +32,10 @@ import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../../..
 import NoDataTableRow from "../../../../components/NoDataTableRow";
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import DISPLAY_TEXTS from "../../../../consts/display-texts";
+import DateTimePickerCustom from "../../../../components/DateTimePickerCustom";
+import FocusHiddenInput from "../../../../components/FocusHiddenInput";
+import { ButtonAddFileMainSelect } from "../../../../components/ButtonAddFile/ButtonAddFile";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 
 interface PropsType {
   isOpen: boolean;
@@ -75,11 +79,27 @@ const AddUser = (props: PropsType) => {
   const [page, setPage] = useState(0);
   const [dataTable, setDataTable] = useState<any>([]);
   const [loadingTable, setLoadingTable] = useState<any>(false);
+  const refProps = useRef<any>(null);
+
+  const listGender = [
+    { label: "Nam", value: "Nam" },
+    { label: "Nữ", value: "Nữ" },
+    { label: "Khác", value: "Khácm" },
+  ];
+
+  const isCheckImage = (data: any) => {
+    const image = dataDetail?.images.filter((x: any) => x?.imageUrl);
+    return (image?.length > 0 && image) || [];
+  };
+
+  const [previewImages, setPreviewImages] = useState<any>(dataDetail ? isCheckImage(dataDetail?.images) : []);
 
   const {
     handleSubmit,
     control,
     watch,
+    setValue,
+    trigger,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -88,8 +108,17 @@ const AddUser = (props: PropsType) => {
       phone: dataDetail ? dataDetail?.phone : "",
       address: dataDetail ? dataDetail?.address : "",
       role: dataDetail ? dataDetail?.role : "",
+      birthday: dataDetail ? dataDetail?.birthday : "",
+      gender: dataDetail ? dataDetail?.gender : "",
+      image: dataDetail ? dataDetail?.image : "",
     },
   });
+
+  const handleChangeImage = (newFileList: any) => {
+    if (newFileList) setValue("image", newFileList);
+    setPreviewImages([]);
+    trigger("image");
+  };
 
   const onSubmit = async (data: any) => {
     setIsLoading(true);
@@ -183,7 +212,35 @@ const AddUser = (props: PropsType) => {
       }}
     >
       <Grid container>
-        <Grid container item xs={12}>
+        <Grid item xs={12} mt={1}>
+          <LabelCustom title="Avatar" />
+          <Controller
+            name="image"
+            control={control}
+            render={({ field: { ref } }) => {
+              return (
+                <>
+                  <FocusHiddenInput ref={ref}></FocusHiddenInput>
+                  <ButtonAddFileMainSelect
+                    onChange={(files) => {
+                      handleChangeImage(files);
+                    }}
+                    isViewMode={!isEdit}
+                    refForm={refProps}
+                    icon={<AddPhotoAlternateIcon sx={{ fontSize: "20px", color: "#614C4C" }} />}
+                    title="Chọn ảnh"
+                    formProps={{ control }}
+                    initialUrls={previewImages}
+                    multiple={false}
+                    error={!!errors.image && errors.image.message}
+                    sizeLimit={1}
+                  />
+                </>
+              );
+            }}
+          />
+        </Grid>
+        <Grid container item xs={12} mt={2}>
           <Grid item xs={5}>
             <LabelCustom title="Họ và tên" isRequired />
             <Controller
@@ -202,6 +259,60 @@ const AddUser = (props: PropsType) => {
                   placeholder="Nhập họ và tên"
                   type="text"
                   errorMessage={errors?.name?.message}
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={2}></Grid>
+          <Grid item xs={5}>
+            <LabelCustom title="Ngày sinh" isRequired />
+            <Controller
+              control={control}
+              name="birthday"
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <DateTimePickerCustom
+                  inputProps={{
+                    errorMessage: errors?.birthday?.message,
+                  }}
+                  staticDateTimePickerProps={{
+                    disabled: !isEdit,
+                    minDateTime: new Date(),
+                    views: ["year", "day"],
+                    ampm: true,
+                  }}
+                  value={value}
+                  onChange={(e: any) => {
+                    onChange(e);
+                  }}
+                  inputFormat="DD/MM/YYYY"
+                  placeholder="DD/MM/YYYY"
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} mt={2}>
+          <Grid item xs={5}>
+            <LabelCustom title="Giới tính" isRequired />
+            <Controller
+              control={control}
+              name="gender"
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <ReactSelect
+                  isClearable
+                  options={listGender}
+                  getOptionLabel={(option: any) => option.label}
+                  getOptionValue={(option: any) => option.value}
+                  value={value}
+                  onChange={(value: any) => {
+                    onChange(value);
+                  }}
+                  fieldName={name}
+                  maxMenuHeight={200}
+                  placeholder="Chọn giới tính"
+                  inputRef={ref}
+                  isDisabled={!isEdit}
+                  errorMessage={errors?.gender?.message as string}
                 />
               )}
             />
