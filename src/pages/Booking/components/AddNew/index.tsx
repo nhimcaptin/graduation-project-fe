@@ -466,8 +466,8 @@ const AddUser = (props: PropsType) => {
                           disabled={!isEdit}
                           variant={value?._id === item._id ? "contained" : "outlined"}
                           className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
-                            // [styles.isDisabled]:
-                            //   moment(`${date} ${dateHour}`).isAfter(`${dateEnd}`) || item.isDisabled || !isEdit,
+                            [styles.isDisabled]:
+                               item.isDisabled || !isEdit,
                           })}
                           onClick={(e: any) => {
                             setValue("timeTypeId", item);
