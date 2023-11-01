@@ -1,10 +1,12 @@
 import express from "express";
-import { creatSubservice, updateSubservice } from "../controllers/subService.js";
+import { createSubService, deleteSubservice, getSubservice, updateSubservice } from "../controllers/subService.js";
 
 const router = express.Router();
 
-router.post("/create/:id", creatSubservice);
-router.put("/updateSubService/:id", updateSubservice);
+router.post("/create", createSubService);
+router.put("/update/:id", updateSubservice);
+router.delete("/delete/:id", deleteSubservice);
+router.get("/getall", getSubservice);
 
 
 export default router

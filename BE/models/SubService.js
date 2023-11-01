@@ -9,11 +9,19 @@ const SubServiceSchema = new mongoose.Schema(
       type: String, 
       required: true 
     },
-    price: {
+    price: { // chi phí
         type: String,
         require: true
     },
-    description: {
+    aesthetics: { // tính thẩm mỹ
+      type: String,
+      require: true
+    },
+    treatmentTime: { // thời gian điều trị
+      type: String,
+      require: true
+    },
+    examination: { // thăm khám
       type: String,
       require: true
     },
