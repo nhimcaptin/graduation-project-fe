@@ -111,7 +111,7 @@ app.use("/api/role", roleRoute);
 app.use("/api/booking", bookingRoute);
 app.use("/api/main-service", mainServiceRoute);
 app.use("/api/time-type", timeTypeRoute);
-app.use("/api/subService", subService);
+app.use("/api/sub-service", subService);
 app.use("/api/history", historyService);
 
 
