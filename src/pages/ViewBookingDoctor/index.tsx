@@ -96,7 +96,7 @@ const ViewBookingDoctor = () => {
         <Grid item xs={5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Họ và tên" />
-            <TextFieldCustom value={dataUser?.name} disabled placeholder="Nhập số điện thoại" type="text" />
+            <TextFieldCustom value={dataUser?.name} disabled placeholder="Nhập họ và tên" type="text" />
           </Box>
         </Grid>
         <Grid item xs={2}></Grid>
@@ -111,14 +111,14 @@ const ViewBookingDoctor = () => {
         <Grid item xs={5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Email" />
-            <TextFieldCustom value={dataUser?.email} disabled placeholder="Nhập số điện thoại" type="text" />
+            <TextFieldCustom value={dataUser?.email} disabled placeholder="Nhập email" type="text" />
           </Box>
         </Grid>
         <Grid item xs={2}></Grid>
         <Grid item xs={5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Địa chỉ" />
-            <TextFieldCustom value={dataUser?.address} disabled placeholder="Nhập số điện thoại" type="text" />
+            <TextFieldCustom value={dataUser?.address} disabled placeholder="Nhập địa" type="text" />
           </Box>
         </Grid>
       </Grid>
@@ -126,7 +126,7 @@ const ViewBookingDoctor = () => {
         <Grid item xs={5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Dịch vụ" />
-            <TextFieldCustom value={dataUser?.nameService} disabled placeholder="Nhập số điện thoại" type="text" />
+            <TextFieldCustom value={dataUser?.nameService} disabled placeholder="Nhập dịch vụ" type="text" />
           </Box>
         </Grid>
       </Grid>

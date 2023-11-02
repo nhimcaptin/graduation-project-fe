@@ -28,7 +28,7 @@ export const statusOptions: IStatusType[] = [
     chipType: STATUS_CHIP.INACTIVE
   },
   {
-    label: 'Xác nhận',
+    label: 'Chờ khám',
     value: "Approved",
     chipType: STATUS_CHIP.ACTIVE
   }

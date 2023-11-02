@@ -33,6 +33,7 @@ export const getMainService = async (req, res, next) => {
     next(err);
   }
 };
+
 export const getAllMainServices = async (req, res, next) => {
   try {
     const { Page, PageSize, Sorts, filters } = req.query;

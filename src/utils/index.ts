@@ -1,6 +1,7 @@
 import { LabelDisplayedRowsArgs } from "@mui/material";
 import DISPLAY_TEXTS from "../consts/display-texts";
 import { statusOptions } from "../consts/statusCode";
+import { SyntheticEvent } from 'react';
 
 export const FORMAT_DATE = "DD/MM/YYYY"
 export const rowsPerPageOptions = [10, 20, 50];
@@ -40,4 +41,13 @@ export const getRowStatus = (value: any) => {
       value: ''
   };
   return result;
+};
+
+export const handleErrorImage = (e: SyntheticEvent<HTMLImageElement, Event>, fallbackImage: string) => {
+  e.currentTarget.onerror = null;
+  e.currentTarget.src = fallbackImage;
+};
+
+export const uid = () => {
+  return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };

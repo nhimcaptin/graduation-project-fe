@@ -70,6 +70,11 @@ const headCells = [
     style: { maxWidth: "25%", minWidth: "180px" },
   },
   {
+    label: "Kiểu đặt",
+    sort: "bookingType",
+    style: { maxWidth: "10%", minWidth: "180px" },
+  },
+  {
     label: "Hình thức",
     sort: "bookingType",
     style: { maxWidth: "10%", minWidth: "180px" },
@@ -455,7 +460,7 @@ const Booking = () => {
           </TableHead>
           <TableBody>
             {loadingTable ? (
-              <LoadingTableRow colSpan={7} />
+              <LoadingTableRow colSpan={8} />
             ) : userState && userState.length > 0 ? (
               <>
                 {userState.map((data: any, index: number) => {
@@ -466,12 +471,19 @@ const Booking = () => {
                       hover
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
-                      <TableCell>{data.patientName}</TableCell>
-                      <TableCell>{data.doctorName}</TableCell>
-                      <TableCell>{data.bookingType}</TableCell>
-                      <TableCell className="">{data.service}</TableCell>
+                      <TableCell>{data?.setType ? data?.nameCustomer : data?.patientId?.name}</TableCell>
+                      <TableCell>{data?.doctorId?.name}</TableCell>
                       <TableCell>
-                        {data.timeSlot ? `${data.timeSlot} | ${moment(data.date).format(FORMAT_DATE)}` : ""}
+                        {(data.setType == "Migrant" && "Khách vãng lai") ||
+                          (data.setType == "ReserveFor" && "Đặt hộ cho người thân") ||
+                          ""}
+                      </TableCell>
+                      <TableCell>{data.bookingType}</TableCell>
+                      <TableCell className="">{data?.service?.name}</TableCell>
+                      <TableCell>
+                        {data?.timeTypeId?.timeSlot
+                          ? `${data?.timeTypeId?.timeSlot} | ${moment(data.date).format(FORMAT_DATE)}`
+                          : ""}
                       </TableCell>
                       <TableCell className="">
                         <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
@@ -486,7 +498,7 @@ const Booking = () => {
                 })}
               </>
             ) : (
-              <NoDataTableRow colSpan={6} />
+              <NoDataTableRow colSpan={8} />
             )}
           </TableBody>
         </Table>

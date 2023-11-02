@@ -18,6 +18,7 @@ export const createUser = async (req, res, next) => {
     const hash = bcrypt.hashSync("admin123456", salt);
     await new User({
       ...data,
+      role: data?.role || undefined,
       isAdmin: !!data?.role,
       password: hash,
     }).save();

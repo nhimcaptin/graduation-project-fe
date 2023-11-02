@@ -9,18 +9,32 @@ import MainServices from "../models/MainServices.js";
 export const createBooking = async (req, res, next) => {
   try {
     const data = req.body;
-    const { patientId, doctorId, date, timeTypeId, description, service, status, bookingType } = data;
+    const {
+      patientId,
+      doctorId,
+      date,
+      timeTypeId,
+      description,
+      service,
+      status,
+      bookingType,
+      setType,
+      nameCustomer,
+      birthdayCustomer,
+      numberPhoneCustomer,
+      emailCustomer,
+      genderCustomer,
+      addressCustomer,
+    } = data;
 
     // const isExists = await Booking.findOne({ patientId,doctorId, date, timeType });
-
     // if (isExists) {
     //   return next(createError(400, 'Cuộc hẹn đã tồn tại.'));
     // }
     const existingBooking = await Booking.findOne({ doctorId, date, timeTypeId });
-    if (existingBooking) {
+    if (existingBooking && bookingType === "Online") {
       return res.status(400).json({ message: "Cuộc hẹn trùng lặp." });
     }
-
     // const time = await TimeType.findById(timeTypeId);
     // console.log(time);
     // if (!time) {
@@ -39,6 +53,13 @@ export const createBooking = async (req, res, next) => {
       service,
       status,
       bookingType,
+      setType,
+      nameCustomer,
+      birthdayCustomer,
+      numberPhoneCustomer,
+      emailCustomer,
+      genderCustomer,
+      addressCustomer,
     });
 
     await newBooking.save();
@@ -51,47 +72,16 @@ export const createBooking = async (req, res, next) => {
 export const getDetailBooking = async (req, res, next) => {
   try {
     const bookingId = req.params.id;
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findById(bookingId)
+      .populate("doctorId", "-password")
+      .populate("patientId", "-password")
+      .populate("timeTypeId")
+      .populate("service");
     if (!booking) {
       return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
     }
 
-    const doctor = await User.findOne({ _id: booking.doctorId });
-    if (!doctor) {
-      return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
-    }
-
-    const patient = await User.findOne({ _id: booking.patientId });
-    if (!patient) {
-      return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
-    }
-    const timeType = await TimeType.findOne({ _id: booking.timeTypeId });
-
-    const service = await MainServices.findOne({ _id: booking.service });
-    if (!service) {
-      return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
-    }
-    res.status(200).json({
-      booking: { ...booking._doc },
-      doctor: {
-        //_id: doctor._id,
-        name: doctor.name,
-      },
-      patient: {
-        //_id: patient._id,
-        name: patient.name,
-      },
-      service: {
-        //_id: service._id,
-        name: service.name,
-      },
-      ...(timeType && {
-        timeType: {
-          //_id: timeType._id,
-          name: timeType?.timeSlot,
-        },
-      }),
-    });
+    res.status(200).json(booking);
   } catch (err) {
     next(err);
   }
@@ -103,27 +93,16 @@ export const getBooking = async (req, res, next) => {
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
     const booking = await Booking.find({ status: { $ne: "Done" }, ..._filter })
+      .populate("doctorId", "-password")
+      .populate("patientId", "-password")
+      .populate("timeTypeId")
+      .populate("service")
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts);
-    const totalUsers = booking.length;
-    const listData = [];
-    for (let item of booking) {
-      const doctor = await User.findOne({ _id: item.doctorId });
-      const patient = await User.findOne({ _id: item.patientId });
-      const timeType = await TimeType.findOne({ _id: item.timeTypeId });
-      const service = await MainServices.findOne({ _id: item.service });
-      if (doctor && patient && service) {
-        listData.push({
-          ...item._doc,
-          patientName: patient.name,
-          doctorName: doctor.name,
-          service: service?.name || "",
-          timeSlot: timeType?.timeSlot || "",
-        });
-      }
-    }
-    res.status(200).json({ data: listData, totalUsers });
+    const total = await Booking.find({ status: { $ne: "Done" }, ..._filter });
+    const totalUsers = total.length;
+    res.status(200).json({ data: booking, totalUsers });
   } catch (err) {
     next(err);
   }
@@ -168,7 +147,7 @@ export const updateBookingDetail = async (req, res, next) => {
       return;
     }
 
-    res.status(200).json({ message: "Trạng thái lịch hẹn đã được cập nhật.", updatedBooking });
+    res.status(200).json({ message: "lịch hẹn đã được cập nhật.", updatedBooking });
   } catch (err) {
     next(err);
   }
@@ -219,7 +198,7 @@ export const getListCancelBookings = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
 
-    const approvedBookings = await Booking.find({ status: "cancel" })
+    const approvedBookings = await Booking.find({ status: "Cancel" })
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort({ date: 1 });
@@ -229,6 +208,24 @@ export const getListCancelBookings = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getListDoneBookings = async (req, res, next) => {
+  try {
+    const { Page, PageSize } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+
+    const approvedBookings = await Booking.find({ status: "Done" })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .sort({ date: 1 });
+
+    res.status(200).json(approvedBookings);
+  } catch (err) {
+    next(err);
+  }
+};
+//get list bookings có status waiting và tái khám (re-examination)
 export const getListWaitingBookings = async (req, res, next) => {
   try {
     const { Page, PageSize } = req.query;
@@ -237,7 +234,8 @@ export const getListWaitingBookings = async (req, res, next) => {
 
     const approvedBookings = await Booking.find({ status: "Waiting" })
       .skip((page - 1) * pageSize)
-      .limit(pageSize);
+      .limit(pageSize)
+      .sort({ date: 1 });
 
     res.status(200).json(approvedBookings);
   } catch (err) {
@@ -248,17 +246,12 @@ export const getListWaitingBookings = async (req, res, next) => {
 export const getDetailComeCheck = async (req, res, next) => {
   try {
     const Id = req.params.id;
-    const approvedBookings = await Booking.findById(Id);
-    console.log("approvedBookings", approvedBookings);
-    const service = await MainServices.findById(approvedBookings.service);
-    const user = await User.findById(approvedBookings?.patientId).select("-password").lean();
-    res.status(200).json({
-      user,
-      service,
-      doctorId: approvedBookings?.doctorId,
-      timeTypeId: approvedBookings?.timeTypeId,
-      bookingType: approvedBookings?.bookingType,
-    });
+    const approvedBookings = await Booking.findById(Id)
+      .populate("doctorId", "-password")
+      .populate("patientId", "-password")
+      .populate("timeTypeId")
+      .populate("service");
+    res.status(200).json(approvedBookings);
   } catch (err) {
     next(err);
   }
