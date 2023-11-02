@@ -80,4 +80,25 @@ export const deleteSubservice = async (req, res, next) => {
         next(err);
       }
     };
+  
+export const detailSubservice = async (req, res, next) => {
+  try {
+    const subService = await SubService.findOne({ _id: req.params.id}).exec();
+    const Id_mainService_Subservice = subService.mainServiceID;
+    const detailMainservice = await MainService.findOne({ _id: Id_mainService_Subservice}).exec();
+    if (!detailMainservice) {
+      return res.status(404).json({message: "Không lấy được ID mainService"})
+    }
+
+    const nameService = detailMainservice.name;
+    if (!subService) {
+      return res.status(404).json({ message: "Service không tồn tại" });
+    }
+    const data = { ...subService._doc,nameService};
+    return res.status(200).json(data);
+  } catch (err) {
+    next(err);
+  }
+};
+
     

@@ -1865,7 +1865,7 @@
     "statuses" "2.0.1"
     "unpipe" "~1.0.0"
 
-"firebase@^9.19.1":
+"firebase@^9.23.0":
   "integrity" "sha512-/4lUVY0lUvBDIaeY1q6dUYhS8Sd18Qb9CgWkPZICUo9IXpJNCEagfNZXBBFCkMTTN5L5gx2Hjr27y21a9NzUcA=="
   "resolved" "https://registry.npmjs.org/firebase/-/firebase-9.23.0.tgz"
   "version" "9.23.0"

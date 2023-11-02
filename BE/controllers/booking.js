@@ -229,7 +229,7 @@ export const getListDoneBookings = async (req, res, next) => {
 export const getListWaitingBookings = async (req, res, next) => {
   try {
     const { Page, PageSize } = req.query;
-    const page = parseInt(Page) || 1;
+    const page = parseInt(Page) || 1;  
     const pageSize = parseInt(PageSize) || 10;
 
     const approvedBookings = await Booking.find({ status: "Waiting" })
