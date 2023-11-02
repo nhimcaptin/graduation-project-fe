@@ -466,12 +466,12 @@ const Booking = () => {
                       hover
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
-                      <TableCell>{data.patientName}</TableCell>
-                      <TableCell>{data.doctorName}</TableCell>
+                      <TableCell>{data?.patientId?.name}</TableCell>
+                      <TableCell>{data?.doctorId?.name}</TableCell>
                       <TableCell>{data.bookingType}</TableCell>
-                      <TableCell className="">{data.service}</TableCell>
+                      <TableCell className="">{data?.service?.name}</TableCell>
                       <TableCell>
-                        {data.timeSlot ? `${data.timeSlot} | ${moment(data.date).format(FORMAT_DATE)}` : ""}
+                        {data?.timeTypeId?.timeSlot ? `${data?.timeTypeId?.timeSlot} | ${moment(data.date).format(FORMAT_DATE)}` : ""}
                       </TableCell>
                       <TableCell className="">
                         <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />

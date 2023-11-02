@@ -9,7 +9,23 @@ import MainServices from "../models/MainServices.js";
 export const createBooking = async (req, res, next) => {
   try {
     const data = req.body;
-    const { patientId, doctorId, date, timeTypeId, description, service, status, bookingType } = data;
+    const {
+      patientId,
+      doctorId,
+      date,
+      timeTypeId,
+      description,
+      service,
+      status,
+      bookingType,
+      setType,
+      nameCustomer,
+      birthdayCustomer,
+      numberPhoneCustomer,
+      emailCustomer,
+      genderCustomer,
+      addressCustomer,
+    } = data;
 
     // const isExists = await Booking.findOne({ patientId,doctorId, date, timeType });
     // if (isExists) {
@@ -37,6 +53,13 @@ export const createBooking = async (req, res, next) => {
       service,
       status,
       bookingType,
+      setType,
+      nameCustomer,
+      birthdayCustomer,
+      numberPhoneCustomer,
+      emailCustomer,
+      genderCustomer,
+      addressCustomer,
     });
 
     await newBooking.save();
@@ -101,27 +124,15 @@ export const getBooking = async (req, res, next) => {
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
     const booking = await Booking.find({ status: { $ne: "Done" }, ..._filter })
+      .populate("doctorId", "-password")
+      .populate("patientId", "-password")
+      .populate("timeTypeId")
+      .populate("service")
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts);
-    const totalUsers = booking.length;
-    const listData = [];
-    for (let item of booking) {
-      const doctor = await User.findOne({ _id: item.doctorId });
-      const patient = await User.findOne({ _id: item.patientId });
-      const timeType = await TimeType.findOne({ _id: item.timeTypeId });
-      const service = await MainServices.findOne({ _id: item.service });
-      if (doctor && patient && service) {
-        listData.push({
-          ...item._doc,
-          patientName: patient.name,
-          doctorName: doctor.name,
-          service: service?.name || "",
-          timeSlot: timeType?.timeSlot || "",
-        });
-      }
-    }
-    res.status(200).json({ data: listData, totalUsers });
+    const totalUsers = await Booking.find({ status: { $ne: "Done" }, ..._filter }).length;
+    res.status(200).json({ data: booking, totalUsers });
   } catch (err) {
     next(err);
   }
@@ -261,7 +272,6 @@ export const getListWaitingBookings = async (req, res, next) => {
     next(err);
   }
 };
-
 
 export const getDetailComeCheck = async (req, res, next) => {
   try {

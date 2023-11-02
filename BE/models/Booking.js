@@ -7,7 +7,6 @@ const BookingSchema = new mongoose.Schema(
     patientId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
-      required: true,
     },
     nameCustomer: {
       type: String,
@@ -22,6 +21,9 @@ const BookingSchema = new mongoose.Schema(
       type: String,
     },
     genderCustomer: {
+      type: String,
+    },
+    addressCustomer: {
       type: String,
     },
     doctorId: {

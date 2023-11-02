@@ -21,6 +21,7 @@ import clsx from "clsx";
 import styles from "./styles.module.scss";
 import { useSetLoadingScreenState } from "../../../../redux/store/loadingScreen";
 import RadioCustom from "../../../../components/RadioCustom";
+import CloseIcon from "@mui/icons-material/Close";
 
 interface PropsType {
   isOpen: boolean;
@@ -51,6 +52,12 @@ const AddUser = (props: PropsType) => {
     },
   ];
 
+  const listGender = [
+    { label: "Nam", value: "Nam" },
+    { label: "Nữ", value: "Nữ" },
+    { label: "Khác", value: "Khácm" },
+  ];
+
   const {
     handleSubmit,
     control,
@@ -58,6 +65,7 @@ const AddUser = (props: PropsType) => {
     setValue,
     formState: { errors },
   } = useForm({
+    shouldUnregister: true,
     defaultValues: {
       description: dataDetail ? dataDetail?.booking?.description : "",
       patient: dataDetail ? { value: dataDetail?.booking?.patientId, label: dataDetail?.patient?.name } : "",
@@ -66,24 +74,35 @@ const AddUser = (props: PropsType) => {
       date: dataDetail ? dataDetail?.booking?.date : new Date(),
       timeTypeId: dataDetail ? { _id: dataDetail?.booking?.timeTypeId, timeSlot: dataDetail?.timeType?.name } : "",
       mainService: dataDetail ? { value: dataDetail?.booking?.service, label: dataDetail?.service?.name } : "",
-      setType: dataDetail ? { value: dataDetail?.booking?.service, label: dataDetail?.service?.name } : "",
+      setType: "",
+      nameCustomer: "",
+      birthdayCustomer: "",
+      numberPhoneCustomer: "",
+      emailCustomer: "",
+      genderCustomer: "",
+      addressCustomer: "",
     },
   });
 
-  console.log("setType", watch("setType"));
-
   const onSubmit = async (data: any) => {
     const item = {
-      patientId: data?.patient._id,
-      doctorId: data?.doctor._id,
-      date: data?.bookingType.value === "Online" ? moment(data?.date).format("YYYY/MM/DD") : undefined,
-      timeTypeId: data?.timeTypeId._id,
+      patientId: data?.patient?._id,
+      doctorId: data?.doctor?._id,
+      date: data?.bookingType?.value === "Online" ? moment(data?.date).format("YYYY/MM/DD") : undefined,
+      timeTypeId: data?.timeTypeId?._id,
       description: data?.description,
-      service: data?.mainService._id,
-      bookingType: data?.bookingType.value,
-      status: data?.bookingType.value === "Offline" ? "Approved" : "Waiting",
+      service: data?.mainService?._id,
+      bookingType: data?.bookingType?.value,
+      status: data?.bookingType?.value === "Offline" ? "Approved" : "Waiting",
       statusUpdateTime:
         data?.bookingType.value === "Online" ? moment(new Date()).format("YYYY/MM/DD HH:mm") : undefined,
+      birthdayCustomer: data?.birthdayCustomer ? moment(data?.birthdayCustomer).format("YYYY/MM/DD") : "",
+      nameCustomer: data?.setType ? data?.nameCustomer : "",
+      numberPhoneCustomer: data?.setType ? data?.numberPhoneCustomer : "",
+      emailCustomer: data?.setType ? data?.emailCustomer : "",
+      genderCustomer: data?.setType ? data?.genderCustomer?.value : "",
+      addressCustomer: data?.setType ? data?.addressCustomer : "",
+      setType: data?.setType ? data?.setType : "",
     };
     setLoadingScreen(true);
     try {
@@ -244,14 +263,6 @@ const AddUser = (props: PropsType) => {
     }
   };
 
-  const handleChangeSetType = (item: any) => {
-    if (item === watch("setType")) {
-      setValue("setType", "");
-    } else {
-      setValue("setType", item);
-    }
-  };
-
   useEffect(() => {
     getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
   }, []);
@@ -313,8 +324,28 @@ const AddUser = (props: PropsType) => {
                         onChange(e.target.value);
                       }}
                     >
-                      <RadioCustom disabled={!isEdit} value="ReserveFor" label="Đặt hộ cho người thân" />
-                      <RadioCustom disabled={!isEdit} value="Migrant" label="Khách vãng lai" />
+                      <Box display={"flex"} alignItems={"center"} width={"250px"} justifyContent={"space-between"}>
+                        <RadioCustom disabled={!isEdit} value="ReserveFor" label="Đặt hộ cho người thân" />{" "}
+                        {watch("setType") === "ReserveFor" && (
+                          <CloseIcon
+                            onClick={() => {
+                              setValue("setType", "");
+                            }}
+                            sx={{ color: "#e14545", cursor: "pointer" }}
+                          />
+                        )}
+                      </Box>
+                      <Box display={"flex"} alignItems={"center"} width={"250px"} justifyContent={"space-between"}>
+                        <RadioCustom disabled={!isEdit} value="Migrant" label="Khách vãng lai" />
+                        {watch("setType") === "Migrant" && (
+                          <CloseIcon
+                            onClick={() => {
+                              setValue("setType", "");
+                            }}
+                            sx={{ color: "#e14545", cursor: "pointer" }}
+                          />
+                        )}
+                      </Box>
                     </RadioGroup>
                   )}
                 />
@@ -385,39 +416,8 @@ const AddUser = (props: PropsType) => {
             />
           </Grid>
         </Grid>
-        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
-          <Grid item xs={5}>
-            <LabelCustom title="Bệnh nhân" isRequired />
-            <Controller
-              control={control}
-              name="patient"
-              rules={{
-                required: MESSAGE_ERROR.fieldRequired,
-              }}
-              render={({ field: { onChange, onBlur, value, ref, name } }) => (
-                <ReactSelect
-                  isClearable
-                  getOptions={getPatientOptions}
-                  getOptionLabel={(option: any) => option.label}
-                  getOptionValue={(option: any) => option.value}
-                  value={value}
-                  onChange={(value: any) => {
-                    onChange(value);
-                  }}
-                  fieldName={name}
-                  maxMenuHeight={200}
-                  placeholder="Chọn bệnh nhân"
-                  inputRef={ref}
-                  isValidationFailed
-                  isDisabled={!isEdit}
-                  isLoading={isLoadingPatient}
-                  errorMessage={errors?.patient?.message as string}
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={2}></Grid>
-          <Grid item xs={5}>
+        <Grid container item xs={12}>
+          <Grid item xs={5} mt={2}>
             <LabelCustom title="Bác sĩ" isRequired />
             <Controller
               control={control}
@@ -447,6 +447,208 @@ const AddUser = (props: PropsType) => {
               )}
             />
           </Grid>
+          <Grid item xs={2}></Grid>
+          {watch("setType") !== "Migrant" && (
+            <Grid item xs={5} mt={2}>
+              <LabelCustom title={watch("setType") === "ReserveFor" ? "Người đặt" : "Bệnh nhân"} isRequired />
+              <Controller
+                control={control}
+                name="patient"
+                rules={{
+                  required: MESSAGE_ERROR.fieldRequired,
+                }}
+                render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                  <ReactSelect
+                    isClearable
+                    getOptions={getPatientOptions}
+                    getOptionLabel={(option: any) => option.label}
+                    getOptionValue={(option: any) => option.value}
+                    value={value}
+                    onChange={(value: any) => {
+                      onChange(value);
+                    }}
+                    fieldName={name}
+                    maxMenuHeight={200}
+                    placeholder="Chọn bệnh nhân"
+                    inputRef={ref}
+                    isValidationFailed
+                    isDisabled={!isEdit}
+                    isLoading={isLoadingPatient}
+                    errorMessage={errors?.patient?.message as string}
+                  />
+                )}
+              />
+            </Grid>
+          )}
+          {watch("setType") && (
+            <Grid item xs={5} mt={2}>
+              <LabelCustom title="Tên bệnh nhân" isRequired />
+              <Controller
+                control={control}
+                name="nameCustomer"
+                rules={{
+                  required: MESSAGE_ERROR.fieldRequired,
+                }}
+                render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                  <TextFieldCustom
+                    name={name}
+                    ref={ref}
+                    value={value}
+                    onChange={onChange}
+                    disabled={!isEdit}
+                    placeholder="Nhập họ và tên"
+                    type="text"
+                    errorMessage={errors?.nameCustomer?.message}
+                  />
+                )}
+              />
+            </Grid>
+          )}
+          {watch("setType") === "ReserveFor" && <Grid item xs={2}></Grid>}
+          {watch("setType") && (
+            <Grid item xs={5} mt={2}>
+              {watch("setType") === "ReserveFor" ? (
+                <LabelCustom title={"Số điện thoại (nếu có)"} />
+              ) : (
+                <LabelCustom title={"Số điện thoại"} isRequired />
+              )}
+              <Controller
+                control={control}
+                name="numberPhoneCustomer"
+                rules={{
+                  required: watch("setType") === "Migrant" && MESSAGE_ERROR.fieldRequired,
+                }}
+                render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                  <TextFieldCustom
+                    name={name}
+                    ref={ref}
+                    value={value}
+                    onChange={onChange}
+                    disabled={!isEdit}
+                    placeholder="Nhập số điện thoại"
+                    type="text"
+                    errorMessage={errors?.numberPhoneCustomer?.message}
+                  />
+                )}
+              />
+            </Grid>
+          )}
+          {watch("setType") === "Migrant" && <Grid item xs={2}></Grid>}
+          {watch("setType") && (
+            <Grid item xs={5} mt={2}>
+              {watch("setType") === "ReserveFor" ? (
+                <LabelCustom title={"Email (nếu có)"} />
+              ) : (
+                <LabelCustom title={"Email"} isRequired />
+              )}
+              <Controller
+                control={control}
+                name="emailCustomer"
+                rules={{
+                  required: watch("setType") === "Migrant" && MESSAGE_ERROR.fieldRequired,
+                }}
+                render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                  <TextFieldCustom
+                    name={name}
+                    ref={ref}
+                    value={value}
+                    onChange={onChange}
+                    disabled={!isEdit}
+                    placeholder="Nhập email"
+                    type="text"
+                    errorMessage={errors?.emailCustomer?.message}
+                  />
+                )}
+              />
+            </Grid>
+          )}
+          {watch("setType") === "ReserveFor" && <Grid item xs={2}></Grid>}
+          {watch("setType") && (
+            <Grid item xs={5} mt={2}>
+              <LabelCustom title={"Ngày sinh"} isRequired />
+              <Controller
+                control={control}
+                name="birthdayCustomer"
+                rules={{
+                  required: MESSAGE_ERROR.fieldRequired,
+                }}
+                render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                  <DateTimePickerCustom
+                    inputProps={{
+                      errorMessage: errors?.birthdayCustomer?.message,
+                    }}
+                    staticDateTimePickerProps={{
+                      disabled: !isEdit,
+                      views: ["year", "day"],
+                      ampm: true,
+                    }}
+                    value={value}
+                    onChange={(e: any) => {
+                      onChange(e);
+                    }}
+                    inputFormat="DD/MM/YYYY"
+                    placeholder="DD/MM/YYYY"
+                  />
+                )}
+              />
+            </Grid>
+          )}
+          {watch("setType") === "Migrant" && <Grid item xs={2}></Grid>}
+          {watch("setType") && (
+            <Grid item xs={5} mt={2}>
+              <LabelCustom title={"Giới tính"} isRequired />
+              <Controller
+                control={control}
+                name="genderCustomer"
+                rules={{
+                  required: MESSAGE_ERROR.fieldRequired,
+                }}
+                render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                  <ReactSelect
+                    isClearable
+                    options={listGender}
+                    getOptionLabel={(option: any) => option.label}
+                    getOptionValue={(option: any) => option.value}
+                    value={value}
+                    onChange={(value: any) => {
+                      onChange(value);
+                    }}
+                    fieldName={name}
+                    maxMenuHeight={200}
+                    placeholder="Chọn giới tính"
+                    inputRef={ref}
+                    isDisabled={!isEdit}
+                    errorMessage={errors?.genderCustomer?.message as string}
+                  />
+                )}
+              />
+            </Grid>
+          )}
+          {watch("setType") === "ReserveFor" && <Grid item xs={2}></Grid>}
+          {watch("setType") && (
+            <Grid item xs={5} mt={2}>
+              <LabelCustom title={"Địa chỉ"} isRequired />
+              <Controller
+                control={control}
+                name="addressCustomer"
+                rules={{
+                  required: MESSAGE_ERROR.fieldRequired,
+                }}
+                render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                  <TextFieldCustom
+                    name={name}
+                    ref={ref}
+                    value={value}
+                    onChange={onChange}
+                    disabled={!isEdit}
+                    placeholder="Nhập địa chỉ"
+                    type="text"
+                    errorMessage={errors?.addressCustomer?.message}
+                  />
+                )}
+              />
+            </Grid>
+          )}
         </Grid>
         {watch("bookingType")?.value === "Online" && (
           <Grid container item xs={12} sx={{ marginTop: "15px" }}>
