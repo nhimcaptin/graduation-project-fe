@@ -22,6 +22,7 @@ import styles from "./styles.module.scss";
 import { useSetLoadingScreenState } from "../../../../redux/store/loadingScreen";
 import RadioCustom from "../../../../components/RadioCustom";
 import CloseIcon from "@mui/icons-material/Close";
+import { RegPhoneNumber } from "../../../../utils/regExp";
 
 interface PropsType {
   isOpen: boolean;
@@ -55,7 +56,7 @@ const AddUser = (props: PropsType) => {
   const listGender = [
     { label: "Nam", value: "Nam" },
     { label: "Nữ", value: "Nữ" },
-    { label: "Khác", value: "Khácm" },
+    { label: "Khác", value: "Khác" },
   ];
 
   const {
@@ -67,20 +68,20 @@ const AddUser = (props: PropsType) => {
   } = useForm({
     shouldUnregister: true,
     defaultValues: {
-      description: dataDetail ? dataDetail?.booking?.description : "",
-      patient: dataDetail ? { value: dataDetail?.booking?.patientId, label: dataDetail?.patient?.name } : "",
-      doctor: dataDetail ? { value: dataDetail?.booking?.doctorId, label: dataDetail?.doctor?.name } : "",
-      bookingType: dataDetail ? dataType.find((x) => x.value === dataDetail?.booking?.bookingType) : null,
-      date: dataDetail ? dataDetail?.booking?.date : new Date(),
-      timeTypeId: dataDetail ? { _id: dataDetail?.booking?.timeTypeId, timeSlot: dataDetail?.timeType?.name } : "",
-      mainService: dataDetail ? { value: dataDetail?.booking?.service, label: dataDetail?.service?.name } : "",
-      setType: "",
-      nameCustomer: "",
-      birthdayCustomer: "",
-      numberPhoneCustomer: "",
-      emailCustomer: "",
-      genderCustomer: "",
-      addressCustomer: "",
+      description: dataDetail ? dataDetail?.description : "",
+      patient: dataDetail ? { value: dataDetail?.patientId?._id, label: dataDetail?.patientId?.name } : "",
+      doctor: dataDetail ? { value: dataDetail?.doctorId?._id, label: dataDetail?.doctorId?.name } : "",
+      bookingType: dataDetail ? dataType.find((x) => x.value === dataDetail?.bookingType) : null,
+      date: dataDetail ? dataDetail?.date : new Date(),
+      timeTypeId: dataDetail ? { _id: dataDetail?.timeTypeId?._id, timeSlot: dataDetail?.timeTypeId?.name } : "",
+      mainService: dataDetail ? { value: dataDetail?.service?._id, label: dataDetail?.service?.name } : "",
+      setType: dataDetail ? dataDetail?.setType : "",
+      nameCustomer: dataDetail ? dataDetail?.nameCustomer : "",
+      birthdayCustomer: dataDetail ? dataDetail?.birthdayCustomer : "",
+      numberPhoneCustomer: dataDetail ? dataDetail?.numberPhoneCustomer : "",
+      emailCustomer: dataDetail ? dataDetail?.emailCustomer : "",
+      genderCustomer: dataDetail ? listGender.find((x) => x.value === dataDetail?.genderCustomer) : "",
+      addressCustomer: dataDetail ? dataDetail?.addressCustomer : "",
     },
   });
 
@@ -326,7 +327,7 @@ const AddUser = (props: PropsType) => {
                     >
                       <Box display={"flex"} alignItems={"center"} width={"250px"} justifyContent={"space-between"}>
                         <RadioCustom disabled={!isEdit} value="ReserveFor" label="Đặt hộ cho người thân" />{" "}
-                        {watch("setType") === "ReserveFor" && (
+                        {watch("setType") === "ReserveFor" && isEdit && (
                           <CloseIcon
                             onClick={() => {
                               setValue("setType", "");
@@ -337,7 +338,7 @@ const AddUser = (props: PropsType) => {
                       </Box>
                       <Box display={"flex"} alignItems={"center"} width={"250px"} justifyContent={"space-between"}>
                         <RadioCustom disabled={!isEdit} value="Migrant" label="Khách vãng lai" />
-                        {watch("setType") === "Migrant" && (
+                        {watch("setType") === "Migrant" && isEdit && (
                           <CloseIcon
                             onClick={() => {
                               setValue("setType", "");
@@ -517,6 +518,10 @@ const AddUser = (props: PropsType) => {
                 name="numberPhoneCustomer"
                 rules={{
                   required: watch("setType") === "Migrant" && MESSAGE_ERROR.fieldRequired,
+                  validate: (value: any) => {
+                    const result = RegPhoneNumber(value);
+                    return !value || result || MESSAGE_ERROR.RegPhoneNumber;
+                }
                 }}
                 render={({ field: { onChange, onBlur, value, ref, name } }) => (
                   <TextFieldCustom

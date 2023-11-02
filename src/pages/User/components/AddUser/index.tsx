@@ -36,6 +36,7 @@ import DateTimePickerCustom from "../../../../components/DateTimePickerCustom";
 import FocusHiddenInput from "../../../../components/FocusHiddenInput";
 import { ButtonAddFileMainSelect } from "../../../../components/ButtonAddFile/ButtonAddFile";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import { RegPhoneNumber } from "../../../../utils/regExp";
 
 interface PropsType {
   isOpen: boolean;
@@ -349,6 +350,10 @@ const AddUser = (props: PropsType) => {
               name="phone"
               rules={{
                 required: MESSAGE_ERROR.fieldRequired,
+                validate: (value: any) => {
+                  const result = RegPhoneNumber(value);
+                  return !value || result || MESSAGE_ERROR.RegPhoneNumber;
+                },
               }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <TextFieldCustom

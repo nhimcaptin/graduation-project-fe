@@ -32,7 +32,7 @@ export const createBooking = async (req, res, next) => {
     //   return next(createError(400, 'Cuộc hẹn đã tồn tại.'));
     // }
     const existingBooking = await Booking.findOne({ doctorId, date, timeTypeId });
-    if (existingBooking) {
+    if (existingBooking && bookingType === "Online") {
       return res.status(400).json({ message: "Cuộc hẹn trùng lặp." });
     }
     // const time = await TimeType.findById(timeTypeId);
@@ -72,47 +72,16 @@ export const createBooking = async (req, res, next) => {
 export const getDetailBooking = async (req, res, next) => {
   try {
     const bookingId = req.params.id;
-    const booking = await Booking.findById(bookingId);
+    const booking = await Booking.findById(bookingId)
+      .populate("doctorId", "-password")
+      .populate("patientId", "-password")
+      .populate("timeTypeId")
+      .populate("service");
     if (!booking) {
       return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
     }
 
-    const doctor = await User.findOne({ _id: booking.doctorId });
-    if (!doctor) {
-      return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
-    }
-
-    const patient = await User.findOne({ _id: booking.patientId });
-    if (!patient) {
-      return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
-    }
-    const timeType = await TimeType.findOne({ _id: booking.timeTypeId });
-
-    const service = await MainServices.findOne({ _id: booking.service });
-    if (!service) {
-      return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
-    }
-    res.status(200).json({
-      booking: { ...booking._doc },
-      doctor: {
-        //_id: doctor._id,
-        name: doctor.name,
-      },
-      patient: {
-        //_id: patient._id,
-        name: patient.name,
-      },
-      service: {
-        //_id: service._id,
-        name: service.name,
-      },
-      ...(timeType && {
-        timeType: {
-          //_id: timeType._id,
-          name: timeType?.timeSlot,
-        },
-      }),
-    });
+    res.status(200).json(booking);
   } catch (err) {
     next(err);
   }
@@ -131,7 +100,8 @@ export const getBooking = async (req, res, next) => {
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts);
-    const totalUsers = await Booking.find({ status: { $ne: "Done" }, ..._filter }).length;
+    const total = await Booking.find({ status: { $ne: "Done" }, ..._filter });
+    const totalUsers = total.length;
     res.status(200).json({ data: booking, totalUsers });
   } catch (err) {
     next(err);

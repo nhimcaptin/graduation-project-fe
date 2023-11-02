@@ -11,6 +11,7 @@ import apiService from "../../../../services/api-services";
 import URL_PATHS from "../../../../services/url-path";
 import { STATUS_TOAST } from "../../../../consts/statusCode";
 import { handleErrorMessage } from "../../../../utils/errorMessage";
+import { RegPhoneNumber } from "../../../../utils/regExp";
 
 interface PropsType {
   isOpen: boolean;
@@ -88,13 +89,13 @@ const AddUser = (props: PropsType) => {
     setIsLoading(true);
     try {
       if (!!dataDetail) {
-        await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, {...data, role: data?.role?.value});
+        await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, { ...data, role: data?.role?.value });
         setToastInformation({
           status: STATUS_TOAST.SUCCESS,
           message: MESSAGE_SUCCESS.EDIT_STAFF,
         });
       } else {
-        await apiService.post(URL_PATHS.CREATE_USER, {...data, role: data?.role?.value});
+        await apiService.post(URL_PATHS.CREATE_USER, { ...data, role: data?.role?.value });
         setToastInformation({
           status: STATUS_TOAST.SUCCESS,
           message: MESSAGE_SUCCESS.CREATE_STAFF,
@@ -182,6 +183,10 @@ const AddUser = (props: PropsType) => {
               name="phone"
               rules={{
                 required: MESSAGE_ERROR.fieldRequired,
+                validate: (value: any) => {
+                  const result = RegPhoneNumber(value);
+                  return !value || result || MESSAGE_ERROR.RegPhoneNumber;
+                },
               }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <TextFieldCustom
