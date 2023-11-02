@@ -3,6 +3,7 @@ export const MESSAGE_ERROR: any = {
   MaxFileSizeExceed: 'Dung lượng file upload lớn hơn cho phép.',
   FileTypeNotValid: 'Định dạng file không hợp lệ.',
   RegPhoneNumber: 'Số điện thoại sai định dạng.',
+  RegExpEmail: 'Email sai định dạng.',
 };
 
 export const MESSAGE_SUCCESS: any = {

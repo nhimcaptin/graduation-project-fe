@@ -22,7 +22,7 @@ import styles from "./styles.module.scss";
 import { useSetLoadingScreenState } from "../../../../redux/store/loadingScreen";
 import RadioCustom from "../../../../components/RadioCustom";
 import CloseIcon from "@mui/icons-material/Close";
-import { RegPhoneNumber } from "../../../../utils/regExp";
+import { RegExpEmail, RegPhoneNumber } from "../../../../utils/regExp";
 
 interface PropsType {
   isOpen: boolean;
@@ -521,7 +521,7 @@ const AddUser = (props: PropsType) => {
                   validate: (value: any) => {
                     const result = RegPhoneNumber(value);
                     return !value || result || MESSAGE_ERROR.RegPhoneNumber;
-                }
+                  },
                 }}
                 render={({ field: { onChange, onBlur, value, ref, name } }) => (
                   <TextFieldCustom
@@ -551,6 +551,10 @@ const AddUser = (props: PropsType) => {
                 name="emailCustomer"
                 rules={{
                   required: watch("setType") === "Migrant" && MESSAGE_ERROR.fieldRequired,
+                  validate: (value: any) => {
+                    const result = RegExpEmail(value);
+                    return !value || result || MESSAGE_ERROR.RegExpEmail;
+                  },
                 }}
                 render={({ field: { onChange, onBlur, value, ref, name } }) => (
                   <TextFieldCustom

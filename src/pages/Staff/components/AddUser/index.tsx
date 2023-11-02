@@ -11,7 +11,7 @@ import apiService from "../../../../services/api-services";
 import URL_PATHS from "../../../../services/url-path";
 import { STATUS_TOAST } from "../../../../consts/statusCode";
 import { handleErrorMessage } from "../../../../utils/errorMessage";
-import { RegPhoneNumber } from "../../../../utils/regExp";
+import { RegExpEmail, RegPhoneNumber } from "../../../../utils/regExp";
 
 interface PropsType {
   isOpen: boolean;
@@ -159,6 +159,10 @@ const AddUser = (props: PropsType) => {
               name="email"
               rules={{
                 required: MESSAGE_ERROR.fieldRequired,
+                validate: (value: any) => {
+                  const result = RegExpEmail(value);
+                  return !value || result || MESSAGE_ERROR.RegExpEmail;
+                },
               }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <TextFieldCustom
