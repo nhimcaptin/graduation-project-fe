@@ -246,17 +246,12 @@ export const getListWaitingBookings = async (req, res, next) => {
 export const getDetailComeCheck = async (req, res, next) => {
   try {
     const Id = req.params.id;
-    const approvedBookings = await Booking.findById(Id);
-    console.log("approvedBookings", approvedBookings);
-    const service = await MainServices.findById(approvedBookings.service);
-    const user = await User.findById(approvedBookings?.patientId).select("-password").lean();
-    res.status(200).json({
-      user,
-      service,
-      doctorId: approvedBookings?.doctorId,
-      timeTypeId: approvedBookings?.timeTypeId,
-      bookingType: approvedBookings?.bookingType,
-    });
+    const approvedBookings = await Booking.findById(Id)
+      .populate("doctorId", "-password")
+      .populate("patientId", "-password")
+      .populate("timeTypeId")
+      .populate("service");
+    res.status(200).json(approvedBookings);
   } catch (err) {
     next(err);
   }

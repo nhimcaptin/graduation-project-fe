@@ -125,7 +125,7 @@ const BookingDoctor = () => {
   const [totalCount, setTotalCount] = useState<number>(0);
   const [tableState, setUserState] = useState<any>([]);
   const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
-  const [dataComeCheck, setDataComeCheck] = useState([])
+  const [dataComeCheck, setDataComeCheck] = useState([]);
 
   const { setToastInformation } = useSetToastInformationState();
   const { setLoadingScreen } = useSetLoadingScreenState();
@@ -180,9 +180,6 @@ const BookingDoctor = () => {
       pageSize: parseInt(event.target.value),
     });
   };
-
-
-
 
   const confirmBooking = async (id: any) => {
     setLoadingScreen(true);
@@ -248,7 +245,7 @@ const BookingDoctor = () => {
       Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
     };
 
-    const filters = { unEncoded: { name: name, phone: phone, email: email } };
+    const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { status: "Approved" } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_BOOKING, params, filters);
       setTotalCount(data?.totalUsers);
@@ -269,9 +266,8 @@ const BookingDoctor = () => {
     const _tableState = tableState.filter((item: any) => item._id !== selectedItem._id);
     setDataComeCheck(_dataCome);
     setUserState(_tableState);
-    window.open(URL_LOCAL + ROUTERS_PATHS.QUEUE_DETAIL.replace(':id', selectedItem._id + ''))
-  }
-
+    window.open(URL_LOCAL + ROUTERS_PATHS.QUEUE_DETAIL.replace(":id", selectedItem._id + ""));
+  };
 
   useEffect(() => {
     getData({});
@@ -350,10 +346,10 @@ const BookingDoctor = () => {
                         hover
                         className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                       >
-                        <TableCell>{data.patientName}</TableCell>
-                        <TableCell>{data.doctorName}</TableCell>
+                        <TableCell>{data?.setType ? data?.nameCustomer : data?.patientId?.name}</TableCell>
+                        <TableCell>{data?.doctorId?.name}</TableCell>
                         <TableCell>{data.bookingType}</TableCell>
-                        <TableCell className="">{data.service}</TableCell>
+                        <TableCell className="">{data?.service?.name}</TableCell>
                       </TableRow>
                     );
                   })}
@@ -438,10 +434,10 @@ const BookingDoctor = () => {
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
                       <TableCell>{page * rowsPerPage + index + 1}</TableCell>
-                      <TableCell>{data.patientName}</TableCell>
-                      <TableCell>{data.doctorName}</TableCell>
+                      <TableCell>{data?.setType ? data?.nameCustomer : data?.patientId?.name}</TableCell>
+                      <TableCell>{data?.doctorId?.name}</TableCell>
                       <TableCell>{data.bookingType}</TableCell>
-                      <TableCell className="">{data.service}</TableCell>
+                      <TableCell className="">{data?.service?.name}</TableCell>
                       <TableCell className="">
                         <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
                       </TableCell>
@@ -482,9 +478,7 @@ const BookingDoctor = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions
-            actionComeCheck={handleComeCheck}
-          />
+          <MenuListActions actionComeCheck={handleComeCheck} />
         </Popover>
       </IF>
     </Page>
