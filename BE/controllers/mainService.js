@@ -57,13 +57,21 @@ export const getAllMainServices = async (req, res, next) => {
   
 export const updateMainServices = async (req, res, next) => {
     try {
-      const mainServices = await MainService.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
-      res.status(200).json(mainServices);
+      const mainServices = await MainService.findByIdAndUpdate (
+        req.params.id,
+        { $set: req.body }, 
+        { new: true });
+      if(!mainServices) {
+        return res.status(401).json({message: "Không tìm thấy MainServices"})
+      }
+      res.status(200).json({mainServices, message : "Update  Thành Công"});
     } catch (err) {
       next(err);
     }
 };
   
+
+
 export const deleteMainServices = async (req, res, next) => {
   try {
     await MainService.findByIdAndDelete(req.params.id);

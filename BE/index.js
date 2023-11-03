@@ -9,6 +9,9 @@ import mainServiceRoute from "./routes/mainService.js";
 import timeTypeRoute from "./routes/timeType.js";
 import subService from "./routes/subServices.js";
 import historyService from "./routes/historyBooking.js"
+import preferential from "./routes/preferential.js";
+import DentalKnowledge from "./routes/DentalKnowledge.js";
+
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -113,6 +116,8 @@ app.use("/api/main-service", mainServiceRoute);
 app.use("/api/time-type", timeTypeRoute);
 app.use("/api/sub-service", subService);
 app.use("/api/history", historyService);
+app.use("/api/preferential", preferential);
+app.use("/api/DentalKnowledge", DentalKnowledge);
 
 
 
