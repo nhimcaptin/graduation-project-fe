@@ -38,6 +38,10 @@ const HistoryBookingSchema = new mongoose.Schema(
       type: String,
       default: "Online",
     },
+    bookingId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Booking",
+    },
   },
   { timestamps: true }
 );

@@ -476,6 +476,8 @@ const Booking = () => {
                       <TableCell>
                         {(data.setType == "Migrant" && "Khách vãng lai") ||
                           (data.setType == "ReserveFor" && "Đặt hộ cho người thân") ||
+                          (data.setType == "ReExamination" && "Tái khám") ||
+                          (!data.setType && "Đặt cho mình") ||
                           ""}
                       </TableCell>
                       <TableCell>{data.bookingType}</TableCell>

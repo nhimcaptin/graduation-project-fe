@@ -21,5 +21,6 @@ const URL_PATHS = {
     GET_HISTORY: "api/history/get-list",
     CREATE_HISTORY: "api/history/create",
     DETAIL_HISTORY: "api/history/get-detail",
+    UPDATE_HISTORY: "api/history/update",
 }
 export default URL_PATHS

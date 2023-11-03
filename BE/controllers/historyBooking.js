@@ -51,8 +51,59 @@ export const addHistory = async (req, res, next) => {
 export const getDetailHistory = async (req, res, next) => {
   try {
     const id = req.params.id;
-    const historyDetail = await HistoryBooking.findById(id).populate("doctorId", "-password").populate("service");
+    const historyDetail = await HistoryBooking.findById(id)
+      .populate("doctorId", "-password")
+      .populate("service")
+      .populate({
+        path: "bookingId",
+        populate: {
+          path: "timeTypeId",
+          model: "TimeType",
+        },
+      });
     res.status(200).json({ data: historyDetail });
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const bookingReExamination = async (req, res, next) => {
+  try {
+    const data = req.body;
+    const id = req.params.id;
+    let idBooking;
+
+    if (data?.isCheck && !data?.bookingId) {
+      const newBooking = new Booking({
+        patientId: data?.patientId,
+        doctorId: data?.idDoctor,
+        date: data?.date,
+        timeTypeId: data?.timeTypeId,
+        description: data?.description,
+        service: data?.idService,
+        bookingType: data?.bookingType,
+        setType: "ReExamination",
+        nameCustomer: data?.name,
+        birthdayCustomer: data?.birthday,
+        numberPhoneCustomer: data?.phone,
+        emailCustomer: data?.email,
+        genderCustomer: data?.gender,
+        addressCustomer: data?.address,
+      });
+      const { _id } = await newBooking.save();
+      idBooking = _id;
+    }
+
+    if (data?.bookingId) {
+      await Booking.findOneAndUpdate({ _id: data?.bookingId }, { $set: { status: "Cancel" } }, { new: true });
+    }
+
+    await HistoryBooking.findOneAndUpdate(
+      { _id: id },
+      { $set: { condition: data?.condition, bookingId: idBooking } },
+      { new: true }
+    );
+    res.status(200).json("SUCCESS");
   } catch (err) {
     next(err);
   }

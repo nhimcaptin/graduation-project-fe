@@ -16,7 +16,7 @@ import { useParams } from "react-router-dom";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
 import { STATUS_TOAST } from "../../consts/statusCode";
-import { MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../consts/messages";
+import { MESSAGE_ERROR, MESSAGE_ERROR_API, MESSAGE_SUCCESS } from "../../consts/messages";
 import moment from "moment";
 import clsx from "clsx";
 import DateTimePickerCustom from "../../components/DateTimePickerCustom";
@@ -40,7 +40,9 @@ const ReceptionistNote = () => {
   } = useForm({
     defaultValues: {
       condition: "",
-      timeTypeId: "",
+      timeTypeId: !dataUser
+        ? { _id: dataUser?.bookingId?._id || "", timeSlot: dataUser?.bookingId?.timeSlot || "" }
+        : "",
       date: "",
     },
   });
@@ -49,15 +51,21 @@ const ReceptionistNote = () => {
     setLoadingScreen(true);
     const _item = {
       ...dataUser,
-      id: params?.id,
+      ...data,
+      timeTypeId: data?.timeTypeId?._id,
+      isCheck,
     };
     try {
-      const data: any = await apiService.post(URL_PATHS.CREATE_HISTORY, _item);
+      await apiService.post(URL_PATHS.UPDATE_HISTORY + "/" + params?.id, _item);
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
         message: MESSAGE_SUCCESS.UPDATE_STATUS,
       });
     } catch (error) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: MESSAGE_ERROR_API.ERROR_SYSTEM,
+      });
     } finally {
       setLoadingScreen(false);
     }
@@ -72,21 +80,28 @@ const ReceptionistNote = () => {
   const getDetail = async () => {
     setLoadingScreen(true);
     try {
-      const data: any = await apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id);
+      const { data }: any = await apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id);
       setDataUser({
-        address: data?.addressCustomer || data?.patientId?.address,
-        email: data?.emailCustomer || data?.patientId?.email,
-        name: data?.nameCustomer || data?.patientId?.name,
-        phone: data?.numberPhoneCustomer || data?.patientId?.phone,
-        gender: data?.genderCustomer || data?.patientId?.gender,
-        birthday: data?.birthdayCustomer || data?.patientId?.birthday,
+        address: data?.address || data?.patientId?.address,
+        email: data?.email || data?.patientId?.email,
+        name: data?.name || data?.patientId?.name,
+        phone: data?.phone || data?.patientId?.phone,
+        gender: data?.gender || data?.patientId?.gender,
+        birthday: data?.birthday || data?.patientId?.birthday,
         nameService: data?.service?.name,
         idService: data?.service?._id,
         idPatient: data?.user?._id,
         idDoctor: data?.doctorId?._id,
         bookingType: data?.bookingType,
+        bookingId: data?.bookingId,
       });
       setValue("condition", data?.condition);
+      setValue("timeTypeId", {
+        _id: data?.bookingId?.timeTypeId?._id || "",
+        timeSlot: data?.bookingId?.timeTypeId?.timeSlot || "",
+      });
+      setValue("date", data?.bookingId?.date);
+      setIsCheck(!!data?.bookingId);
     } catch (error) {
     } finally {
       setLoadingScreen(false);
