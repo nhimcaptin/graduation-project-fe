@@ -11,6 +11,7 @@ import CheckIcon from '@mui/icons-material/Check';
 
 interface MenuListActionsProps {
   actionEdit?: (param: any) => void | undefined;
+  actionNote?: (param: any) => void | undefined;
   actionView?: (param: any) => void | undefined;
   actionDelete?: (param: any) => void | undefined;
   actionActive?: (param: any) => void | undefined;
@@ -29,6 +30,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
   const {
     actionView,
     actionEdit,
+    actionNote,
     actionDelete,
     actionActive,
     dataSelected,
@@ -64,6 +66,11 @@ const MenuListActions = (props: MenuListActionsProps) => {
       icon: <EditIcon className="icon-edit" />,
       label: "Chỉnh sửa",
       action: actionEdit,
+    },
+    {
+      icon: <EditIcon className="icon-edit" />,
+      label: "Ghi chú",
+      action: actionNote,
     },
     {
       icon: <DeleteForeverIcon className="icon-delete" />,

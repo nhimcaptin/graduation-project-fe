@@ -20,18 +20,6 @@ import { MESSAGE_SUCCESS } from "../../consts/messages";
 import moment from "moment";
 
 const ViewBookingDoctor = () => {
-  const {
-    handleSubmit,
-    control,
-    watch,
-    setValue,
-    formState: { errors },
-  } = useForm({
-    defaultValues: {
-      condition: "",
-    },
-  });
-
   const [dataUser, setDataUser] = useState<any>({
     address: "",
     email: "",
@@ -43,11 +31,22 @@ const ViewBookingDoctor = () => {
   const { setToastInformation } = useSetToastInformationState();
   const params = useParams();
 
+  const {
+    handleSubmit,
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useForm({
+    defaultValues: {
+      description: "",
+    },
+  });
+
   const onSubmit = async (data: any) => {
     setLoadingScreen(true);
     const _item = {
       ...dataUser,
-      ...data,
       id: params?.id,
     };
     try {
@@ -84,6 +83,7 @@ const ViewBookingDoctor = () => {
         idDoctor: data?.doctorId?._id,
         bookingType: data?.bookingType,
       });
+      setValue("description", data?.description);
     } catch (error) {
     } finally {
       setLoadingScreen(false);
@@ -123,7 +123,7 @@ const ViewBookingDoctor = () => {
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Ngày sinh" />
             <TextFieldCustom
-              value={dataUser?.birthday ? moment(dataUser?.birthday).format("DD/MM/YYYY") : ''}
+              value={dataUser?.birthday ? moment(dataUser?.birthday).format("DD/MM/YYYY") : ""}
               disabled
               placeholder="Nhập ngày sinh"
               type="text"
@@ -158,10 +158,10 @@ const ViewBookingDoctor = () => {
 
       <Grid container item xs={6} sx={{ marginTop: "15px" }}>
         <Grid item xs={12} mt={1}>
-          <LabelCustom title="Tình trạng" />
+          <LabelCustom title="Mô tả" />
           <Controller
             control={control}
-            name="condition"
+            name="description"
             render={({ field: { value, onChange, onBlur, ref } }) => (
               <>
                 <FocusHiddenInput ref={ref}></FocusHiddenInput>
@@ -171,7 +171,7 @@ const ViewBookingDoctor = () => {
                   onChangeEditorState={(newValue: any) => onChange(getEditorNewValue(newValue))}
                   setContents={value || ""}
                   minHeight="400px"
-                  errorEditor={!!errors?.condition?.message}
+                  errorEditor={!!errors?.description?.message}
                   onBlur={(e: any, content: any) => {
                     onBlur();
                     onChange((content || "").trim());
@@ -180,9 +180,6 @@ const ViewBookingDoctor = () => {
               </>
             )}
           />
-          {errors?.condition && (
-            <ErrorMessage style={{ marginTop: "-10px" }}>{errors?.condition?.message}</ErrorMessage>
-          )}
         </Grid>
       </Grid>
       <Grid
@@ -191,8 +188,7 @@ const ViewBookingDoctor = () => {
         xs={6}
         sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
       >
-        <ButtonCustom type="submit" title="Tái khám" color="green" onClick={handleSubmit(onSubmit)} />
-        <ButtonCustom sx={{marginLeft: '10px'}} type="submit" title="Lưu" color="yellow" onClick={handleSubmit(onSubmit)} />
+        <ButtonCustom type="submit" title="Khám xong" color="yellow" onClick={handleSubmit(onSubmit)} />
       </Grid>
     </Page>
   );

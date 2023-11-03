@@ -203,7 +203,6 @@ const History = () => {
     setTitle("Xem chi tiết");
   };
 
-
   const confirmBooking = async (id: any) => {
     setLoadingScreen(true);
     try {
@@ -285,7 +284,7 @@ const History = () => {
   }, []);
 
   return (
-    <Page className={styles.root} title="Lịch sử đặt lịch" isActive>
+    <Page className={styles.root} title="Lịch sử khám bệnh" isActive>
       <Grid container style={{ marginBottom: "20px" }}>
         <Grid item xs={10}>
           <Box>
@@ -473,9 +472,7 @@ const History = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions
-            actionView={handleView}
-          />
+          <MenuListActions actionView={handleView} actionNote={handleView}/>
         </Popover>
       </IF>
     </Page>
