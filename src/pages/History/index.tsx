@@ -69,6 +69,16 @@ const headCells = [
     style: { maxWidth: "25%", minWidth: "180px" },
   },
   {
+    label: "Số điện thoại",
+    sort: "phone",
+    style: { maxWidth: "10%", minWidth: "180px" },
+  },
+  {
+    label: "Email",
+    sort: "email",
+    style: { maxWidth: "10%", minWidth: "180px" },
+  },
+  {
     label: "Hình thức",
     sort: "bookingType",
     style: { maxWidth: "10%", minWidth: "180px" },
@@ -349,17 +359,6 @@ const History = () => {
             />
           </Box>
         </Grid>
-        <Grid item xs={2}>
-          <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
-            <ButtonIconCustom
-              className="mg-l-10"
-              tooltipTitle="Thêm mới"
-              type="add"
-              color="darkgreen"
-              onClick={handleOpenModal}
-            />
-          </Box>
-        </Grid>
       </Grid>
       <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
         <Table stickyHeader>
@@ -419,7 +418,7 @@ const History = () => {
           </TableHead>
           <TableBody>
             {loadingTable ? (
-              <LoadingTableRow colSpan={7} />
+              <LoadingTableRow colSpan={8} />
             ) : userState && userState.length > 0 ? (
               <>
                 {userState.map((data: any, index: number) => {
@@ -430,11 +429,13 @@ const History = () => {
                       hover
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
-                      <TableCell>{data.patientName}</TableCell>
-                      <TableCell>{data.doctorName}</TableCell>
+                      <TableCell>{data?.name}</TableCell>
+                      <TableCell>{data?.doctorId?.name}</TableCell>
+                      <TableCell>{data.phone}</TableCell>
+                      <TableCell>{data.email}</TableCell>
                       <TableCell>{data.bookingType}</TableCell>
-                      <TableCell className="">{data.service}</TableCell>
-                      <TableCell>{moment(data.date).format(FORMAT_DATE)}</TableCell>
+                      <TableCell className="">{data?.service?.name}</TableCell>
+                      <TableCell>{moment(data.createdAt).format(FORMAT_DATE)}</TableCell>
                       <TableCell>
                         <IconButton aria-label="more" onClick={(e) => handleOpenMenuAction(e, data)}>
                           <MoreHorizIcon />
@@ -445,7 +446,7 @@ const History = () => {
                 })}
               </>
             ) : (
-              <NoDataTableRow colSpan={6} />
+              <NoDataTableRow colSpan={8} />
             )}
           </TableBody>
         </Table>

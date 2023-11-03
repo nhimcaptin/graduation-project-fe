@@ -3,6 +3,7 @@ const BookingSchema = new mongoose.Schema(
   {
     setType: {
       type: String,
+      default: "SetYourself"
     },
     patientId: {
       type: mongoose.Schema.Types.ObjectId,

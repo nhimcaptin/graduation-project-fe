@@ -66,27 +66,22 @@ const headCells = [
   },
   {
     label: "Tên bệnh nhân",
-    sort: "patientId",
     style: { maxWidth: "25%", minWidth: "180px" },
   },
   {
     label: "Tên bác sĩ",
-    sort: "doctorId",
     style: { maxWidth: "25%", minWidth: "180px" },
   },
   {
     label: "Hình thức",
-    sort: "bookingType",
     style: { maxWidth: "10%", minWidth: "180px" },
   },
   {
     label: "Dịch vụ",
-    sort: "service",
     style: { maxWidth: "15%", minWidth: "180px" },
   },
   {
     label: "Trạng thái",
-    sort: "status",
     style: { maxWidth: "10%", minWidth: "80px" },
   },
   { label: "", style: { minWidth: "5%" } },
@@ -260,13 +255,19 @@ const BookingDoctor = () => {
     }
   };
 
-  const handleComeCheck = () => {
+  const handleComeCheck = async () => {
     setAnchorEl(null);
     const _dataCome = tableState.filter((item: any) => item._id === selectedItem._id);
     const _tableState = tableState.filter((item: any) => item._id !== selectedItem._id);
     setDataComeCheck(_dataCome);
     setUserState(_tableState);
     window.open(URL_LOCAL + ROUTERS_PATHS.QUEUE_DETAIL.replace(":id", selectedItem._id + ""));
+    try {
+      const data = {
+        status: "WaitingDone",
+      };
+      await apiService.put(`${URL_PATHS.CONFIRM_BOOKING}/${selectedItem?._id}`, data);
+    } catch (error) {}
   };
 
   useEffect(() => {

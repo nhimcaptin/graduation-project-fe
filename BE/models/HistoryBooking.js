@@ -1,18 +1,34 @@
 import mongoose from "mongoose";
 const HistoryBookingSchema = new mongoose.Schema(
   {
-    patientId: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
+    name: {
+      type: String,
+    },
+    email: {
+      type: String,
+    },
+    phone: {
+      type: String,
+    },
+    address: {
+      type: String,
+    },
+    gender: {
+      type: String,
+    },
+    birthday: {
+      type: String,
+    },
+    date: {
+      type: Date,
+    },
+    condition: {
+      type: String,
     },
     doctorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
-    },
-    condition: {
-      type: String,
     },
     service: {
       type: mongoose.Schema.Types.ObjectId,

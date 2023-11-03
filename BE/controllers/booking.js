@@ -115,7 +115,6 @@ export const updateBookingStatus = async (req, res, next) => {
     const { statusUpdateTime } = req.body;
 
     const booking = await Booking.findById(id);
-    console.log(id);
 
     if (!booking) {
       return res.status(404).json({ message: "Cuộc hẹn không tồn tại." });
@@ -124,7 +123,9 @@ export const updateBookingStatus = async (req, res, next) => {
     if (status !== booking.status) {
       // Chỉ cập nhật thời gian nếu trạng thái thay đổi
       booking.status = status;
-      booking.statusUpdateTime = statusUpdateTime;
+      if(statusUpdateTime){
+        booking.statusUpdateTime = statusUpdateTime;
+      }
 
       await booking.save();
     }

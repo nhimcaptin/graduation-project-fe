@@ -17,6 +17,7 @@ import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
 import { STATUS_TOAST } from "../../consts/statusCode";
 import { MESSAGE_SUCCESS } from "../../consts/messages";
+import moment from "moment";
 
 const ViewBookingDoctor = () => {
   const {
@@ -71,14 +72,16 @@ const ViewBookingDoctor = () => {
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_DETAIL_COME_CHECK + "/" + params?.id);
       setDataUser({
-        address: data?.user?.address,
-        email: data?.user?.email,
-        name: data?.user?.name,
-        phone: data?.user?.phone,
+        address: data?.addressCustomer || data?.patientId?.address,
+        email: data?.emailCustomer || data?.patientId?.email,
+        name: data?.nameCustomer || data?.patientId?.name,
+        phone: data?.numberPhoneCustomer || data?.patientId?.phone,
+        gender: data?.genderCustomer || data?.patientId?.gender,
+        birthday: data?.birthdayCustomer || data?.patientId?.birthday,
         nameService: data?.service?.name,
         idService: data?.service?._id,
         idPatient: data?.user?._id,
-        idDoctor: data?.doctorId,
+        idDoctor: data?.doctorId?._id,
         bookingType: data?.bookingType,
       });
     } catch (error) {
@@ -107,6 +110,7 @@ const ViewBookingDoctor = () => {
           </Box>
         </Grid>
       </Grid>
+
       <Grid container item xs={5} sx={{ marginTop: "15px" }}>
         <Grid item xs={5}>
           <Box style={{ marginTop: 2 }}>
@@ -117,11 +121,32 @@ const ViewBookingDoctor = () => {
         <Grid item xs={2}></Grid>
         <Grid item xs={5}>
           <Box style={{ marginTop: 2 }}>
+            <LabelCustom title="Ngày sinh" />
+            <TextFieldCustom
+              value={dataUser?.birthday ? moment(dataUser?.birthday).format("DD/MM/YYYY") : ''}
+              disabled
+              placeholder="Nhập ngày sinh"
+              type="text"
+            />
+          </Box>
+        </Grid>
+      </Grid>
+      <Grid container item xs={5} sx={{ marginTop: "15px" }}>
+        <Grid item xs={5}>
+          <Box style={{ marginTop: 2 }}>
+            <LabelCustom title="Giới tính" />
+            <TextFieldCustom value={dataUser?.gender} disabled placeholder="Nhập giới tính" type="text" />
+          </Box>
+        </Grid>
+        <Grid item xs={2}></Grid>
+        <Grid item xs={5}>
+          <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Địa chỉ" />
             <TextFieldCustom value={dataUser?.address} disabled placeholder="Nhập địa" type="text" />
           </Box>
         </Grid>
       </Grid>
+
       <Grid container item xs={5} sx={{ marginTop: "15px" }}>
         <Grid item xs={5}>
           <Box style={{ marginTop: 2 }}>
@@ -130,6 +155,7 @@ const ViewBookingDoctor = () => {
           </Box>
         </Grid>
       </Grid>
+
       <Grid container item xs={6} sx={{ marginTop: "15px" }}>
         <Grid item xs={12} mt={1}>
           <LabelCustom title="Tình trạng" />
@@ -159,8 +185,14 @@ const ViewBookingDoctor = () => {
           )}
         </Grid>
       </Grid>
-      <Grid container item xs={6} sx={{ marginTop: "0px", display: "flex", justifyContent: "end" }}>
-        <ButtonCustom type="submit" title="Lưu" color="yellow" onClick={handleSubmit(onSubmit)} />
+      <Grid
+        container
+        item
+        xs={6}
+        sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
+      >
+        <ButtonCustom type="submit" title="Tái khám" color="green" onClick={handleSubmit(onSubmit)} />
+        <ButtonCustom sx={{marginLeft: '10px'}} type="submit" title="Lưu" color="yellow" onClick={handleSubmit(onSubmit)} />
       </Grid>
     </Page>
   );
