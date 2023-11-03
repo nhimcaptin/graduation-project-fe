@@ -20,5 +20,6 @@ const URL_PATHS = {
     GET_DETAIL_COME_CHECK: "api/booking/get-detail-come-check",
     GET_HISTORY: "api/history/get-list",
     CREATE_HISTORY: "api/history/create",
+    DETAIL_HISTORY: "api/history/get-detail",
 }
 export default URL_PATHS

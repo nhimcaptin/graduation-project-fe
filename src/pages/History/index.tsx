@@ -44,6 +44,8 @@ import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
 import ChipCustom from "../../components/ChipCustom";
+import { URL_LOCAL } from "../../services/base-url";
+import ROUTERS_PATHS from "../../consts/router-paths";
 
 interface RowDataProps {
   id: number;
@@ -264,19 +266,7 @@ const History = () => {
   };
 
   const getUserDetail = async (id: string | number) => {
-    setLoadingScreen(true);
-    try {
-      const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_BOOKING}/${id || selectedItem?._id}`);
-      setUserDetail(data);
-      setIsOpenModal(true);
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    } finally {
-      setLoadingScreen(false);
-    }
+    window.open(URL_LOCAL + ROUTERS_PATHS.DETAIL_HISTORY.replace(":id", selectedItem._id + ""));
   };
 
   useEffect(() => {
@@ -472,7 +462,7 @@ const History = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={handleView} actionNote={handleView}/>
+          <MenuListActions actionView={handleView} actionNote={handleView} />
         </Popover>
       </IF>
     </Page>

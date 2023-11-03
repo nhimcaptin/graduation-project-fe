@@ -96,6 +96,10 @@ const routes: IRoutesState[] = [
         component: lazy(() => import("../pages/History")),
       },
       {
+        path: ROUTERS_PATHS.DETAIL_HISTORY,
+        component: lazy(() => import("../pages/ReceptionistNote")),
+      },
+      {
         path: "*",
         component: () => <Navigate to={ROUTERS_PATHS.DASHBOARD} replace />,
       },

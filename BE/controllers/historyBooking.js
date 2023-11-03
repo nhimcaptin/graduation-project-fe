@@ -47,3 +47,13 @@ export const addHistory = async (req, res, next) => {
     next(err);
   }
 };
+
+export const getDetailHistory = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const historyDetail = await HistoryBooking.findById(id).populate("doctorId", "-password").populate("service");
+    res.status(200).json({ data: historyDetail });
+  } catch (err) {
+    next(err);
+  }
+};

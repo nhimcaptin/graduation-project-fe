@@ -10,6 +10,7 @@ const ROUTERS_PATHS = {
   BOOKING: "/list-of-booking",
   QUEUE_LIST: "/queue-list",
   QUEUE_DETAIL: "/detail-queue/:id",
+  DETAIL_HISTORY: "/detail-history/:id",
   GET_LIST_HISTORY: "/history",
   MY_PROFILE: "/my-profile",
 };
