@@ -66,4 +66,5 @@ async function uploadImage(file, quantity) {
     }
   };
 
+
  
