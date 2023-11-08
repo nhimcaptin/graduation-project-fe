@@ -1,26 +1,23 @@
-// TRang kiến thức Nha khoa
-
-import DentalKnowledge from "../models/DentalKnowledge.js";
 import { convertFilter } from "../util/index.js";
+import News from "../models/News.js"
 
-
-  export const createDentalKnowledge = async (req, res, next) => {
+  export const createNews = async (req, res, next) => {
     try {
-      const {  name, descreption, image } = req.body;
-      const newDentalKnowledge = new DentalKnowledge({
+      const {  name, description, image } = req.body;
+      const newNews = new News({
         name,
-        descreption,
+        description,
         image
       });
-      console.log("newDentalKnowledge",newDentalKnowledge)
-        const createdDentalKnowledge = await newDentalKnowledge.save();
+      console.log("newNews",newNews)
+        const createdNews = await newNews.save();
   
-      res.status(201).json(createdDentalKnowledge);
+      res.status(201).json(createdNews);
     } catch (error) {
       next(error);
     }
   };
-  export const updateDentalKnowledge = async (req, res, next) => {
+    export const updateDentalKnowledge = async (req, res, next) => {
     try {
         const DentalKnowledgeId = req?.params?.id;
         const data = req.body;
@@ -79,5 +76,4 @@ export const deleteDentalKnowledge = async (req, res, next) => {
       }
     };
   
-
 
