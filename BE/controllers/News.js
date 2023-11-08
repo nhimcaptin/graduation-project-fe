@@ -17,60 +17,60 @@ import News from "../models/News.js"
       next(error);
     }
   };
-    export const updateDentalKnowledge = async (req, res, next) => {
+    export const updateNews = async (req, res, next) => {
     try {
-        const DentalKnowledgeId = req?.params?.id;
+        const NewsId = req?.params?.id;
         const data = req.body;
-        const checkID = await DentalKnowledge.findOne({ _id: DentalKnowledgeId});
+        const checkID = await News.findOne({ _id: NewsId});
         console.log("checkID", checkID);
         if (!checkID) {
           return res.status(404).json({ message: "Trường này khôgn tồn tại" });
         }
-        const updateDentalKnowledge = await DentalKnowledge.findOneAndUpdate(
-          { _id: DentalKnowledgeId },
+        const updateNews = await News.findOneAndUpdate(
+          { _id: NewsId },
           { $set: data },
           { new: true }
         );
-        console.log("updateDentalKnowledge", updateDentalKnowledge);
+        console.log("News", updateNews);
       
-        if (updateDentalKnowledge === null) {
+        if (updateNews === null) {
           return res.status(500).json({ message: "Không thể cập nhật ID." });
         }
       
         res.status(200).json({
-          message: "DentalKnowledge đã được cập nhật.",
-          updateDentalKnowledge,
+          message: "updateNews đã được cập nhật.",
+          updateNews,
         });
       } catch (error) {
         console.error("Lỗi:", error);
         res.status(500).json({ message: "Lỗi server." });
       }
   };
-export const deleteDentalKnowledge = async (req, res, next) => {
+export const deleteNews = async (req, res, next) => {
     try {
-      await DentalKnowledge.findByIdAndDelete(req.params.id);
-      res.status(200).json("DentalKnowledge has been deleted.");
+      await News.findByIdAndDelete(req.params.id);
+      res.status(200).json("News has been deleted.");
     } catch (err) {
       next(err);
     }
   };
 
-  export const getDentalKnowledge  = async (req, res, next) => {
+  export const getNews  = async (req, res, next) => {
     try {
       const { Page, PageSize, Sorts, filters } = req.query;
       const page = parseInt(Page) || 1;
       const pageSize = parseInt(PageSize) || 10;
       const _filter = convertFilter(filters);
-      const getDentalKnowledge  = await DentalKnowledge .find(_filter, "-createdAt -updatedAt -__v")
+      const getNews  = await News.find(_filter, "-createdAt -updatedAt -__v")
         .find()
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .sort(Sorts)
         .lean();
-      const total = DentalKnowledge .find(_filter);
-      const totalUsers = await DentalKnowledge .countDocuments(total);
+      const total = DentalKnowledge.find(_filter);
+      const totalUsers = await getNews.countDocuments(total);
   
-      res.status(200).json({ getDentalKnowledge , totalUsers });
+      res.status(200).json({ getNews , totalUsers });
       } catch (err) {
         next(err);
       }

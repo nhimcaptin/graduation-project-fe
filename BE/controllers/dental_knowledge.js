@@ -64,14 +64,14 @@ export const deleteDentalKnowledge = async (req, res, next) => {
       const page = parseInt(Page) || 1;
       const pageSize = parseInt(PageSize) || 10;
       const _filter = convertFilter(filters);
-      const getDentalKnowledge  = await DentalKnowledge .find(_filter, "-createdAt -updatedAt -__v")
+      const getDentalKnowledge  = await DentalKnowledge.find(_filter, "-createdAt -updatedAt -__v")
         .find()
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .sort(Sorts)
         .lean();
-      const total = DentalKnowledge .find(_filter);
-      const totalUsers = await DentalKnowledge .countDocuments(total);
+      const total = DentalKnowledge.find(_filter);
+      const totalUsers = await DentalKnowledge.countDocuments(total);
   
       res.status(200).json({ getDentalKnowledge , totalUsers });
       } catch (err) {
