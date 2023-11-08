@@ -7,7 +7,7 @@ const uploadMultiple = multer({
   fileFilter: function (req, file, cb) {
     checkFileType(file, cb);
   }
-}).array("image", 12);
+}).array("files", 12);
 
 const upload = multer({
   storage: multer.memoryStorage(),
@@ -15,7 +15,7 @@ const upload = multer({
   fileFilter: async function (req, file, cb) {
     checkFileType(file, cb);
   }
-}).single("image");
+}).single("files");
 
 // Check file Type
 function checkFileType(file, cb) {
