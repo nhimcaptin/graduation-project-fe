@@ -19,7 +19,6 @@ import cors from "cors";
 import bodyParser from "body-parser";
 import session  from "express-session";
 
-import {upload} from "./middlewares/multer.js";
 
 
 const app = express();
