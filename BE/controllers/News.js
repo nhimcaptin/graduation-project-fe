@@ -67,8 +67,8 @@ export const deleteNews = async (req, res, next) => {
         .limit(pageSize)
         .sort(Sorts)
         .lean();
-      const total = DentalKnowledge.find(_filter);
-      const totalUsers = await getNews.countDocuments(total);
+      const total = News.find(_filter);
+      const totalUsers = await News.countDocuments(total);
   
       res.status(200).json({ getNews , totalUsers });
       } catch (err) {
