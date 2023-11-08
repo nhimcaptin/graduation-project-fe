@@ -14,7 +14,7 @@ async function uploadImage(file, quantity) {
         const metadata = {
             contentType: file.type,
         }
-        await uploadBytesResumable(storageRef, file.buffer, metadata);
+          await uploadBytesResumable(storageRef, file.buffer, metadata);
         return fileName
     }
   
@@ -40,18 +40,26 @@ async function uploadImage(file, quantity) {
   }
 
   export const uploadFile = async (req, res) => {
+    const storageFB = getStorage();
     const file = {
       type: req.file.mimetype,
       buffer: req.file.buffer,
     };
+    const dateTime = Date.now();
+        const fileName = `images/${dateTime}`
+        const storageRef = ref(storageFB, fileName)
+    const metadata = {
+        contentType: file.type,
+    }
+      await uploadBytesResumable(storageRef, file.buffer, metadata);
     try {
         const buildImage = await uploadImage(file, 'single'); 
-        // const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, file);
-        // const downloadURL = await getDownloadURL(snapshot.ref);
+         const snapshot = await uploadBytesResumable(storageRef, req.file.buffer, metadata);
+        const downloadURL = await getDownloadURL(snapshot.ref);
         res.send({
             status: "SUCCESS",
             imageName: buildImage,
-            // downloadURL: downloadURL
+             downloadURL: downloadURL
         })
     } catch(err) {
         console.log(err);

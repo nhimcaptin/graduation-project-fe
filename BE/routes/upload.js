@@ -1,6 +1,5 @@
 import express from "express";
-import { uploadFile, uploadMultipleImages } from "../controllers/uploadImage.js";
-import { upload, uploadMultiple } from "../middlewares/multer.js";
+import { uploadFile } from "../controllers/uploadImage.js";
 
 const router = express.Router();
 
