@@ -1,21 +1,21 @@
 import Policy from "../models/Policy.js";
 
-export const createPolicy = async (req, res, next) => {
-  try {
-    const { name, items } = req.body;
+// export const createPolicy = async (req, res, next) => {
+//   try {
+//     const { name, items } = req.body;
 
-    const newPolicy = new Policy({
-      name,
-      items,
-    });
+//     const newPolicy = new Policy({
+//       name,
+//       items,
+//     });
 
-    const createPolicy = await newPolicy.save();
+//     const createPolicy = await newPolicy.save();
 
-    res.status(201).json(createPolicy); 
-  } catch (error) {
-    next(error); 
-  }
-};
+//     res.status(201).json(createPolicy); 
+//   } catch (error) {
+//     next(error); 
+//   }
+// };
 
 
 // export const addPreferentialItem = async (req, res, next) => {
@@ -64,4 +64,17 @@ export const createPolicy = async (req, res, next) => {
 //   }
 // };
 
-
+export const createPolicy  = async (req, res, next) => {
+  try {
+    const {  name, description  } = req.body;
+    const newPolicy = new Policy({
+      name,
+      description,
+    });
+    console.log("newPolicy",newPolicy)
+      const createPolicy = await newPolicy.save();
+    res.status(201).json(createPolicy);
+  } catch (error) {
+    next(error);
+  }
+};
