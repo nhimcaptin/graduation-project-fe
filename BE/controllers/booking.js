@@ -56,12 +56,12 @@ export const createBooking = async (req, res, next) => {
       status,
       bookingType,
       setType,
-      nameCustomer: nameCustomer || patient.name,
+      nameCustomer,
       numberPhoneCustomer: numberPhoneCustomer || patient.phone,
       emailCustomer: emailCustomer || patient.email,
-      addressCustomer: addressCustomer || patient.address,
-      genderCustomer: genderCustomer || patient.name,
-      birthdayCustomer: birthdayCustomer || patient.name,
+      addressCustomer,
+      genderCustomer,
+      birthdayCustomer,
     });
 
     await newBooking.save();

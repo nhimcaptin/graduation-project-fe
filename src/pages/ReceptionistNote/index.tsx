@@ -258,7 +258,7 @@ const ReceptionistNote = () => {
                       <Button
                         variant={value?._id === item._id ? "contained" : "outlined"}
                         className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
-                          [styles.isDisabled]: item.isDisabled,
+                          [styles.isDisabled]: item.isDisabled && dataUser?.bookingId?.timeTypeId?._id !== item._id,
                         })}
                         onClick={(e: any) => {
                           setValue("timeTypeId", item);

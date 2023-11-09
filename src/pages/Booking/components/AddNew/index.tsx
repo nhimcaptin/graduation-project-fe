@@ -449,7 +449,7 @@ const AddUser = (props: PropsType) => {
             />
           </Grid>
           <Grid item xs={2}></Grid>
-          {watch("setType") !== "Migrant" && (
+          {!["Migrant", "ReExamination"].includes(watch("setType")) && (
             <Grid item xs={5} mt={2}>
               <LabelCustom title={watch("setType") === "ReserveFor" ? "Người đặt" : "Bệnh nhân"} isRequired />
               <Controller
@@ -538,7 +538,7 @@ const AddUser = (props: PropsType) => {
               />
             </Grid>
           )}
-          {watch("setType") === "Migrant" && <Grid item xs={2}></Grid>}
+          {["Migrant", "ReExamination"].includes(watch("setType")) && <Grid item xs={2}></Grid>}
           {watch("setType") && (
             <Grid item xs={5} mt={2}>
               {watch("setType") === "ReserveFor" ? (
@@ -602,7 +602,7 @@ const AddUser = (props: PropsType) => {
               />
             </Grid>
           )}
-          {watch("setType") === "Migrant" && <Grid item xs={2}></Grid>}
+          {["Migrant", "ReExamination"].includes(watch("setType")) && <Grid item xs={2}></Grid>}
           {watch("setType") && (
             <Grid item xs={5} mt={2}>
               <LabelCustom title={"Giới tính"} isRequired />
@@ -714,7 +714,8 @@ const AddUser = (props: PropsType) => {
                           disabled={!isEdit}
                           variant={value?._id === item._id ? "contained" : "outlined"}
                           className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
-                            [styles.isDisabled]: item.isDisabled || !isEdit,
+                            [styles.isDisabled]:
+                              (item.isDisabled && dataDetail?.timeTypeId?._id !== item._id) || !isEdit,
                           })}
                           onClick={(e: any) => {
                             setValue("timeTypeId", item);

@@ -61,7 +61,12 @@ export const getDetailHistory = async (req, res, next) => {
           model: "TimeType",
         },
       });
-    res.status(200).json({ data: historyDetail });
+
+    let isDisabled = false;
+    if (historyDetail.bookingId.status === "Approved") {
+      isDisabled = true;
+    }
+    res.status(200).json({ data: historyDetail, isDisabled });
   } catch (err) {
     next(err);
   }
