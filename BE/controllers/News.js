@@ -1,7 +1,7 @@
 import { convertFilter } from "../util/index.js";
 import News from "../models/News.js"
 
-  export const createNews = async (req, res, next) => {
+export const createNews = async (req, res, next) => {
     try {
       const {  name, description, image } = req.body;
       const newNews = new News({
@@ -17,7 +17,7 @@ import News from "../models/News.js"
       next(error);
     }
   };
-    export const updateNews = async (req, res, next) => {
+export const updateNews = async (req, res, next) => {
     try {
         const NewsId = req?.params?.id;
         const data = req.body;
@@ -55,7 +55,7 @@ export const deleteNews = async (req, res, next) => {
     }
   };
 
-  export const getNews  = async (req, res, next) => {
+export const getNews  = async (req, res, next) => {
     try {
       const { Page, PageSize, Sorts, filters } = req.query;
       const page = parseInt(Page) || 1;

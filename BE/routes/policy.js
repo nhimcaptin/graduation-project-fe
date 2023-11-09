@@ -1,9 +1,9 @@
 import express from "express";
-import { createPolicy } from "../controllers/policy.js";
+import { createPolicy, deletePolicy, getPolicy, updatePolicy } from "../controllers/policy.js";
 const router = express.Router();
 
 router.post("/create", createPolicy);
-// router.put("/updateNews/:id", updateNews);
-// router.get("/getNews", getNews);
-// router.delete("/deleteNews/:id", deleteNews);
+router.put("/updatePolicy/:id", updatePolicy);
+router.get("/getPolicy", getPolicy);
+router.delete("/deletePolicy/:id", deletePolicy);
 export default router
