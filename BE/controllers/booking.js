@@ -44,6 +44,8 @@ export const createBooking = async (req, res, next) => {
     // if (!doctor) {
     //   return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
     // }
+    const patient = await User.findById(patientId);
+
     const newBooking = new Booking({
       patientId,
       doctorId,
@@ -54,12 +56,12 @@ export const createBooking = async (req, res, next) => {
       status,
       bookingType,
       setType,
-      nameCustomer,
-      birthdayCustomer,
-      numberPhoneCustomer,
-      emailCustomer,
-      genderCustomer,
-      addressCustomer,
+      nameCustomer: nameCustomer || patient.name,
+      numberPhoneCustomer: numberPhoneCustomer || patient.phone,
+      emailCustomer: emailCustomer || patient.email,
+      addressCustomer: addressCustomer || patient.address,
+      genderCustomer: genderCustomer || patient.name,
+      birthdayCustomer: birthdayCustomer || patient.name,
     });
 
     await newBooking.save();
@@ -123,7 +125,7 @@ export const updateBookingStatus = async (req, res, next) => {
     if (status !== booking.status) {
       // Chỉ cập nhật thời gian nếu trạng thái thay đổi
       booking.status = status;
-      if(statusUpdateTime){
+      if (statusUpdateTime) {
         booking.statusUpdateTime = statusUpdateTime;
       }
 
@@ -230,7 +232,7 @@ export const getListDoneBookings = async (req, res, next) => {
 export const getListWaitingBookings = async (req, res, next) => {
   try {
     const { Page, PageSize } = req.query;
-    const page = parseInt(Page) || 1;  
+    const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
 
     const approvedBookings = await Booking.find({ status: "Waiting" })

@@ -37,6 +37,7 @@ import FocusHiddenInput from "../../../../components/FocusHiddenInput";
 import { ButtonAddFileMainSelect } from "../../../../components/ButtonAddFile/ButtonAddFile";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { RegExpEmail, RegPhoneNumber } from "../../../../utils/regExp";
+import { useUploadFileService } from "../../../../services/upload-file.service";
 
 interface PropsType {
   isOpen: boolean;
@@ -73,6 +74,7 @@ const headCells = [
 const AddUser = (props: PropsType) => {
   const { isOpen, title, isEdit, onCancel, getData, dataDetail } = props;
   const { setToastInformation } = useSetToastInformationState();
+  const uploadFileService = useUploadFileService();
 
   const [isLoading, setIsLoading] = useState(false);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -89,11 +91,11 @@ const AddUser = (props: PropsType) => {
   ];
 
   const isCheckImage = (data: any) => {
-    const image = dataDetail?.images.filter((x: any) => x?.imageUrl);
-    return (image?.length > 0 && image) || [];
+    const image = data ? [{ imageUrl: data }] : [];
+    return image;
   };
 
-  const [previewImages, setPreviewImages] = useState<any>(dataDetail ? isCheckImage(dataDetail?.images) : []);
+  const [previewImages, setPreviewImages] = useState<any>(dataDetail ? isCheckImage(dataDetail?.image) : []);
 
   const {
     handleSubmit,
@@ -121,22 +123,36 @@ const AddUser = (props: PropsType) => {
     trigger("image");
   };
 
+  const uploadImage = async (image: File) => {
+    const bodyFormData = new FormData();
+    bodyFormData.append("files", image);
+    const resUpload = await uploadFileService.uploadFileResources(bodyFormData);
+    return resUpload;
+  };
+
   const onSubmit = async (data: any) => {
     setIsLoading(true);
     try {
-      if (!!dataDetail) {
-        await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, data);
-        setToastInformation({
-          status: STATUS_TOAST.SUCCESS,
-          message: MESSAGE_SUCCESS.EDIT_USER,
-        });
+      let imageUrl;
+      if (data.image[0] && data.image[0].file) {
+        const uploadImageRes = (await uploadImage(data.image[0].file as File)) as any;
       } else {
-        await apiService.post(URL_PATHS.CREATE_USER, data);
-        setToastInformation({
-          status: STATUS_TOAST.SUCCESS,
-          message: MESSAGE_SUCCESS.CREATE_USER,
-        });
+        imageUrl = data.image[0];
       }
+
+      // if (!!dataDetail) {
+      //   await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, data);
+      //   setToastInformation({
+      //     status: STATUS_TOAST.SUCCESS,
+      //     message: MESSAGE_SUCCESS.EDIT_USER,
+      //   });
+      // } else {
+      //   await apiService.post(URL_PATHS.CREATE_USER, data);
+      //   setToastInformation({
+      //     status: STATUS_TOAST.SUCCESS,
+      //     message: MESSAGE_SUCCESS.CREATE_USER,
+      //   });
+      // }
 
       onCancel && onCancel();
       getData && getData({});

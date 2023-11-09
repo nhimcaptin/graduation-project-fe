@@ -300,27 +300,28 @@ class Service {
    * @param {any} action
    * @param {any} params
    */
-  post(action: any, params?: any) {
+  post(action: any, params?: any, option = {}) {
     return new Promise((resolve, reject) => {
       this.axios
         .request(action, {
           method: "POST",
+          ...option,
           data: params,
         })
         .then((response: any) => {
           if (response?.status >= 200 && response?.status < 300) {
-            resolve(response.data);
+            resolve(response?.data);
           } else {
-            if (response && response.response && response.response.data && response.response.data.errors) {
-              console.error("REST request error!", response.response.data.errors);
-              reject(response.response.data.errors);
+            if (response?.response && response?.response?.data && response?.response?.data?.errors) {
+              console.error("REST request error!", response?.response?.data?.errors);
+              reject(response?.response?.data?.errors);
             } else reject(response);
           }
         })
         .catch((error: any) => {
-          if (error.response && error.response.data && error.response.data.errors) {
-            console.error("REST request error!", error.response.data.errors);
-            reject(error.response.data.errors);
+          if (error.response && error.response?.data && error.response?.data?.errors) {
+            console.error("REST request error!", error.response?.data?.errors);
+            reject(error.response?.data?.errors);
           } else reject(error);
         });
     });
