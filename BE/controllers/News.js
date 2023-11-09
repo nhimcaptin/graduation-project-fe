@@ -75,5 +75,18 @@ export const getNews  = async (req, res, next) => {
         next(err);
       }
     };
-  
+export const getNewsId = async (req, res, next) => {
+    try {
+      const getNews = await News.findOne({ _id: req.params.id}).exec();
+      if (!getNews) {
+        return res.status(404).json({message: "getNewsId không tồn tại"})
+      }
+     const data = { ...getNews._doc};
+
+      return res.status(200).json({message: "Lay Ra News thành công",data});
+    } catch (err) {
+      next(err);
+    }
+  };
+
 

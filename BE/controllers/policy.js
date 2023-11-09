@@ -124,7 +124,7 @@ export const getPolicy  = async (req, res, next) => {
   try {
     const { Page, PageSize, Sorts, filters } = req.query;
     const page = parseInt(Page) || 1;
-    const pageSize = parseInt(PageSize) || 10;
+    const pageSize = parseInt(PageSize) || 5;
     const _filter = convertFilter(filters);
     const getPolicy  = await Policy.find(_filter, "-createdAt -updatedAt -__v")
       .find()
@@ -140,4 +140,16 @@ export const getPolicy  = async (req, res, next) => {
       next(err);
     }
   };
+export const getPolicyId = async (req, res, next) => {
+    try {
+      const getPolicy = await Policy.findOne({ _id: req.params.id}).exec();
+      if (!getPolicy) {
+        return res.status(404).json({message: "getPolicy không tồn tại"})
+      }
+     const data = { ...getPolicy._doc};
 
+      return res.status(200).json({message: "Lay Ra Polyci thành công",data});
+    } catch (err) {
+      next(err);
+    }
+  };
