@@ -134,11 +134,11 @@ const AddUser = (props: PropsType) => {
     setIsLoading(true);
     try {
       let imageUrl;
-      if (data.image[0] && data.image[0]?.file) {
-        const uploadImageRes = (await uploadImage(data.image[0].file as File)) as any;
+      if (data?.image && data?.image[0] && data?.image[0]?.file) {
+        const uploadImageRes = (await uploadImage(data?.image[0].file as File)) as any;
         imageUrl = uploadImageRes.downloadURL;
       } else {
-        imageUrl = data.image;
+        imageUrl = data?.image;
       }
       data.image = imageUrl;
       data.gender = data?.gender?.value;
@@ -289,6 +289,9 @@ const AddUser = (props: PropsType) => {
             <Controller
               control={control}
               name="birthday"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <DateTimePickerCustom
                   inputProps={{
@@ -317,6 +320,9 @@ const AddUser = (props: PropsType) => {
             <Controller
               control={control}
               name="gender"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <ReactSelect
                   isClearable
@@ -332,6 +338,7 @@ const AddUser = (props: PropsType) => {
                   placeholder="Chọn giới tính"
                   inputRef={ref}
                   isDisabled={!isEdit}
+                  isValidationFailed
                   errorMessage={errors?.gender?.message as string}
                 />
               )}
