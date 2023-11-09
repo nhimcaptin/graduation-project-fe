@@ -30,7 +30,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    img: {
+    image: {
       type: String,
     },
     role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role'},

@@ -8,6 +8,7 @@ import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { MenuItem, MenuList, Typography } from "@mui/material";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
 import CheckIcon from '@mui/icons-material/Check';
+import HistoryIcon from '@mui/icons-material/History';
 
 interface MenuListActionsProps {
   actionEdit?: (param: any) => void | undefined;
@@ -23,6 +24,7 @@ interface MenuListActionsProps {
   actionHandle?: (param: any) => void | undefined;
   actionChangePassword?: (param: any) => void | undefined;
   actionDuplicate?: (param: any) => any;
+  actionHistory?: (param: any) => any;
   dataSelected?: any;
 }
 
@@ -42,6 +44,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
     actionHandle,
     actionChangePassword,
     actionDuplicate,
+    actionHistory,
   } = props;
 
   const STATUS_VALUE = {
@@ -111,6 +114,11 @@ const MenuListActions = (props: MenuListActionsProps) => {
       icon: <ContentCopyIcon className="icon-view" />,
       label: "Sao chép",
       action: actionDuplicate,
+    },
+    {
+      icon: <HistoryIcon className="icon-view" />,
+      label: "Lịch sử",
+      action: actionHistory,
     },
     {
       icon: dataSelected?.status === STATUS_VALUE.ACTIVE || dataSelected?.isActive ? <LockIcon /> : <LockOpenIcon />,

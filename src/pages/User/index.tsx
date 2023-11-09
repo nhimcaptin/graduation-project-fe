@@ -44,6 +44,7 @@ import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
 import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
+import History from "./components/History";
 
 interface RowDataProps {
   id: number;
@@ -97,6 +98,7 @@ const User = () => {
   const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
   const [filterContext, setFilterContext] = useState<any>({});
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [isOpenModalHistory, setIsOpenModalHistory] = useState<boolean>(false);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [userDetail, setUserDetail] = useState(null);
@@ -179,6 +181,7 @@ const User = () => {
 
   const handleOpenModal = () => {
     setIsOpenModal(true);
+    setIsOpenModalHistory(false);
     setSelectedItem(null);
     setUserDetail(null);
     setTitle("Thêm mới");
@@ -186,6 +189,7 @@ const User = () => {
 
   const handleCancel = () => {
     setIsOpenModal(false);
+    setIsOpenModalHistory(false);
     setSelectedItem(null);
   };
 
@@ -235,6 +239,14 @@ const User = () => {
     }
   };
 
+  const handleHistory = (dataDetail?: any) => {
+    setAnchorEl(null);
+    setIsViewMode(false);
+    setIsOpenModal(false);
+    setIsOpenModalHistory(true);
+    setTitle("Lịch sử");
+  };
+
   const getData = async (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
@@ -274,6 +286,7 @@ const User = () => {
       const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_USER}/${id || selectedItem?._id}`);
       setUserDetail(data);
       setIsOpenModal(true);
+      setIsOpenModalHistory(false);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -485,7 +498,12 @@ const User = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={handleView} actionEdit={handleEdit} actionDelete={handleDelete} />
+          <MenuListActions
+            actionView={handleView}
+            actionEdit={handleEdit}
+            actionDelete={handleDelete}
+            actionHistory={handleHistory}
+          />
         </Popover>
       </IF>
 
@@ -498,6 +516,9 @@ const User = () => {
           dataDetail={userDetail}
           getData={getData}
         />
+      )}
+      {isOpenModalHistory && (
+        <History isOpen={isOpenModalHistory} title={title} onCancel={handleCancel} dataDetail={selectedItem?._id} />
       )}
     </Page>
   );

@@ -1,16 +1,15 @@
-import FallbackNewsImage from "../../assets/images/default-product.png";
-import { Box, Button, Grid, Typography, RadioGroup, FormControlLabel, Radio } from "@mui/material";
+import { Box, Button, FormControlLabel, Grid, Radio, Typography } from "@mui/material";
+import clsx from "clsx";
 import { useRef, useState } from "react";
 import { Controller } from "react-hook-form";
-import clsx from "clsx";
-import styles from "./styles.module.scss";
-import { ButtonIconCustom } from "../ButtonIconCustom";
-import ErrorMessage from "../ErrorMessage/ErrorMessage";
-import { IMG_URL } from "../../services/base-url";
+import FallbackNewsImage from "../../assets/images/default-product.png";
 import { MESSAGE_ERROR } from "../../consts/messages";
-import { handleErrorImage, uid } from "../../utils";
 import { STATUS_TOAST } from "../../consts/statusCode";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
+import { handleErrorImage, uid } from "../../utils";
+import { ButtonIconCustom } from "../ButtonIconCustom";
+import ErrorMessage from "../ErrorMessage/ErrorMessage";
+import styles from "./styles.module.scss";
 interface ButtonAddFileType {
   refForm: any;
   formProps: any;
@@ -347,7 +346,7 @@ export const ButtonAddFileMainSelect = (props: IButtonAddFileProp) => {
       imageUrl: image.imageUrl,
       file: undefined,
       isMain: image.isMain ? image.isMain : false,
-      previewUrl: IMG_URL + image.imageUrl,
+      previewUrl: image.imageUrl,
     }));
   };
 
@@ -595,7 +594,7 @@ export const ButtonAddFileMainSelect = (props: IButtonAddFileProp) => {
       {error && <ErrorMessage>{error}</ErrorMessage>}
       {sizeLimitProp && (
         <Typography className={styles.imageSizeInfo} ml="5px" mt="5px">
-          Vui lòng chọn hình ảnh có kích thước 400x200 và nhỏ hơn {sizeLimitProp} mb
+          Vui lòng chọn hình ảnh có kích thước nhỏ hơn {sizeLimitProp} mb
         </Typography>
       )}
     </>

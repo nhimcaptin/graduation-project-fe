@@ -112,7 +112,7 @@ const AddUser = (props: PropsType) => {
       address: dataDetail ? dataDetail?.address : "",
       role: dataDetail ? dataDetail?.role : "",
       birthday: dataDetail ? dataDetail?.birthday : "",
-      gender: dataDetail ? dataDetail?.gender : "",
+      gender: dataDetail ? listGender.find((x) => x.value == dataDetail?.gender) : "",
       image: dataDetail ? dataDetail?.image : "",
     },
   });
@@ -134,25 +134,28 @@ const AddUser = (props: PropsType) => {
     setIsLoading(true);
     try {
       let imageUrl;
-      if (data.image[0] && data.image[0].file) {
+      if (data.image[0] && data.image[0]?.file) {
         const uploadImageRes = (await uploadImage(data.image[0].file as File)) as any;
+        imageUrl = uploadImageRes.downloadURL;
       } else {
-        imageUrl = data.image[0];
+        imageUrl = data.image;
       }
+      data.image = imageUrl;
+      data.gender = data?.gender?.value;
 
-      // if (!!dataDetail) {
-      //   await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, data);
-      //   setToastInformation({
-      //     status: STATUS_TOAST.SUCCESS,
-      //     message: MESSAGE_SUCCESS.EDIT_USER,
-      //   });
-      // } else {
-      //   await apiService.post(URL_PATHS.CREATE_USER, data);
-      //   setToastInformation({
-      //     status: STATUS_TOAST.SUCCESS,
-      //     message: MESSAGE_SUCCESS.CREATE_USER,
-      //   });
-      // }
+      if (!!dataDetail) {
+        await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, data);
+        setToastInformation({
+          status: STATUS_TOAST.SUCCESS,
+          message: MESSAGE_SUCCESS.EDIT_USER,
+        });
+      } else {
+        await apiService.post(URL_PATHS.CREATE_USER, data);
+        setToastInformation({
+          status: STATUS_TOAST.SUCCESS,
+          message: MESSAGE_SUCCESS.CREATE_USER,
+        });
+      }
 
       onCancel && onCancel();
       getData && getData({});
@@ -250,7 +253,7 @@ const AddUser = (props: PropsType) => {
                     initialUrls={previewImages}
                     multiple={false}
                     error={!!errors.image && errors.image.message}
-                    sizeLimit={1}
+                    sizeLimit={2}
                   />
                 </>
               );
@@ -413,77 +416,6 @@ const AddUser = (props: PropsType) => {
             />
           </Grid>
         </Grid>
-        {!isEdit && (
-          <Grid container item xs={12} sx={{ marginTop: "30px" }}>
-            <Grid item xs={12}>
-              <LabelCustom title="Lịch sử khám bệnh" />
-              <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
-                <Table stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      {headCells.map((header: any, index: number) => {
-                        if (header.label === "Ngày tạo") {
-                          return (
-                            <StickyTableCell
-                              key={index}
-                              style={header.style}
-                              className={clsx("background-table-header")}
-                            >
-                              {header.sort ? <TableSortLabel>{header.label}</TableSortLabel> : header.label}
-                            </StickyTableCell>
-                          );
-                        }
-                        return (
-                          <TableCell
-                            key={index}
-                            style={header.style}
-                            sx={{ fontWeight: "bold", marginTop: "5%" }}
-                            className={clsx("background-table-header")}
-                          >
-                            {header.sort ? <TableSortLabel>{header.label}</TableSortLabel> : header.label}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {loadingTable ? (
-                      <LoadingTableRow colSpan={6} />
-                    ) : dataTable && dataTable.length > 0 ? (
-                      <>
-                        {dataTable.map((data: any, index: number) => {
-                          return (
-                            <TableRow key={index} hover className={clsx({ "highlight-row": data?.isHighlight })}>
-                              <TableCell>{data.doctorName}</TableCell>
-                              <TableCell>{data.bookingType}</TableCell>
-                              <TableCell className="">{data.service}</TableCell>
-                              <TableCell>{moment(data.createdAt).format(FORMAT_DATE)}</TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </>
-                    ) : (
-                      <NoDataTableRow colSpan={6} />
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-            <Grid item xs={12}>
-              <TablePagination
-                rowsPerPageOptions={rowsPerPageOptions}
-                component="div"
-                count={totalCount}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                labelDisplayedRows={labelDisplayedRows}
-                labelRowsPerPage={DISPLAY_TEXTS.rowsPerPage}
-              />
-            </Grid>
-          </Grid>
-        )}
       </Grid>
     </CrudModal>
   );

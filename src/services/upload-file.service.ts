@@ -11,7 +11,7 @@ export const useUploadFileService = () => {
         },
       });
       onSuccess && onSuccess(res);
-      return res;
+      return res?.data;
     } catch (error) {
       onError && onError(error);
       throw error;
