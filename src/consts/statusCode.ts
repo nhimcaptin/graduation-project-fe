@@ -36,7 +36,7 @@ export const statusOptions: IStatusType[] = [
   },
   {
     label: "Hủy",
-    value: "Canceled",
+    value: "Cancel",
     chipType: STATUS_CHIP.INACTIVE,
   },
   {

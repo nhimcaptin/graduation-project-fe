@@ -63,7 +63,7 @@ export const getDetailHistory = async (req, res, next) => {
       });
 
     let isDisabled = false;
-    if (historyDetail.bookingId.status === "Approved") {
+    if (historyDetail?.bookingId?.status === "Approved") {
       isDisabled = true;
     }
     res.status(200).json({ data: historyDetail, isDisabled });
@@ -76,7 +76,7 @@ export const bookingReExamination = async (req, res, next) => {
   try {
     const data = req.body;
     const id = req.params.id;
-    let idBooking;
+    let idBooking = data?.bookingId;
 
     if (data?.isCheck && !data?.bookingId) {
       const newBooking = new Booking({
@@ -99,13 +99,13 @@ export const bookingReExamination = async (req, res, next) => {
       idBooking = _id;
     }
 
-    if (data?.bookingId) {
+    if (!data?.isCheck && data?.bookingId) {
       await Booking.findOneAndUpdate({ _id: data?.bookingId }, { $set: { status: "Cancel" } }, { new: true });
     }
 
     await HistoryBooking.findOneAndUpdate(
       { _id: id },
-      { $set: { condition: data?.condition, bookingId: idBooking } },
+      { $set: { condition: data?.condition, bookingId: data?.isCheck  ? idBooking : null } },
       { new: true }
     );
     res.status(200).json("SUCCESS");
