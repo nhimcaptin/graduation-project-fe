@@ -39,13 +39,14 @@ import { STATUS_TOAST } from "../../consts/statusCode";
 import { handleErrorMessage } from "../../utils/errorMessage";
 import moment from "moment";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
-import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
+import { MESSAGES_CONFIRM, MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../consts/messages";
 import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
 import ChipCustom from "../../components/ChipCustom";
 import { URL_LOCAL } from "../../services/base-url";
 import ROUTERS_PATHS from "../../consts/router-paths";
+import { RegExpEmail, RegPhoneNumber } from "../../utils/regExp";
 
 interface RowDataProps {
   id: number;
@@ -118,7 +119,14 @@ const History = () => {
   const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
 
-  const { control, handleSubmit, reset, setValue, watch } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       name: "",
       phone: "",
@@ -171,12 +179,14 @@ const History = () => {
   };
 
   const handleSearch = (handleCloseSearch?: () => void) => {
-    setPage(0);
-    handleSubmit((data) => onSubmitFilter({ ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 }))();
-    handleCloseSearch && handleCloseSearch();
+    handleSubmit((data) =>
+      onSubmitFilter({ ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 }, handleCloseSearch)
+    )();
   };
 
-  const onSubmitFilter = (data: any) => {
+  const onSubmitFilter = (data: any, handleCloseSearch?: () => void) => {
+    setPage(0);
+    handleCloseSearch && handleCloseSearch();
     setFilterContext(data);
     getData(data);
   };
@@ -305,6 +315,12 @@ const History = () => {
                     <Controller
                       control={control}
                       name="email"
+                      rules={{
+                        validate: (value: any) => {
+                          const result = RegExpEmail(value);
+                          return !value || result || MESSAGE_ERROR.RegExpEmail;
+                        },
+                      }}
                       render={({ field: { onChange, onBlur, value, ref, name } }) => (
                         <TextFieldCustom
                           name={name}
@@ -313,6 +329,7 @@ const History = () => {
                           onChange={onChange}
                           placeholder="Nhập email"
                           type="text"
+                          errorMessage={errors?.email?.message}
                         />
                       )}
                     />
@@ -324,6 +341,12 @@ const History = () => {
                     <Controller
                       control={control}
                       name="phone"
+                      // rules={{
+                      //   validate: (value: any) => {
+                      //     const result = RegPhoneNumber(value);
+                      //     return !value || result || MESSAGE_ERROR.RegPhoneNumber;
+                      //   },
+                      // }}
                       render={({ field: { onChange, onBlur, value, ref, name } }) => (
                         <TextFieldCustom
                           name={name}
@@ -332,6 +355,7 @@ const History = () => {
                           onChange={onChange}
                           placeholder="Nhập số điện thoại"
                           type="text"
+                          errorMessage={errors?.phone?.message}
                         />
                       )}
                     />

@@ -39,13 +39,14 @@ import { STATUS_TOAST, statusOptions } from "../../consts/statusCode";
 import { handleErrorMessage } from "../../utils/errorMessage";
 import moment from "moment";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
-import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
+import { MESSAGES_CONFIRM, MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../consts/messages";
 import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
 import AddUser from "./components/AddNew";
 import ChipCustom from "../../components/ChipCustom";
 import ReactSelect from "../../components/ReactSelectView";
+import { RegExpEmail } from "../../utils/regExp";
 
 interface RowDataProps {
   id: number;
@@ -118,11 +119,18 @@ const Booking = () => {
   const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
 
-  const { control, handleSubmit, reset, setValue, watch } = useForm({
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       name: "",
-      phone: "",
-      email: "",
+      numberPhoneCustomer: "",
+      emailCustomer: "",
       service: "",
       status: true ? [statusOptions[0], statusOptions[1]] : "",
     },
@@ -139,7 +147,7 @@ const Booking = () => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-    reset({ name: "", phone: "", email: "", service: "", status: "" });
+    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -155,7 +163,7 @@ const Booking = () => {
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
-    reset({ name: "", phone: "", email: "", service: "", status: "" });
+    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -165,7 +173,7 @@ const Booking = () => {
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    reset({ name: "", phone: "", email: "", service: "", status: "" });
+    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -173,23 +181,25 @@ const Booking = () => {
   };
 
   const handleSearch = (handleCloseSearch?: () => void) => {
-    setPage(0);
-    handleSubmit((data) => onSubmitFilter({ ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 }))();
-    handleCloseSearch && handleCloseSearch();
+    handleSubmit((data) =>
+      onSubmitFilter({ ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 }, handleCloseSearch)
+    )();
   };
 
-  const onSubmitFilter = (data: any) => {
+  const onSubmitFilter = (data: any, handleCloseSearch?: () => void) => {
+    setPage(0);
+    handleCloseSearch && handleCloseSearch();
     setFilterContext(data);
     getData(data);
   };
 
   const handleClearSearch = () => {
-    reset({ name: "", phone: "", email: "", service: "", status: "" });
+    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
   };
 
   const handleRefresh = () => {
-    setOrderBy("createdAt")
-    reset({ name: "", phone: "", email: "", service: "", status: [statusOptions[0], statusOptions[1]] });
+    setOrderBy("createdAt");
+    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: [statusOptions[0], statusOptions[1]] });
     getData({ status: [statusOptions[0], statusOptions[1]] });
   };
 
@@ -271,8 +281,8 @@ const Booking = () => {
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
     const name = !!props && props.hasOwnProperty("name") ? props.name : "";
-    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : "";
-    const email = !!props && props.hasOwnProperty("email") ? props.email : "";
+    const numberPhoneCustomer = !!props && props.hasOwnProperty("numberPhoneCustomer") ? props.numberPhoneCustomer : "";
+    const emailCustomer = !!props && props.hasOwnProperty("emailCustomer") ? props.emailCustomer : "";
     const status = !!props && props.hasOwnProperty("status") ? props.status : "";
     const service = !!props && props.hasOwnProperty("service") ? props.service : "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
@@ -287,7 +297,7 @@ const Booking = () => {
     };
 
     const filters = {
-      unEncoded: { name: name, phone: phone, email: email },
+      unEncoded: { name: name, numberPhoneCustomer: numberPhoneCustomer, emailCustomer: emailCustomer },
       equals: {
         status: status ? getMultiFilter(status, "value") : "",
         service: service ? getMultiFilter(service, "value") : "",
@@ -396,7 +406,13 @@ const Booking = () => {
                     <LabelCustom title="Email" />
                     <Controller
                       control={control}
-                      name="email"
+                      name="emailCustomer"
+                      rules={{
+                        validate: (value: any) => {
+                          const result = RegExpEmail(value);
+                          return !value || result || MESSAGE_ERROR.RegExpEmail;
+                        },
+                      }}
                       render={({ field: { onChange, onBlur, value, ref, name } }) => (
                         <TextFieldCustom
                           name={name}
@@ -405,6 +421,7 @@ const Booking = () => {
                           onChange={onChange}
                           placeholder="Nhập email"
                           type="text"
+                          errorMessage={errors?.emailCustomer?.message}
                         />
                       )}
                     />
@@ -415,7 +432,7 @@ const Booking = () => {
                     <LabelCustom title="Số điện thoại" />
                     <Controller
                       control={control}
-                      name="phone"
+                      name="numberPhoneCustomer"
                       render={({ field: { onChange, onBlur, value, ref, name } }) => (
                         <TextFieldCustom
                           name={name}
