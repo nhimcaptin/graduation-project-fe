@@ -1,19 +1,21 @@
 export const STATUS_CODE = {
-  SUCCESS: 200
+  SUCCESS: 200,
 };
 
 export const STATUS_TOAST = {
-  SUCCESS: 'success',
-  ERROR: 'error'
+  SUCCESS: "success",
+  ERROR: "error",
 };
 
 export const STATUS_CHIP = {
-  ACTIVE: 'ACTIVE',
-  INACTIVE: 'INACTIVE',
-  SUCCESS: 'SUCCESS',
-  FAILURE: 'FAILURE',
-  WARNING: 'WARNING',
-  DRAFT: 'DRAFT'
+  ACTIVE: "ACTIVE",
+  INACTIVE: "INACTIVE",
+  SUCCESS: "SUCCESS",
+  FAILURE: "FAILURE",
+  WARNING: "WARNING",
+  DRAFT: "DRAFT",
+  DONE: "DONE",
+  WaitingDone: "WaitingDone",
 };
 export interface IStatusType {
   label: string;
@@ -23,14 +25,28 @@ export interface IStatusType {
 
 export const statusOptions: IStatusType[] = [
   {
-    label: 'Chờ xác nhận',
+    label: "Chờ xác nhận",
     value: "Waiting",
-    chipType: STATUS_CHIP.INACTIVE
+    chipType: STATUS_CHIP.WARNING,
   },
   {
-    label: 'Chờ khám',
+    label: "Chờ khám",
     value: "Approved",
-    chipType: STATUS_CHIP.ACTIVE
-  }
+    chipType: STATUS_CHIP.ACTIVE,
+  },
+  {
+    label: "Hủy",
+    value: "Canceled",
+    chipType: STATUS_CHIP.INACTIVE,
+  },
+  {
+    label: "Đang Khám",
+    value: "WaitingDone",
+    chipType: STATUS_CHIP.WaitingDone,
+  },
+  {
+    label: "Đã khám",
+    value: "Done",
+    chipType: STATUS_CHIP.DONE,
+  },
 ];
-

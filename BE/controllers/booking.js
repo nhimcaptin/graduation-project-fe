@@ -94,7 +94,7 @@ export const getBooking = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
-    const booking = await Booking.find({ status: { $ne: "Done" }, ..._filter })
+    const booking = await Booking.find(_filter)
       .populate("doctorId", "-password")
       .populate("patientId", "-password")
       .populate("timeTypeId")
@@ -102,7 +102,7 @@ export const getBooking = async (req, res, next) => {
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts);
-    const total = await Booking.find({ status: { $ne: "Done" }, ..._filter });
+    const total = await Booking.find(_filter);
     const totalUsers = total.length;
     res.status(200).json({ data: booking, totalUsers });
   } catch (err) {
