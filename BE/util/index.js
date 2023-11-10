@@ -9,7 +9,7 @@ export const convertFilter = (data) => {
   (filterConditionsArray || []).forEach((x) => {
     if (x.indexOf("==") >= 0) {
       const [label, value] = x.split("==");
-      if (["status", "service"].includes(label)) {
+      if (["status", "service", "role"].includes(label)) {
         obj[label] = { $in: value ? value.split("|") : "" };
       } else {
         obj[label] = value;
