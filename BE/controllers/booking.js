@@ -94,6 +94,10 @@ export const getBooking = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
+    if (_filter?.name) {
+      _filter.$or = [{ nameCustomer: _filter?.name }, { "patientId.name": _filter?.name }];
+      delete _filter.name;
+    }
     const booking = await Booking.find(_filter)
       .populate("doctorId", "-password")
       .populate("patientId", "-password")
