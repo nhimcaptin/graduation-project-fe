@@ -449,7 +449,7 @@ const Staff = () => {
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
                       <TableCell>{data.name}</TableCell>
-                      <TableCell>{data.role}</TableCell>
+                      <TableCell>{data?.role?.roleName}</TableCell>
                       <TableCell>{data.email}</TableCell>
                       <TableCell>{data.phone}</TableCell>
                       <TableCell className="">{data.address}</TableCell>
