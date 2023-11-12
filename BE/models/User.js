@@ -38,6 +38,19 @@ const UserSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    position:{
+      type: String,
+      // required: true,
+    },
+    specialize:{
+      type: String,
+      // require: true
+    },
+    degree :{
+      type: String,
+      // require: true,
+    }
+
   },
   { timestamps: true }
 );
