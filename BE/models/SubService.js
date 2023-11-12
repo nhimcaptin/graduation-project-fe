@@ -3,7 +3,8 @@ const SubServiceSchema = new mongoose.Schema(
   {  
     mainServiceID: { 
       type: mongoose.Schema.Types.ObjectId, 
-      required: true 
+      required: true,
+      ref: 'MainService',
     },
     name: { 
       type: String, 
