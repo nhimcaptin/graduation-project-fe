@@ -64,12 +64,12 @@ export const sidebar = [
     role: [Role.Administrator, Role.Doctor, Role.Receptionist],
     subMenu: [],
   },
-  // {
-  //   key: "GET_LIST_HISTORY",
-  //   title: "Lịch sử đặt lịch",
-  //   icon: Icons.History,
-  //   href: ROUTERS_PATHS.GET_LIST_HISTORY,
-  //   role: [Role.Administrator, Role.Doctor, Role.Receptionist],
-  //   subMenu: [],
-  // },
+  {
+    key: "MAIN_SERVICES",
+    title: "Dịch vụ",
+    icon: Icons.History,
+    href: ROUTERS_PATHS.MAIN_SERVICES,
+    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    subMenu: [],
+  },
 ];

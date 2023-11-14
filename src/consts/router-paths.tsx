@@ -14,6 +14,7 @@ const ROUTERS_PATHS = {
   GET_LIST_HISTORY: "/history",
   MEDICAL_EXAMINATION_NOTES: "/medical-examination-notes",
   MY_PROFILE: "/my-profile",
+  MAIN_SERVICES: "/main-services",
 };
 
 export default ROUTERS_PATHS;
