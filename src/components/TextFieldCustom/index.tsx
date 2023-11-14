@@ -40,7 +40,7 @@ const useStyles = makeStyles(() => ({
   borderInput: {
     "& .MuiOutlinedInput-root": {
       "& .MuiOutlinedInput-notchedOutline": {
-        borderColor: "#D2D1D1 !important",
+        // borderColor: "#D2D1D1 !important",
       },
     },
   },

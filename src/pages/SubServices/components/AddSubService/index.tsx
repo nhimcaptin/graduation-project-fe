@@ -1,21 +1,21 @@
-import React, { useRef, useState } from "react";
-import CrudModal from "../../../../components/CrudModal";
 import { Grid } from "@mui/material";
-import LabelCustom from "../../../../components/LabelCustom";
+import React, { useRef, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
+import CrudModal from "../../../../components/CrudModal";
+import LabelCustom from "../../../../components/LabelCustom";
 import TextFieldCustom from "../../../../components/TextFieldCustom";
 import { MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../../../consts/messages";
 import ReactSelect from "../../../../components/ReactSelectView";
-import { useSetToastInformationState } from "../../../../redux/store/ToastMessage";
-import apiService from "../../../../services/api-services";
 import URL_PATHS from "../../../../services/url-path";
-import { STATUS_TOAST } from "../../../../consts/statusCode";
-import { handleErrorMessage } from "../../../../utils/errorMessage";
-import { RegExpEmail, RegPhoneNumber } from "../../../../utils/regExp";
+import apiService from "../../../../services/api-services";
+import PriceInput from "../../../../components/PriceInput";
 import FocusHiddenInput from "../../../../components/FocusHiddenInput";
 import { ButtonAddFileMainSelect } from "../../../../components/ButtonAddFile/ButtonAddFile";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
-import DateTimePickerCustom from "../../../../components/DateTimePickerCustom";
+import { useSetLoadingScreenState } from "../../../../redux/store/loadingScreen";
+import { useSetToastInformationState } from "../../../../redux/store/ToastMessage";
+import { STATUS_TOAST } from "../../../../consts/statusCode";
+import { handleErrorMessage } from "../../../../utils/errorMessage";
 import { useUploadFileService } from "../../../../services/upload-file.service";
 import { isEmpty } from "lodash";
 
@@ -28,56 +28,48 @@ interface PropsType {
   isEdit: boolean;
 }
 
-const listGender = [
-  { label: "Nam", value: "Nam" },
-  { label: "Nữ", value: "Nữ" },
-  { label: "Khác", value: "Khácm" },
+const listAesthetics = [
+  {
+    value: "Tốt",
+    label: "Tốt",
+  },
+  {
+    value: "Khá",
+    label: "Khá",
+  },
+  {
+    value: "Trung bình",
+    label: "Trung bình",
+  },
 ];
 
-const AddUser = (props: PropsType) => {
+const AddSubService = (props: PropsType) => {
   const { isOpen, title, isEdit, onCancel, getData, dataDetail } = props;
+  const { setLoadingScreen } = useSetLoadingScreenState();
   const { setToastInformation } = useSetToastInformationState();
   const uploadFileService = useUploadFileService();
-
-  const refProps = useRef<any>(null);
-
-  const [isLoading, setIsLoading] = useState(false);
-  const [isLoadingSelect, setIsLoadingSelect] = useState(false);
-
-  const isCheckImage = (data: any) => {
-    const image = data ? [{ imageUrl: data }] : [];
-    return image;
-  };
-  const [previewImages, setPreviewImages] = useState<any>(dataDetail ? isCheckImage(dataDetail?.image) : []);
 
   const {
     handleSubmit,
     control,
-    watch,
     setValue,
     trigger,
     formState: { errors },
   } = useForm({
     defaultValues: {
       name: dataDetail ? dataDetail?.name : "",
-      email: dataDetail ? dataDetail?.email : "",
-      phone: dataDetail ? dataDetail?.phone : "",
-      address: dataDetail ? dataDetail?.address : "",
-      role: dataDetail ? dataDetail?.role : "",
+      price: dataDetail ? dataDetail?.price : "",
+      mainServiceID: dataDetail
+        ? { label: dataDetail?.mainServiceID?.name, value: dataDetail?.mainServiceID?._id }
+        : "",
+      aesthetics: dataDetail ? listAesthetics.find((x) => x.value === dataDetail?.aesthetics) : "",
+      treatmentTime: dataDetail ? dataDetail?.treatmentTime : "",
+      examination: dataDetail ? dataDetail?.examination : "",
       image: dataDetail ? dataDetail?.image : "",
-      birthday: dataDetail ? dataDetail?.birthday : "",
-      gender: dataDetail ? listGender.find((x) => x.value == dataDetail?.gender) : "",
     },
   });
 
-  const handleChangeImage = (newFileList: any) => {
-    if (newFileList) setValue("image", newFileList);
-    setPreviewImages([]);
-    trigger("image");
-  };
-
-  const getCustomerGroupOptions = async (searchText: string, page: number, perPage: number) => {
-    setIsLoadingSelect(true);
+  const getMainServiceOptions = async (searchText: string, page: number, perPage: number) => {
     const params = {
       page,
       perPage,
@@ -87,13 +79,13 @@ const AddUser = (props: PropsType) => {
       name: searchText,
     };
     try {
-      const res: any = await apiService.getFilter(URL_PATHS.ROLE_GET, params, filters);
-      const resultItems: any[] = res?.data;
+      const res: any = await apiService.getFilter(URL_PATHS.GET_LIST_MAIN_SERVICE, params, filters);
+      const resultItems: any[] = res?.mainServices;
       if (resultItems.length >= 0) {
         const items: any[] = resultItems.map((item) => {
           const result = {
             ...item,
-            label: item?.roleName || "",
+            label: item?.name || "",
             value: item?._id || "",
           };
           return result;
@@ -112,9 +104,19 @@ const AddUser = (props: PropsType) => {
         options: [],
         hasMore: false,
       };
-    } finally {
-      setIsLoadingSelect(false);
     }
+  };
+
+  const refProps = useRef<any>(null);
+  const isCheckImage = (data: any) => {
+    const image = data ? [{ imageUrl: data }] : [];
+    return image;
+  };
+  const [previewImages, setPreviewImages] = useState<any>(dataDetail ? isCheckImage(dataDetail?.image) : []);
+  const handleChangeImage = (newFileList: any) => {
+    if (newFileList) setValue("image", newFileList);
+    setPreviewImages([]);
+    trigger("image");
   };
 
   const uploadImage = async (image: File) => {
@@ -125,30 +127,31 @@ const AddUser = (props: PropsType) => {
   };
 
   const onSubmit = async (data: any) => {
-    setIsLoading(true);
+    const _data = {
+      ...data,
+      mainServiceID: data?.mainServiceID?.value,
+      aesthetics: data?.aesthetics?.value,
+    };
+
+    setLoadingScreen(true);
     try {
       let imageUrl;
-      if (data?.image && data.image[0] && data.image[0]?.file) {
-        const uploadImageRes = (await uploadImage(data.image[0].file as File)) as any;
-        imageUrl = uploadImageRes.downloadURL;
+      if (data?.image && data?.image[0] && data?.image[0]?.file) {
+        const uploadImageRes = (await uploadImage(data?.image[0].file as File)) as any;
+        imageUrl = uploadImageRes.downloadURL?.length > 0 ? uploadImageRes.downloadURL : "";
       } else {
         imageUrl = isEmpty(data?.image) ? "" : data?.image;
       }
-      data.image = imageUrl;
-      data.gender = data?.gender?.value;
-      if (!!dataDetail) {
-        await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, { ...data, role: data?.role?.value });
-        setToastInformation({
-          status: STATUS_TOAST.SUCCESS,
-          message: MESSAGE_SUCCESS.EDIT_STAFF,
-        });
+      _data.image = imageUrl;
+      if (dataDetail) {
+        await apiService.put(URL_PATHS.UPDATE_SUB_SERVICE + "/" + dataDetail?._id, _data);
       } else {
-        await apiService.post(URL_PATHS.CREATE_USER, { ...data, role: data?.role?.value });
-        setToastInformation({
-          status: STATUS_TOAST.SUCCESS,
-          message: MESSAGE_SUCCESS.CREATE_STAFF,
-        });
+        await apiService.post(URL_PATHS.CREATE_SUB_SERVICE, _data);
       }
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: dataDetail ? MESSAGE_SUCCESS.EDIT_SUB_SERVICE : MESSAGE_SUCCESS.CREATE_SUB_SERVICE,
+      });
       onCancel && onCancel();
       getData && getData({});
     } catch (error: any) {
@@ -157,7 +160,7 @@ const AddUser = (props: PropsType) => {
         message: handleErrorMessage(error),
       });
     } finally {
-      setIsLoading(false);
+      setLoadingScreen(false);
     }
   };
 
@@ -169,7 +172,6 @@ const AddUser = (props: PropsType) => {
       handleClose={onCancel}
       cancelBtnLabel="Hủy"
       saveBtnLabel="Lưu"
-      loading={isLoading}
       dialogProps={{
         fullWidth: true,
         maxWidth: "md",
@@ -177,7 +179,7 @@ const AddUser = (props: PropsType) => {
     >
       <Grid container>
         <Grid item xs={12} mt={1}>
-          <LabelCustom title="Avatar" />
+          <LabelCustom title="Ảnh" />
           <Controller
             name="image"
             control={control}
@@ -204,9 +206,9 @@ const AddUser = (props: PropsType) => {
             }}
           />
         </Grid>
-        <Grid container item xs={12} mt={2}>
+        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
           <Grid item xs={5}>
-            <LabelCustom title="Họ và tên" isRequired />
+            <LabelCustom title="Tên dịch vụ" isRequired />
             <Controller
               control={control}
               name="name"
@@ -220,7 +222,7 @@ const AddUser = (props: PropsType) => {
                   value={value}
                   onChange={onChange}
                   disabled={!isEdit}
-                  placeholder="Nhập họ và tên"
+                  placeholder="Nhập dịch vụ"
                   type="text"
                   errorMessage={errors?.name?.message}
                 />
@@ -229,48 +231,72 @@ const AddUser = (props: PropsType) => {
           </Grid>
           <Grid item xs={2}></Grid>
           <Grid item xs={5}>
-            <LabelCustom title="Ngày sinh" isRequired />
+            <LabelCustom title="Danh mục" isRequired />
             <Controller
               control={control}
-              name="birthday"
-              rules={{
-                required: MESSAGE_ERROR.fieldRequired,
-              }}
-              render={({ field: { onChange, onBlur, value, ref, name } }) => (
-                <DateTimePickerCustom
-                  inputProps={{
-                    errorMessage: errors?.birthday?.message,
-                  }}
-                  staticDateTimePickerProps={{
-                    disabled: !isEdit,
-                    minDateTime: new Date(),
-                    views: ["year", "day"],
-                    ampm: true,
-                  }}
-                  value={value}
-                  onChange={(e: any) => {
-                    onChange(e);
-                  }}
-                  inputFormat="DD/MM/YYYY"
-                  placeholder="DD/MM/YYYY"
-                />
-              )}
-            />
-          </Grid>
-        </Grid>
-        <Grid container item xs={12} mt={2}>
-          <Grid item xs={5}>
-            <LabelCustom title="Giới tính" isRequired />
-            <Controller
-              control={control}
-              name="gender"
+              name="mainServiceID"
               rules={{
                 required: MESSAGE_ERROR.fieldRequired,
               }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <ReactSelect
                   isClearable
-                  options={listGender}
+                  getOptions={getMainServiceOptions}
+                  getOptionLabel={(option: any) => option.label}
+                  getOptionValue={(option: any) => option.value}
+                  value={value}
+                  onChange={(value: any) => {
+                    onChange(value);
+                  }}
+                  fieldName={name}
+                  maxMenuHeight={150}
+                  placeholder="Chọn danh mục"
+                  menuPlacement={"bottom"}
+                  inputRef={ref}
+                  isValidationFailed
+                  isDisabled={!isEdit}
+                  errorMessage={errors?.mainServiceID?.message as string}
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+          <Grid item xs={5}>
+            <LabelCustom title="Chi phí" isRequired />
+            <Controller
+              control={control}
+              name="price"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <PriceInput
+                  placeholder="Nhập chi phí"
+                  disabled={!isEdit}
+                  value={value}
+                  handleChange={onChange}
+                  onChange={onChange}
+                  errorMessage={errors?.price?.message}
+                  inputProps={{ maxLength: 15 }}
+                  isVND
+                />
+              )}
+            />
+          </Grid>
+          <Grid item xs={2}></Grid>
+          <Grid item xs={5}>
+            <LabelCustom title="Tính thẩm mĩ" isRequired />
+            <Controller
+              control={control}
+              name="aesthetics"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <ReactSelect
+                  isClearable
+                  options={listAesthetics}
                   getOptionLabel={(option: any) => option.label}
                   getOptionValue={(option: any) => option.value}
                   value={value}
@@ -279,38 +305,11 @@ const AddUser = (props: PropsType) => {
                   }}
                   fieldName={name}
                   maxMenuHeight={200}
-                  placeholder="Chọn giới tính"
+                  placeholder="Chọn tính thẩm mĩ"
                   inputRef={ref}
-                  isDisabled={!isEdit}
                   isValidationFailed
-                  errorMessage={errors?.gender?.message as string}
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={2}></Grid>
-          <Grid item xs={5}>
-            <LabelCustom title="Email" isRequired />
-            <Controller
-              control={control}
-              name="email"
-              rules={{
-                required: MESSAGE_ERROR.fieldRequired,
-                validate: (value: any) => {
-                  const result = RegExpEmail(value);
-                  return !value || result || MESSAGE_ERROR.RegExpEmail;
-                },
-              }}
-              render={({ field: { onChange, onBlur, value, ref, name } }) => (
-                <TextFieldCustom
-                  name={name}
-                  ref={ref}
-                  value={value}
-                  onChange={onChange}
-                  placeholder="Nhập email"
-                  disabled={!isEdit}
-                  type="text"
-                  errorMessage={errors?.email?.message}
+                  isDisabled={!isEdit}
+                  errorMessage={errors?.aesthetics?.message as string}
                 />
               )}
             />
@@ -318,84 +317,44 @@ const AddUser = (props: PropsType) => {
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "15px" }}>
           <Grid item xs={5}>
-            <LabelCustom title="Số điện thoại" isRequired />
+            <LabelCustom title="Thời gian điều trị" isRequired />
             <Controller
               control={control}
-              name="phone"
+              name="treatmentTime"
               rules={{
                 required: MESSAGE_ERROR.fieldRequired,
-                validate: (value: any) => {
-                  const result = RegPhoneNumber(value);
-                  return !value || result || MESSAGE_ERROR.RegPhoneNumber;
-                },
               }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
-                <TextFieldCustom
-                  name={name}
-                  ref={ref}
-                  value={value}
-                  onChange={onChange}
-                  placeholder="Nhập số điện thoại"
+                <PriceInput
+                  placeholder="Nhập thời gian điều trị"
                   disabled={!isEdit}
-                  type="text"
-                  errorMessage={errors?.phone?.message}
+                  value={value}
+                  handleChange={onChange}
+                  onChange={onChange}
+                  errorMessage={errors?.treatmentTime?.message}
+                  inputProps={{ maxLength: 15 }}
                 />
               )}
             />
           </Grid>
           <Grid item xs={2}></Grid>
           <Grid item xs={5}>
-            <LabelCustom title="Vai trò" isRequired />
+            <LabelCustom title="Thời gian thăm khám" isRequired />
             <Controller
               control={control}
-              name="role"
+              name="examination"
               rules={{
                 required: MESSAGE_ERROR.fieldRequired,
               }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
-                <ReactSelect
-                  isClearable
-                  getOptions={(searchText: string, page: number, perPage: number) =>
-                    getCustomerGroupOptions(searchText, page, perPage)
-                  }
-                  getOptionLabel={(option: any) => option.label}
-                  getOptionValue={(option: any) => option.value}
-                  value={value}
-                  onChange={(value: any) => {
-                    onChange(value);
-                  }}
-                  fieldName={name}
-                  maxMenuHeight={200}
-                  placeholder="Chọn vai trò"
-                  inputRef={ref}
-                  isValidationFailed
-                  isDisabled={!isEdit}
-                  isLoading={isLoadingSelect}
-                  errorMessage={errors?.role?.message as string}
-                />
-              )}
-            />
-          </Grid>
-        </Grid>
-        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
-          <Grid item xs={5}>
-            <LabelCustom title="Địa chỉ" isRequired />
-            <Controller
-              control={control}
-              name="address"
-              rules={{
-                required: MESSAGE_ERROR.fieldRequired,
-              }}
-              render={({ field: { onChange, onBlur, value, ref, name } }) => (
-                <TextFieldCustom
-                  name={name}
-                  ref={ref}
-                  value={value}
-                  onChange={onChange}
-                  placeholder="Nhập địa chỉ"
+                <PriceInput
+                  placeholder="Nhập thời gian thăm khám"
                   disabled={!isEdit}
-                  type="text"
-                  errorMessage={errors?.address?.message}
+                  value={value}
+                  handleChange={onChange}
+                  onChange={onChange}
+                  errorMessage={errors?.examination?.message}
+                  inputProps={{ maxLength: 15 }}
                 />
               )}
             />
@@ -406,4 +365,4 @@ const AddUser = (props: PropsType) => {
   );
 };
 
-export default AddUser;
+export default AddSubService;

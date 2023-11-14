@@ -77,7 +77,6 @@ const History = (props: any) => {
   };
 
   const getListTable = async (props: any) => {
-    console.log("dataDetail", dataDetail);
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;

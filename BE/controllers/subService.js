@@ -79,19 +79,27 @@ export const getSubservice = async (req, res, next) => {
 
 export const detailSubservice = async (req, res, next) => {
   try {
-    const subService = await SubService.findOne({ _id: req.params.id }).exec();
-    const Id_mainService_Subservice = subService.mainServiceID;
-    const detailMainservice = await MainService.findOne({ _id: Id_mainService_Subservice }).exec();
-    if (!detailMainservice) {
-      return res.status(404).json({ message: "Không lấy được ID mainService" });
-    }
+    // const subService = await SubService.findOne({ _id: req.params.id }).exec();
+    // const Id_mainService_Subservice = subService.mainServiceID;
+    // const detailMainservice = await MainService.findOne({ _id: Id_mainService_Subservice }).exec();
+    // if (!detailMainservice) {
+    //   return res.status(404).json({ message: "Không lấy được ID mainService" });
+    // }
 
-    const nameService = detailMainservice.name;
-    if (!subService) {
-      return res.status(404).json({ message: "Service không tồn tại" });
+    // const nameService = detailMainservice.name;
+    // if (!subService) {
+    //   return res.status(404).json({ message: "Service không tồn tại" });
+    // }
+    // const data = { ...subService._doc, nameService };
+    // return res.status(200).json(data);
+    const subService = await SubService.findById(req.params.id, "-updatedAt -__v").populate(
+      "mainServiceID",
+      "-updatedAt -__v"
+    );
+    if (!subService.mainServiceID) {
+      return res.status(500).json({ message: "Service không tồn tại" });
     }
-    const data = { ...subService._doc, nameService };
-    return res.status(200).json(data);
+    return res.status(200).json(subService);
   } catch (err) {
     next(err);
   }

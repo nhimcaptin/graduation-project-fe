@@ -40,8 +40,8 @@ import URL_PATHS from "../../services/url-path";
 import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
 import { handleErrorMessage } from "../../utils/errorMessage";
 import { Order } from "../../utils/sortTable";
+import AddSubService from "./components/AddSubService";
 import styles from "./styles.module.scss";
-// import AddSubServices from "./components/AddSubServices";
 
 interface RowDataProps {
   id: number;
@@ -411,7 +411,7 @@ const SubServices = () => {
                     >
                       <TableCell>{data?.name}</TableCell>
                       <TableCell>{data?.mainServiceID?.name}</TableCell>
-                      <TableCell>{(+data?.price)?.toLocaleString('vn')} VND</TableCell>
+                      <TableCell>{(+data?.price)?.toLocaleString("vn")} VND</TableCell>
                       <TableCell>{data?.aesthetics}</TableCell>
                       <TableCell>{moment(data?.createdAt).format(FORMAT_DATE)}</TableCell>
                       <TableCell>
@@ -455,8 +455,8 @@ const SubServices = () => {
         </Popover>
       </IF>
 
-      {/* {isOpenModal && (
-        <AddSubServices
+      {isOpenModal && (
+        <AddSubService
           isOpen={isOpenModal}
           title={title}
           onCancel={handleCancel}
@@ -464,7 +464,7 @@ const SubServices = () => {
           dataDetail={subServicesDetail}
           getData={getData}
         />
-      )} */}
+      )}
     </Page>
   );
 };

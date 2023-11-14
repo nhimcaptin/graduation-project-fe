@@ -38,6 +38,7 @@ import { ButtonAddFileMainSelect } from "../../../../components/ButtonAddFile/Bu
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { RegExpEmail, RegPhoneNumber } from "../../../../utils/regExp";
 import { useUploadFileService } from "../../../../services/upload-file.service";
+import { isEmpty } from "lodash";
 
 interface PropsType {
   isOpen: boolean;
@@ -138,7 +139,7 @@ const AddUser = (props: PropsType) => {
         const uploadImageRes = (await uploadImage(data?.image[0].file as File)) as any;
         imageUrl = uploadImageRes.downloadURL;
       } else {
-        imageUrl = data?.image;
+        imageUrl = isEmpty(data?.image) ? "" : data?.image;
       }
       data.image = imageUrl;
       data.gender = data?.gender?.value;
