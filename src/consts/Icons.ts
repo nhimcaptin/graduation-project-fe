@@ -8,7 +8,8 @@ import RoleUser from "./../assets/icons/role.svg";
 import Schedule from "./../assets/icons/schedule.svg";
 import List from "./../assets/icons/list.svg";
 import History from "./../assets/icons/history.svg";
+import Note from "./../assets/icons/note-sticky-regular.svg";
 
-const Icons = { IconUser, IconPassword, Dashboard, Customer, User, Profile, RoleUser, Schedule, List, History };
+const Icons = { IconUser, IconPassword, Dashboard, Customer, User, Profile, RoleUser, Schedule, List, History, Note };
 
 export default Icons;

@@ -57,11 +57,19 @@ export const sidebar = [
     subMenu: [],
   },
   {
-    key: "GET_LIST_HISTORY",
-    title: "Lịch sử đặt lịch",
-    icon: Icons.History,
-    href: ROUTERS_PATHS.GET_LIST_HISTORY,
+    key: "MEDICAL_EXAMINATION_NOTES",
+    title: "Ghi chú khám bệnh",
+    icon: Icons.Note,
+    href: ROUTERS_PATHS.MEDICAL_EXAMINATION_NOTES,
     role: [Role.Administrator, Role.Doctor, Role.Receptionist],
     subMenu: [],
   },
+  // {
+  //   key: "GET_LIST_HISTORY",
+  //   title: "Lịch sử đặt lịch",
+  //   icon: Icons.History,
+  //   href: ROUTERS_PATHS.GET_LIST_HISTORY,
+  //   role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+  //   subMenu: [],
+  // },
 ];

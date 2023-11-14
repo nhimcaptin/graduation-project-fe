@@ -12,6 +12,7 @@ const ROUTERS_PATHS = {
   QUEUE_DETAIL: "/detail-queue/:id",
   DETAIL_HISTORY: "/detail-history/:id",
   GET_LIST_HISTORY: "/history",
+  MEDICAL_EXAMINATION_NOTES: "/medical-examination-notes",
   MY_PROFILE: "/my-profile",
 };
 
