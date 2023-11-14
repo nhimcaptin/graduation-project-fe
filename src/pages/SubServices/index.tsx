@@ -1,17 +1,17 @@
 import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
-    Grid,
-    IconButton,
-    Paper,
-    Popover,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TablePagination,
-    TableRow,
-    TableSortLabel
+  Grid,
+  IconButton,
+  Paper,
+  Popover,
+  Table,
+  TableBody,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TablePagination,
+  TableRow,
+  TableSortLabel,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { visuallyHidden } from "@mui/utils";
@@ -409,11 +409,11 @@ const SubServices = () => {
                       hover
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
-                      <TableCell>{data.name}</TableCell>
-                      <TableCell>{data.name}</TableCell>
-                      <TableCell>{data.price}</TableCell>
-                      <TableCell>{data.aesthetics}</TableCell>
-                      <TableCell>{moment(data.createdAt).format(FORMAT_DATE)}</TableCell>
+                      <TableCell>{data?.name}</TableCell>
+                      <TableCell>{data?.mainServiceID?.name}</TableCell>
+                      <TableCell>{(+data?.price)?.toLocaleString('vn')} VND</TableCell>
+                      <TableCell>{data?.aesthetics}</TableCell>
+                      <TableCell>{moment(data?.createdAt).format(FORMAT_DATE)}</TableCell>
                       <TableCell>
                         <IconButton aria-label="more" onClick={(e) => handleOpenMenuAction(e, data)}>
                           <MoreHorizIcon />

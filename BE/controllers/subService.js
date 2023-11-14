@@ -62,6 +62,7 @@ export const getSubservice = async (req, res, next) => {
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
     const getSubservice = await SubService.find(_filter, "-createdAt -updatedAt -__v")
+      .populate("mainServiceID")
       .find()
       .skip((page - 1) * pageSize)
       .limit(pageSize)
