@@ -18,6 +18,9 @@ import { STATUS_TOAST } from "../../../../consts/statusCode";
 import { handleErrorMessage } from "../../../../utils/errorMessage";
 import { useUploadFileService } from "../../../../services/upload-file.service";
 import { isEmpty } from "lodash";
+import SunEditorShare from "../../../../components/SunEditorStyled";
+import { stripHTML } from "../../../../utils";
+import ErrorMessage from "../../../../components/ErrorMessage/ErrorMessage";
 
 interface PropsType {
   isOpen: boolean;
@@ -66,6 +69,7 @@ const AddSubService = (props: PropsType) => {
       treatmentTime: dataDetail ? dataDetail?.treatmentTime : "",
       examination: dataDetail ? dataDetail?.examination : "",
       image: dataDetail ? dataDetail?.image : "",
+      description: dataDetail ? dataDetail?.description : "",
     },
   });
 
@@ -164,6 +168,12 @@ const AddSubService = (props: PropsType) => {
     }
   };
 
+  const getEditorNewValue = (newValue: string) => {
+    const stripedValue = stripHTML(newValue).trim();
+    if (stripedValue.length === 1 && stripedValue.charCodeAt(0) === 8203) return "";
+    return stripedValue === "" ? "" : newValue;
+  };
+
   return (
     <CrudModal
       isOpen={isOpen}
@@ -178,6 +188,36 @@ const AddSubService = (props: PropsType) => {
       }}
     >
       <Grid container>
+        <Grid item xs={12} mt={1}>
+          <LabelCustom title="Mô tả chi tiết" isRequired/>
+          <Controller
+            control={control}
+            name="description"
+            rules={{
+              required: MESSAGE_ERROR.fieldRequired,
+            }}
+            render={({ field: { value, onChange, onBlur, ref } }) => (
+              <>
+                <FocusHiddenInput ref={ref}></FocusHiddenInput>
+                <SunEditorShare
+                  hideToolbarSunEditor={!isEdit}
+                  disableSunEditor={!isEdit}
+                  onChangeEditorState={(newValue: any) => onChange(getEditorNewValue(newValue))}
+                  setContents={value || ""}
+                  minHeight="400px"
+                  errorEditor={!!errors?.description?.message}
+                  onBlur={(e: any, content: any) => {
+                    onBlur();
+                    onChange((content || "").trim());
+                  }}
+                />
+              </>
+            )}
+          />
+          {errors?.description && (
+            <ErrorMessage style={{ marginTop: "-10px" }}>{errors?.description?.message}</ErrorMessage>
+          )}
+        </Grid>
         <Grid item xs={12} mt={1}>
           <LabelCustom title="Ảnh" />
           <Controller

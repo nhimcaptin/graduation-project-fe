@@ -105,7 +105,7 @@ const AddMainService = (props: PropsType) => {
           />
         </Grid>
         <Grid item xs={12} mt={1}>
-          <LabelCustom title="Mô tả chi tiết" />
+          <LabelCustom title="Mô tả chi tiết" isRequired/>
           <Controller
             control={control}
             name="description"
