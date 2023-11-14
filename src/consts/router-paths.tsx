@@ -15,6 +15,7 @@ const ROUTERS_PATHS = {
   MEDICAL_EXAMINATION_NOTES: "/medical-examination-notes",
   MY_PROFILE: "/my-profile",
   MAIN_SERVICES: "/main-services",
+  SUB_SERVICES: "/sub-services",
 };
 
 export default ROUTERS_PATHS;

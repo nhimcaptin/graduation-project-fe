@@ -108,6 +108,10 @@ const routes: IRoutesState[] = [
         component: lazy(() => import("../pages/MainService")),
       },
       {
+        path: ROUTERS_PATHS.SUB_SERVICES,
+        component: lazy(() => import("../pages/MainService")),
+      },
+      {
         path: "*",
         component: () => <Navigate to={ROUTERS_PATHS.DASHBOARD} replace />,
       },
