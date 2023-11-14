@@ -109,7 +109,7 @@ const routes: IRoutesState[] = [
       },
       {
         path: ROUTERS_PATHS.SUB_SERVICES,
-        component: lazy(() => import("../pages/MainService")),
+        component: lazy(() => import("../pages/SubServices")),
       },
       {
         path: "*",

@@ -25,9 +25,13 @@ export const MESSAGE_SUCCESS: any = {
 
   UPDATE_STATUS: "Cập nhập thành công",
 
-  CREATE_MAIN_SERVICE: "Tạo mới dịch vụ chính thành công",
-  EDIT_MAIN_SERVICE: "Sửa dịch vụ chính thành công",
-  DELETE_MAIN_SERVICE: "Xóa dịch vụ chính thành công",
+  CREATE_MAIN_SERVICE: "Tạo mới danh mục dịch vụ thành công",
+  EDIT_MAIN_SERVICE: "Sửa danh mục dịch vụ thành công",
+  DELETE_MAIN_SERVICE: "Xóa danh mục dịch vụ thành công",
+
+  CREATE_SUB_SERVICE: "Tạo mới dịch vụ thành công",
+  EDIT_SUB_SERVICE: "Sửa dịch vụ thành công",
+  DELETE_SUB_SERVICE: "Xóa dịch vụ thành công",
 };
 
 export const MESSAGE_ERROR_API: any = {
@@ -39,5 +43,6 @@ export const MESSAGE_ERROR_API: any = {
 export const MESSAGES_CONFIRM = {
   DeleteUser: "Bạn có chắc muốn xóa người dùng này? Người dùng đã xóa không thể khôi phục lại.",
   DeleteSatff: "Bạn có chắc muốn xóa nhân viên này? Người dùng đã xóa không thể khôi phục lại.",
-  DeleteMainService: "Bạn có chắc muốn xóa dịch vụ chính này? Dịch vụ chính đã xóa không thể khôi phục lại.",
+  DeleteMainService: "Bạn có chắc muốn xóa danh mục dịch vụ này? Danh mục dịch vụ đã xóa không thể khôi phục lại.",
+  DeleteSubServices: "Bạn có chắc muốn xóa dịch vụ này? Dịch vụ đã xóa không thể khôi phục lại.",
 };

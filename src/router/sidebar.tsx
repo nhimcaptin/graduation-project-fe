@@ -66,7 +66,7 @@ export const sidebar = [
   },
   {
     key: "MAIN_SERVICES",
-    title: "Dịch vụ chính",
+    title: "Danh mục dịch vụ",
     icon: Icons.MainService,
     href: ROUTERS_PATHS.MAIN_SERVICES,
     role: [Role.Administrator, Role.Doctor, Role.Receptionist],
@@ -74,7 +74,7 @@ export const sidebar = [
   },
   {
     key: "SUB_SERVICES",
-    title: "Dịch vụ liên quan",
+    title: "Dịch vụ",
     icon: Icons.SubService,
     href: ROUTERS_PATHS.SUB_SERVICES,
     role: [Role.Administrator, Role.Doctor, Role.Receptionist],
