@@ -45,6 +45,7 @@ import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
 import { RegExpEmail, RegPhoneNumber } from "../../utils/regExp";
 import { isEmpty } from "lodash";
+import AddMainService from "./components/AddMainService";
 
 interface RowDataProps {
   id: number;
@@ -61,12 +62,12 @@ const headCells = [
   {
     label: "Tên dịch vụ",
     sort: "name",
-    style: { width: "90%" },
+    style: { width: "75%" },
   },
   {
     label: "Ngày tạo",
     sort: "createdAt",
-    style: { width: "15%" },
+    style: { width: "20%" },
   },
   { label: "", style: { minWidth: "5%" } },
 ];
@@ -79,13 +80,13 @@ const MainService = () => {
   const [page, setPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState<number>(rowsPerPageOptions[0]);
   const [totalCount, setTotalCount] = useState<number>(0);
-  const [userState, setUserState] = useState<any>([]);
+  const [mainServiceState, setMainServiceState] = useState<any>([]);
   const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
   const [filterContext, setFilterContext] = useState<any>({});
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
-  const [userDetail, setUserDetail] = useState(null);
+  const [mainServiceDetail, setMainServiceDetail] = useState(null);
 
   const { setToastInformation } = useSetToastInformationState();
   const { openConfirmModal } = useSetConfirmModalState();
@@ -124,7 +125,7 @@ const MainService = () => {
   const handleOpenMenuAction = (event: React.MouseEvent<HTMLButtonElement>, record: RowDataProps) => {
     setAnchorEl(event.currentTarget);
     setSelectedItem(record);
-    setUserDetail(null);
+    setMainServiceDetail(null);
   };
 
   const handleCloseActionMenu = () => {
@@ -175,7 +176,7 @@ const MainService = () => {
   const handleOpenModal = () => {
     setIsOpenModal(true);
     setSelectedItem(null);
-    setUserDetail(null);
+    setMainServiceDetail(null);
     setTitle("Thêm mới");
   };
 
@@ -187,14 +188,14 @@ const MainService = () => {
   const handleView = (dataDetail?: any) => {
     setAnchorEl(null);
     setIsViewMode(true);
-    getUserDetail(dataDetail?.id);
+    getDetail(dataDetail?.id);
     setTitle("Xem chi tiết");
   };
 
   const handleEdit = (dataDetail?: any) => {
     setAnchorEl(null);
     setIsViewMode(false);
-    getUserDetail(dataDetail?.id);
+    getDetail(dataDetail?.id);
     setTitle("Chỉnh sửa");
   };
 
@@ -203,7 +204,7 @@ const MainService = () => {
     openConfirmModal({
       isOpen: true,
       title: "Xóa",
-      message: MESSAGES_CONFIRM.DeleteUser,
+      message: MESSAGES_CONFIRM.DeleteMainService,
       cancelBtnLabel: "Hủy",
       okBtnLabel: "Xóa",
       isDeleteConfirm: true,
@@ -214,10 +215,10 @@ const MainService = () => {
   const onDelete = async () => {
     setLoadingScreen(true);
     try {
-      await apiService.delete(`${URL_PATHS.CREATE_USER}/${selectedItem?._id}`);
+      await apiService.delete(`${URL_PATHS.DELETE_MAIN_SERVICE}/${selectedItem?._id}`);
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
-        message: MESSAGE_SUCCESS.DELETE_USER,
+        message: MESSAGE_SUCCESS.DELETE_MAIN_SERVICE,
       });
       getData && getData({});
     } catch (error: any) {
@@ -230,20 +231,11 @@ const MainService = () => {
     }
   };
 
-  const handleHistory = (dataDetail?: any) => {
-    setAnchorEl(null);
-    setIsViewMode(false);
-    setIsOpenModal(false);
-    setTitle("Lịch sử");
-  };
-
   const getData = async (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
     const name = !!props && props.hasOwnProperty("name") ? props.name : "";
-    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : "";
-    const email = !!props && props.hasOwnProperty("email") ? props.email : "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -255,11 +247,11 @@ const MainService = () => {
       Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
     };
 
-    const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { isAdmin: "false" } };
+    const filters = { unEncoded: { name: name } };
     try {
-      const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
+      const data: any = await apiService.getFilter(URL_PATHS.GET_LIST_MAIN_SERVICE, params, filters);
       setTotalCount(data?.totalUsers);
-      setUserState(data?.data);
+      setMainServiceState(data?.mainServices);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -270,11 +262,11 @@ const MainService = () => {
     }
   };
 
-  const getUserDetail = async (id: string | number) => {
+  const getDetail = async (id: string | number) => {
     setLoadingScreen(true);
     try {
-      const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_USER}/${id || selectedItem?._id}`);
-      setUserDetail(data);
+      const data: any = await apiService.getFilter(`${URL_PATHS.GET_DETAIL_MAIN_SERVICE}/${id || selectedItem?._id}`);
+      setMainServiceDetail(data);
       setIsOpenModal(true);
     } catch (error: any) {
       setToastInformation({
@@ -398,9 +390,9 @@ const MainService = () => {
           <TableBody>
             {loadingTable ? (
               <LoadingTableRow colSpan={6} />
-            ) : userState && userState.length > 0 ? (
+            ) : mainServiceState && mainServiceState.length > 0 ? (
               <>
-                {userState.map((data: any, index: number) => {
+                {mainServiceState.map((data: any, index: number) => {
                   return (
                     <TableRow
                       key={index}
@@ -446,26 +438,20 @@ const MainService = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions
-            actionView={handleView}
-            actionEdit={handleEdit}
-            actionDelete={handleDelete}
-            actionHistory={handleHistory}
-          />
+          <MenuListActions actionView={handleView} actionEdit={handleEdit} actionDelete={handleDelete} />
         </Popover>
       </IF>
 
-      {/* {isOpenModal && (
-        <AddUser
+      {isOpenModal && (
+        <AddMainService
           isOpen={isOpenModal}
           title={title}
           onCancel={handleCancel}
           isEdit={!isViewMode}
-          dataDetail={userDetail}
+          dataDetail={mainServiceDetail}
           getData={getData}
         />
       )}
- */}
     </Page>
   );
 };
