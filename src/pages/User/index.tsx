@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Page from "../../components/Page";
-import styles from "./styles.module.scss";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
   Grid,
   IconButton,
@@ -13,40 +11,40 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TableSortLabel,
-  Typography,
+  TableSortLabel
 } from "@mui/material";
-import clsx from "clsx";
-import { StickyTableCell } from "../../components/StickyTableCell";
-import { Order } from "../../utils/sortTable";
 import { Box } from "@mui/system";
 import { visuallyHidden } from "@mui/utils";
-import LoadingTableRow from "../../components/LoadingTableRow";
-import { Link } from "react-router-dom";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import NoDataTableRow from "../../components/NoDataTableRow";
-import MenuListActions from "../../components/MenuListActions";
-import SearchPopover from "../../components/SearchPopover";
-import LabelCustom from "../../components/LabelCustom";
-import { ButtonIconCustom } from "../../components/ButtonIconCustom";
+import clsx from "clsx";
+import moment from "moment";
+import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
+import { ButtonIconCustom } from "../../components/ButtonIconCustom";
+import IF from "../../components/IF";
+import LabelCustom from "../../components/LabelCustom";
+import LoadingTableRow from "../../components/LoadingTableRow";
+import MenuListActions from "../../components/MenuListActions";
+import NoDataTableRow from "../../components/NoDataTableRow";
+import Page from "../../components/Page";
+import SearchPopover from "../../components/SearchPopover";
+import SearchResult from "../../components/SearchResult";
+import { StickyTableCell } from "../../components/StickyTableCell";
+import TextFieldCustom from "../../components/TextFieldCustom";
 import DISPLAY_TEXTS from "../../consts/display-texts";
+import { MESSAGES_CONFIRM, MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../consts/messages";
+import { STATUS_TOAST } from "../../consts/statusCode";
+import { useSetToastInformationState } from "../../redux/store/ToastMessage";
+import { useSetConfirmModalState } from "../../redux/store/confirmModal";
+import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
-import { useSetToastInformationState } from "../../redux/store/ToastMessage";
-import { STATUS_TOAST } from "../../consts/statusCode";
+import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
 import { handleErrorMessage } from "../../utils/errorMessage";
-import moment from "moment";
+import { RegExpEmail } from "../../utils/regExp";
+import { Order } from "../../utils/sortTable";
 import AddUser from "./components/AddUser";
-import { useSetConfirmModalState } from "../../redux/store/confirmModal";
-import { MESSAGES_CONFIRM, MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../consts/messages";
-import IF from "../../components/IF";
-import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
-import TextFieldCustom from "../../components/TextFieldCustom";
 import History from "./components/History";
-import { RegExpEmail, RegPhoneNumber } from "../../utils/regExp";
-import { isEmpty } from "lodash";
+import styles from "./styles.module.scss";
 
 interface RowDataProps {
   id: number;
@@ -109,6 +107,27 @@ const User = () => {
   const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
 
+  const searchResults = useMemo(() => {
+    let results = [
+      {
+        label: "Họ và tên",
+        value: filterContext?.name || "",
+      },
+      {
+        label: "Email",
+        value: filterContext?.email || "",
+      },
+      {
+        label: "Số điện thoại",
+        value: filterContext?.phone || "",
+      },
+    ];
+    return results;
+  }, [filterContext]);
+
+  const isShowResult = searchResults.some((result) => !!result.value);
+  const tableDiff = isShowResult ? 280 : 250;
+
   const {
     control,
     handleSubmit,
@@ -136,6 +155,7 @@ const User = () => {
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({})
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -152,6 +172,7 @@ const User = () => {
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({})
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -162,6 +183,7 @@ const User = () => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({})
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -187,6 +209,7 @@ const User = () => {
 
   const handleRefresh = () => {
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({})
     getData({});
   };
 
@@ -279,8 +302,14 @@ const User = () => {
     const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { isAdmin: "false" } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
+      const _item = (data?.data || []).map((x: any) => {
+        return {
+          ...x,
+          isHighlight: x._id === highlightId,
+        };
+      });
       setTotalCount(data?.totalUsers);
-      setUserState(data?.data);
+      setUserState(_item);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -399,6 +428,7 @@ const User = () => {
               color="lightgreen"
               onClick={handleRefresh}
             />
+            <SearchResult results={searchResults} />
           </Box>
         </Grid>
         <Grid item xs={2}>
@@ -413,7 +443,7 @@ const User = () => {
           </Box>
         </Grid>
       </Grid>
-      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - tableDiff }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>

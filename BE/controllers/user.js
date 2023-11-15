@@ -113,7 +113,7 @@ export const getListUser = async (req, res, next) => {
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts);
-    const totalUsers = await User.countDocuments(query);
+    const totalUsers = await User.countDocuments(User.find(_filter));
     res.json({ data: users, totalUsers });
   } catch (error) {
     next(error);

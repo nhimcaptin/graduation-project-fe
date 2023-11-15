@@ -29,6 +29,12 @@ const PreferentialSchema = new mongoose.Schema(
       type: String,
       required: true
     },
+    image: {
+      type: String,
+    },
+    description: {
+      type: String,
+    },
     items: [PreferentialItemSchema]
   },
   { timestamps: true }

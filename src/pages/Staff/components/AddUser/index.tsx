@@ -18,6 +18,7 @@ import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import DateTimePickerCustom from "../../../../components/DateTimePickerCustom";
 import { useUploadFileService } from "../../../../services/upload-file.service";
 import { isEmpty } from "lodash";
+import { useSetLoadingScreenState } from "../../../../redux/store/loadingScreen";
 
 interface PropsType {
   isOpen: boolean;
@@ -38,6 +39,7 @@ const AddUser = (props: PropsType) => {
   const { isOpen, title, isEdit, onCancel, getData, dataDetail } = props;
   const { setToastInformation } = useSetToastInformationState();
   const uploadFileService = useUploadFileService();
+  const { setLoadingScreen } = useSetLoadingScreenState();
 
   const refProps = useRef<any>(null);
 
@@ -125,7 +127,7 @@ const AddUser = (props: PropsType) => {
   };
 
   const onSubmit = async (data: any) => {
-    setIsLoading(true);
+    setLoadingScreen(true);
     try {
       let imageUrl;
       if (data?.image && data.image[0] && data.image[0]?.file) {
@@ -150,14 +152,14 @@ const AddUser = (props: PropsType) => {
         });
       }
       onCancel && onCancel();
-      getData && getData({});
+      getData && getData({ highlightId: dataDetail?._id });
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
         message: handleErrorMessage(error),
       });
     } finally {
-      setIsLoading(false);
+      setLoadingScreen(false);
     }
   };
 
