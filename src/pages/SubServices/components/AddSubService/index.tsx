@@ -157,7 +157,7 @@ const AddSubService = (props: PropsType) => {
         message: dataDetail ? MESSAGE_SUCCESS.EDIT_SUB_SERVICE : MESSAGE_SUCCESS.CREATE_SUB_SERVICE,
       });
       onCancel && onCancel();
-      getData && getData({});
+      getData && getData({ highlightId: dataDetail?._id });
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,

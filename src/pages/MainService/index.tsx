@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Page from "../../components/Page";
-import styles from "./styles.module.scss";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
   Grid,
   IconButton,
@@ -14,38 +12,38 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  Typography,
 } from "@mui/material";
-import clsx from "clsx";
-import { StickyTableCell } from "../../components/StickyTableCell";
-import { Order } from "../../utils/sortTable";
 import { Box } from "@mui/system";
 import { visuallyHidden } from "@mui/utils";
-import LoadingTableRow from "../../components/LoadingTableRow";
-import { Link } from "react-router-dom";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import NoDataTableRow from "../../components/NoDataTableRow";
-import MenuListActions from "../../components/MenuListActions";
-import SearchPopover from "../../components/SearchPopover";
-import LabelCustom from "../../components/LabelCustom";
-import { ButtonIconCustom } from "../../components/ButtonIconCustom";
+import clsx from "clsx";
+import moment from "moment";
+import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
+import { ButtonIconCustom } from "../../components/ButtonIconCustom";
+import IF from "../../components/IF";
+import LabelCustom from "../../components/LabelCustom";
+import LoadingTableRow from "../../components/LoadingTableRow";
+import MenuListActions from "../../components/MenuListActions";
+import NoDataTableRow from "../../components/NoDataTableRow";
+import Page from "../../components/Page";
+import SearchPopover from "../../components/SearchPopover";
+import SearchResult from "../../components/SearchResult";
+import { StickyTableCell } from "../../components/StickyTableCell";
+import TextFieldCustom from "../../components/TextFieldCustom";
 import DISPLAY_TEXTS from "../../consts/display-texts";
+import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
+import { STATUS_TOAST } from "../../consts/statusCode";
+import { useSetToastInformationState } from "../../redux/store/ToastMessage";
+import { useSetConfirmModalState } from "../../redux/store/confirmModal";
+import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
-import { useSetToastInformationState } from "../../redux/store/ToastMessage";
-import { STATUS_TOAST } from "../../consts/statusCode";
+import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
 import { handleErrorMessage } from "../../utils/errorMessage";
-import moment from "moment";
-import { useSetConfirmModalState } from "../../redux/store/confirmModal";
-import { MESSAGES_CONFIRM, MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../consts/messages";
-import IF from "../../components/IF";
-import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
-import TextFieldCustom from "../../components/TextFieldCustom";
-import { RegExpEmail, RegPhoneNumber } from "../../utils/regExp";
-import { isEmpty } from "lodash";
+import { Order } from "../../utils/sortTable";
 import AddMainService from "./components/AddMainService";
+import styles from "./styles.module.scss";
+import { usePermissionHook } from "../../hook/usePermission";
 
 interface RowDataProps {
   id: number;
@@ -72,7 +70,10 @@ const headCells = [
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const MainService = () => {
+const MainService = (props: any) => {
+  const { screenName } = props;
+  const { hasCreate, hasUpdate, hasDelete } = usePermissionHook(screenName);
+
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
@@ -91,6 +92,19 @@ const MainService = () => {
   const { setToastInformation } = useSetToastInformationState();
   const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
+
+  const searchResults = useMemo(() => {
+    let results = [
+      {
+        label: "Tên danh mục",
+        value: filterContext?.name || "",
+      },
+    ];
+    return results;
+  }, [filterContext]);
+
+  const isShowResult = searchResults.some((result) => !!result.value);
+  const tableDiff = isShowResult ? 280 : 250;
 
   const {
     control,
@@ -119,6 +133,7 @@ const MainService = () => {
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -135,6 +150,7 @@ const MainService = () => {
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -145,6 +161,7 @@ const MainService = () => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -169,6 +186,7 @@ const MainService = () => {
   };
 
   const handleRefresh = () => {
+    setFilterContext({});
     reset({ name: "", phone: "", email: "" });
     getData({});
   };
@@ -235,7 +253,7 @@ const MainService = () => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
-    const name = !!props && props.hasOwnProperty("name") ? props.name : "";
+    const name = !!props && props.hasOwnProperty("name") ? props.name : filterContext?.name;
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -250,8 +268,14 @@ const MainService = () => {
     const filters = { unEncoded: { name: name } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_LIST_MAIN_SERVICE, params, filters);
+      const _item = (data?.mainServices || []).map((x: any) => {
+        return {
+          ...x,
+          isHighlight: x._id === highlightId,
+        };
+      });
       setTotalCount(data?.totalUsers);
-      setMainServiceState(data?.mainServices);
+      setMainServiceState(_item);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -317,21 +341,24 @@ const MainService = () => {
               color="lightgreen"
               onClick={handleRefresh}
             />
+            <SearchResult results={searchResults} />
           </Box>
         </Grid>
         <Grid item xs={2}>
           <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
-            <ButtonIconCustom
-              className="mg-l-10"
-              tooltipTitle="Thêm mới"
-              type="add"
-              color="darkgreen"
-              onClick={handleOpenModal}
-            />
+            {hasCreate && (
+              <ButtonIconCustom
+                className="mg-l-10"
+                tooltipTitle="Thêm mới"
+                type="add"
+                color="darkgreen"
+                onClick={handleOpenModal}
+              />
+            )}
           </Box>
         </Grid>
       </Grid>
-      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - tableDiff }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -438,7 +465,11 @@ const MainService = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={handleView} actionEdit={handleEdit} actionDelete={handleDelete} />
+          <MenuListActions
+            actionView={handleView}
+            actionEdit={hasUpdate ? () => handleEdit() : undefined}
+            actionDelete={hasDelete ? () => handleDelete() : undefined}
+          />
         </Popover>
       </IF>
 

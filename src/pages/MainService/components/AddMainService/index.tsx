@@ -57,7 +57,7 @@ const AddMainService = (props: PropsType) => {
         message: dataDetail ? MESSAGE_SUCCESS.EDIT_MAIN_SERVICE : MESSAGE_SUCCESS.CREATE_MAIN_SERVICE,
       });
       onCancel && onCancel();
-      getData && getData({});
+      getData && getData({ highlightId: dataDetail?._id });
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -105,7 +105,7 @@ const AddMainService = (props: PropsType) => {
           />
         </Grid>
         <Grid item xs={12} mt={1}>
-          <LabelCustom title="Mô tả chi tiết" isRequired/>
+          <LabelCustom title="Mô tả chi tiết" isRequired />
           <Controller
             control={control}
             name="description"

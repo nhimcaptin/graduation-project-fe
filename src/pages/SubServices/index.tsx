@@ -17,7 +17,7 @@ import { Box } from "@mui/system";
 import { visuallyHidden } from "@mui/utils";
 import clsx from "clsx";
 import moment from "moment";
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { ButtonIconCustom } from "../../components/ButtonIconCustom";
 import IF from "../../components/IF";
@@ -42,6 +42,8 @@ import { handleErrorMessage } from "../../utils/errorMessage";
 import { Order } from "../../utils/sortTable";
 import AddSubService from "./components/AddSubService";
 import styles from "./styles.module.scss";
+import { usePermissionHook } from "../../hook/usePermission";
+import SearchResult from "../../components/SearchResult";
 
 interface RowDataProps {
   id: number;
@@ -82,7 +84,10 @@ const headCells = [
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const SubServices = () => {
+const SubServices = (props: any) => {
+  const { screenName } = props;
+  const { hasCreate, hasUpdate, hasDelete } = usePermissionHook(screenName);
+
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
@@ -101,6 +106,19 @@ const SubServices = () => {
   const { setToastInformation } = useSetToastInformationState();
   const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
+
+  const searchResults = useMemo(() => {
+    let results = [
+      {
+        label: "Tên dịch vụ",
+        value: filterContext?.name || "",
+      },
+    ];
+    return results;
+  }, [filterContext]);
+
+  const isShowResult = searchResults.some((result) => !!result.value);
+  const tableDiff = isShowResult ? 280 : 250;
 
   const {
     control,
@@ -129,6 +147,7 @@ const SubServices = () => {
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -145,6 +164,7 @@ const SubServices = () => {
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -155,6 +175,7 @@ const SubServices = () => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -180,6 +201,7 @@ const SubServices = () => {
 
   const handleRefresh = () => {
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({});
   };
 
@@ -260,8 +282,14 @@ const SubServices = () => {
     const filters = { unEncoded: { name: name } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_LIST_SUB_SERVICE, params, filters);
+      const _item = (data?.getSubservice || []).map((x: any) => {
+        return {
+          ...x,
+          isHighlight: x._id === highlightId,
+        };
+      });
       setTotalCount(data?.totalUsers);
-      setSubServicesState(data?.getSubservice);
+      setSubServicesState(_item);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -301,7 +329,7 @@ const SubServices = () => {
               <Grid container spacing={2}>
                 <Grid item xs={12}>
                   <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Tên danh mục" />
+                    <LabelCustom title="Tên dịch vụ" />
                     <Controller
                       control={control}
                       name="name"
@@ -311,7 +339,7 @@ const SubServices = () => {
                           ref={ref}
                           value={value}
                           onChange={onChange}
-                          placeholder="Nhập tên danh mục"
+                          placeholder="Nhập tên dịch vụ"
                           type="text"
                         />
                       )}
@@ -327,21 +355,24 @@ const SubServices = () => {
               color="lightgreen"
               onClick={handleRefresh}
             />
+            <SearchResult results={searchResults} />
           </Box>
         </Grid>
         <Grid item xs={2}>
           <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
-            <ButtonIconCustom
-              className="mg-l-10"
-              tooltipTitle="Thêm mới"
-              type="add"
-              color="darkgreen"
-              onClick={handleOpenModal}
-            />
+            {hasCreate && (
+              <ButtonIconCustom
+                className="mg-l-10"
+                tooltipTitle="Thêm mới"
+                type="add"
+                color="darkgreen"
+                onClick={handleOpenModal}
+              />
+            )}
           </Box>
         </Grid>
       </Grid>
-      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - tableDiff }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -451,7 +482,11 @@ const SubServices = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={handleView} actionEdit={handleEdit} actionDelete={handleDelete} />
+          <MenuListActions
+            actionView={handleView}
+            actionEdit={hasUpdate ? () => handleEdit() : undefined}
+            actionDelete={hasDelete ? () => handleDelete() : undefined}
+          />
         </Popover>
       </IF>
 

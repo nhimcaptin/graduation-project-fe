@@ -44,6 +44,21 @@ export const getMultiFilter = (filterList: any[], columnName: string) => {
   return result;
 };
 
+export const getMultiLabel = (filterList: any[], columnName: string) => {
+  let result = "";
+  if (typeof filterList === "string") {
+    return filterList;
+  }
+  (filterList || []).map((item, index) => {
+    if (index === 0) {
+      result += item[columnName] + "";
+    } else {
+      result += ", " + item[columnName];
+    }
+  });
+  return result;
+};
+
 export const stripHTML = (html: string) => {
   let doc = new DOMParser().parseFromString(html, "text/html");
   return doc.body.textContent || "";

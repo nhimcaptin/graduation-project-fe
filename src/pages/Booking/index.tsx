@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import {
@@ -30,7 +30,14 @@ import SearchPopover from "../../components/SearchPopover";
 import LabelCustom from "../../components/LabelCustom";
 import { ButtonIconCustom } from "../../components/ButtonIconCustom";
 import { Controller, useForm } from "react-hook-form";
-import { FORMAT_DATE, getMultiFilter, getRowStatus, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
+import {
+  FORMAT_DATE,
+  getMultiFilter,
+  getMultiLabel,
+  getRowStatus,
+  labelDisplayedRows,
+  rowsPerPageOptions,
+} from "../../utils";
 import DISPLAY_TEXTS from "../../consts/display-texts";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
@@ -47,6 +54,8 @@ import AddUser from "./components/AddNew";
 import ChipCustom from "../../components/ChipCustom";
 import ReactSelect from "../../components/ReactSelectView";
 import { RegExpEmail } from "../../utils/regExp";
+import { usePermissionHook } from "../../hook/usePermission";
+import SearchResult from "../../components/SearchResult";
 
 interface RowDataProps {
   id: number;
@@ -99,7 +108,10 @@ const headCells = [
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const Booking = () => {
+const Booking = (props: any) => {
+  const { screenName } = props;
+  const { hasCreate, hasUpdate, hasDelete } = usePermissionHook(screenName);
+
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
@@ -118,6 +130,35 @@ const Booking = () => {
   const { setToastInformation } = useSetToastInformationState();
   const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
+
+  const searchResults = useMemo(() => {
+    let results = [
+      {
+        label: "Tên bệnh nhân",
+        value: filterContext?.name || "",
+      },
+      {
+        label: "Email",
+        value: filterContext?.email || "",
+      },
+      {
+        label: "Số điện thoại",
+        value: filterContext?.phone || "",
+      },
+      {
+        label: "Dịch vụ",
+        value: getMultiLabel(filterContext.service, "label"),
+      },
+      {
+        label: "Trạng thái",
+        value: getMultiLabel(filterContext.status, "label"),
+      },
+    ];
+    return results;
+  }, [filterContext]);
+
+  const isShowResult = searchResults.some((result) => !!result.value);
+  const tableDiff = isShowResult ? 280 : 250;
 
   const {
     control,
@@ -148,6 +189,7 @@ const Booking = () => {
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
     reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
+    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -164,6 +206,7 @@ const Booking = () => {
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
     reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
+    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -174,6 +217,7 @@ const Booking = () => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
     reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
+    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -199,7 +243,14 @@ const Booking = () => {
 
   const handleRefresh = () => {
     setOrderBy("createdAt");
-    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: [statusOptions[0], statusOptions[1]] });
+    reset({
+      name: "",
+      numberPhoneCustomer: "",
+      emailCustomer: "",
+      service: "",
+      status: [statusOptions[0], statusOptions[1]],
+    });
+    setFilterContext({});
     getData({ status: [statusOptions[0], statusOptions[1]] });
   };
 
@@ -246,26 +297,7 @@ const Booking = () => {
         status: STATUS_TOAST.SUCCESS,
         message: MESSAGE_SUCCESS.CONFIRM_BOOKING,
       });
-      getData && getData({});
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    } finally {
-      setLoadingScreen(false);
-    }
-  };
-
-  const onDelete = async () => {
-    setLoadingScreen(true);
-    try {
-      await apiService.delete(`${URL_PATHS.CREATE_USER}/${selectedItem?._id}`);
-      setToastInformation({
-        status: STATUS_TOAST.SUCCESS,
-        message: MESSAGE_SUCCESS.DELETE_USER,
-      });
-      getData && getData({});
+      getData && getData({ ...filterContext, highlightId: selectedItem?._id });
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -305,8 +337,14 @@ const Booking = () => {
     };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_BOOKING, params, filters);
+      const _item = (data?.data || []).map((x: any) => {
+        return {
+          ...x,
+          isHighlight: x._id === highlightId,
+        };
+      });
       setTotalCount(data?.totalUsers);
-      setUserState(data?.data);
+      setUserState(_item);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -373,6 +411,7 @@ const Booking = () => {
 
   useEffect(() => {
     getData({ status: [statusOptions[0], statusOptions[1]] });
+    setFilterContext({ status: [statusOptions[0], statusOptions[1]] });
   }, []);
 
   return (
@@ -505,21 +544,24 @@ const Booking = () => {
               color="lightgreen"
               onClick={handleRefresh}
             />
+            <SearchResult results={searchResults} />
           </Box>
         </Grid>
         <Grid item xs={2}>
           <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
-            <ButtonIconCustom
-              className="mg-l-10"
-              tooltipTitle="Thêm mới"
-              type="add"
-              color="darkgreen"
-              onClick={handleOpenModal}
-            />
+            {hasCreate && (
+              <ButtonIconCustom
+                className="mg-l-10"
+                tooltipTitle="Thêm mới"
+                type="add"
+                color="darkgreen"
+                onClick={handleOpenModal}
+              />
+            )}
           </Box>
         </Grid>
       </Grid>
-      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - tableDiff }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -646,7 +688,7 @@ const Booking = () => {
         >
           <MenuListActions
             actionView={handleView}
-            actionConfirm={selectedItem?.status == "Waiting" ? () => handleConfirm() : undefined}
+            actionConfirm={selectedItem?.status == "Waiting" && hasUpdate ? () => handleConfirm() : undefined}
           />
         </Popover>
       </IF>

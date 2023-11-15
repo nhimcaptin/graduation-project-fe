@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import {
@@ -46,6 +46,8 @@ import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
 import ReactSelect from "../../components/ReactSelectView";
 import { RegExpEmail, RegPhoneNumber } from "../../utils/regExp";
+import { usePermissionHook } from "../../hook/usePermission";
+import SearchResult from "../../components/SearchResult";
 
 interface RowDataProps {
   id: number;
@@ -92,7 +94,10 @@ const headCells = [
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const Staff = () => {
+const Staff = (props: any) => {
+  const { screenName } = props;
+  const { hasCreate, hasUpdate, hasDelete } = usePermissionHook(screenName);
+
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
@@ -111,6 +116,27 @@ const Staff = () => {
   const { setToastInformation } = useSetToastInformationState();
   const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
+
+  const searchResults = useMemo(() => {
+    let results = [
+      {
+        label: "Họ và tên",
+        value: filterContext?.name || "",
+      },
+      {
+        label: "Email",
+        value: filterContext?.email || "",
+      },
+      {
+        label: "Số điện thoại",
+        value: filterContext?.phone || "",
+      },
+    ];
+    return results;
+  }, [filterContext]);
+
+  const isShowResult = searchResults.some((result) => !!result.value);
+  const tableDiff = isShowResult ? 280 : 250;
 
   const {
     control,
@@ -140,6 +166,7 @@ const Staff = () => {
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
     reset({ name: "", phone: "", email: "", role: "" });
+    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -156,6 +183,7 @@ const Staff = () => {
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
     reset({ name: "", phone: "", email: "", role: "" });
+    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -166,6 +194,7 @@ const Staff = () => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
     reset({ name: "", phone: "", email: "", role: "" });
+    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -191,6 +220,7 @@ const Staff = () => {
 
   const handleRefresh = () => {
     reset({ name: "", phone: "", email: "", role: "" });
+    setFilterContext({});
     getData({});
   };
 
@@ -277,8 +307,14 @@ const Staff = () => {
     };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
+      const _item = (data?.data || []).map((x: any) => {
+        return {
+          ...x,
+          isHighlight: x._id === highlightId,
+        };
+      });
       setTotalCount(data?.totalUsers);
-      setUserState(data?.data);
+      setUserState(_item);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -459,21 +495,24 @@ const Staff = () => {
               color="lightgreen"
               onClick={handleRefresh}
             />
+            <SearchResult results={searchResults} />
           </Box>
         </Grid>
         <Grid item xs={2}>
           <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
-            <ButtonIconCustom
-              className="mg-l-10"
-              tooltipTitle="Thêm mới"
-              type="add"
-              color="darkgreen"
-              onClick={handleOpenModal}
-            />
+            {hasCreate && (
+              <ButtonIconCustom
+                className="mg-l-10"
+                tooltipTitle="Thêm mới"
+                type="add"
+                color="darkgreen"
+                onClick={handleOpenModal}
+              />
+            )}
           </Box>
         </Grid>
       </Grid>
-      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - tableDiff }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -584,7 +623,11 @@ const Staff = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={handleView} actionEdit={handleEdit} actionDelete={handleDelete} />
+          <MenuListActions
+            actionView={handleView}
+            actionEdit={hasUpdate ? () => handleEdit() : undefined}
+            actionDelete={hasDelete ? () => handleDelete() : undefined}
+          />
         </Popover>
       </IF>
 

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import {
@@ -47,6 +47,8 @@ import ChipCustom from "../../components/ChipCustom";
 import { URL_LOCAL } from "../../services/base-url";
 import ROUTERS_PATHS from "../../consts/router-paths";
 import { RegExpEmail, RegPhoneNumber } from "../../utils/regExp";
+import { usePermissionHook } from "../../hook/usePermission";
+import SearchResult from "../../components/SearchResult";
 
 interface RowDataProps {
   id: number;
@@ -99,7 +101,10 @@ const headCells = [
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const History = () => {
+const History = (props: any) => {
+  const { screenName } = props;
+  const { hasUpdate } = usePermissionHook(screenName);
+
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
@@ -118,6 +123,27 @@ const History = () => {
   const { setToastInformation } = useSetToastInformationState();
   const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
+
+  const searchResults = useMemo(() => {
+    let results = [
+      {
+        label: "Họ và tên",
+        value: filterContext?.name || "",
+      },
+      {
+        label: "Email",
+        value: filterContext?.email || "",
+      },
+      {
+        label: "Số điện thoại",
+        value: filterContext?.phone || "",
+      },
+    ];
+    return results;
+  }, [filterContext]);
+
+  const isShowResult = searchResults.some((result) => !!result.value);
+  const tableDiff = isShowResult ? 280 : 250;
 
   const {
     control,
@@ -272,6 +298,7 @@ const History = () => {
       });
     } finally {
       setLoadingTable(false);
+      setFilterContext({ name, phone, email });
     }
   };
 
@@ -284,7 +311,7 @@ const History = () => {
   }, []);
 
   return (
-    <Page className={styles.root} title="Lịch sử khám bệnh" isActive>
+    <Page className={styles.root} title="Ghi chú khám bệnh" isActive>
       <Grid container style={{ marginBottom: "20px" }}>
         <Grid item xs={10}>
           <Box>
@@ -370,10 +397,11 @@ const History = () => {
               color="lightgreen"
               onClick={handleRefresh}
             />
+            <SearchResult results={searchResults} />
           </Box>
         </Grid>
       </Grid>
-      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - tableDiff }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -486,7 +514,7 @@ const History = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={handleView} actionNote={handleView} />
+          <MenuListActions actionView={handleView} actionNote={hasUpdate ? () => handleView() : undefined} />
         </Popover>
       </IF>
     </Page>
