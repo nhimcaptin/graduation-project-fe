@@ -11,7 +11,7 @@ import {
   TableHead,
   TablePagination,
   TableRow,
-  TableSortLabel
+  TableSortLabel,
 } from "@mui/material";
 import { Box } from "@mui/system";
 import { visuallyHidden } from "@mui/utils";
@@ -45,6 +45,7 @@ import { Order } from "../../utils/sortTable";
 import AddUser from "./components/AddUser";
 import History from "./components/History";
 import styles from "./styles.module.scss";
+import { usePermissionHook } from "../../hook/usePermission";
 
 interface RowDataProps {
   id: number;
@@ -86,7 +87,10 @@ const headCells = [
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const User = () => {
+const User = (props: any) => {
+  const { screenName } = props;
+  const { hasCreate, hasUpdate, hasDelete } = usePermissionHook(screenName);
+
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
@@ -155,7 +159,7 @@ const User = () => {
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
     reset({ name: "", phone: "", email: "" });
-    setFilterContext({})
+    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -172,7 +176,7 @@ const User = () => {
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
     reset({ name: "", phone: "", email: "" });
-    setFilterContext({})
+    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -183,7 +187,7 @@ const User = () => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
     reset({ name: "", phone: "", email: "" });
-    setFilterContext({})
+    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -209,7 +213,7 @@ const User = () => {
 
   const handleRefresh = () => {
     reset({ name: "", phone: "", email: "" });
-    setFilterContext({})
+    setFilterContext({});
     getData({});
   };
 
@@ -433,13 +437,15 @@ const User = () => {
         </Grid>
         <Grid item xs={2}>
           <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
-            <ButtonIconCustom
-              className="mg-l-10"
-              tooltipTitle="Thêm mới"
-              type="add"
-              color="darkgreen"
-              onClick={handleOpenModal}
-            />
+            {hasCreate && (
+              <ButtonIconCustom
+                className="mg-l-10"
+                tooltipTitle="Thêm mới"
+                type="add"
+                color="darkgreen"
+                onClick={handleOpenModal}
+              />
+            )}
           </Box>
         </Grid>
       </Grid>
@@ -555,8 +561,8 @@ const User = () => {
         >
           <MenuListActions
             actionView={handleView}
-            actionEdit={handleEdit}
-            actionDelete={handleDelete}
+            actionEdit={hasUpdate ? () => handleEdit() : undefined}
+            actionDelete={hasDelete ? () => handleDelete() : undefined}
             actionHistory={handleHistory}
           />
         </Popover>

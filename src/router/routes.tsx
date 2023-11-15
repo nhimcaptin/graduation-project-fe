@@ -41,7 +41,7 @@ export const renderRoutes = (routes: IRoutesState[]) => (
             element={
               <Guard>
                 <Permission role={route.role}>
-                  <Layout>{route.routes ? renderRoutes(route.routes) : <Component />}</Layout>
+                  <Layout>{route.routes ? renderRoutes(route.routes) : <Component screenName={route.role}/>}</Layout>
                 </Permission>
               </Guard>
             }
