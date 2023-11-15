@@ -3,6 +3,8 @@ import axios from "axios";
 import { BASE_URL } from "./base-url";
 import URL_PATHS from "./url-path";
 import { convertSearchString } from "../utils";
+import { GetPermission } from "../redux/store/permissions";
+import { setPermissionsAction } from "../redux/store/permission";
 
 const isHandlerEnabled = true;
 
@@ -64,41 +66,12 @@ class Service {
     });
 
     this.handleError = async (error: any, isHandlerEnabled: any) => {
-      return errorHandler(error, isHandlerEnabled);
-
-      // if (error.response.status === 401) {
-      //     if (error.config.url !== refreshTokenUrl && error.config.url !== URL_PATHS.LOGIN_ADMIN) {
-      //         const originalRequest = error.config;
-      //         originalRequest._retry = true;
-      //         try {
-      //             const response = await this.refreshTokenRequest();
-      //             const content = response?.data;
-      //             if (content) {
-      //                 localStorage.setItem('token', content.accessToken);
-      //                 localStorage.setItem('refreshToken', content.refreshToken);
-      //                 originalRequest.headers['Authorization'] = `Bearer ${content.accessToken}`;
-      //                 return this.axios(originalRequest);
-      //             } else {
-      //                 alert(MESSAGES_CONFIRM.SignInExpired);
-      //                 localStorage.clear();
-      //                 window.location.reload();
-      //                 // return errorHandler(null, isHandlerEnabled);
-      //             }
-      //         } catch (error) {
-      //             alert(MESSAGES_CONFIRM.SignInExpired);
-      //             localStorage.clear();
-      //             window.location.reload();
-      //             // return errorHandler(error, isHandlerEnabled);
-      //         }
-      //     } else {
-      //         return errorHandler(error, isHandlerEnabled);
-      //     }
-      // } else if (error.response.status === 403) {
-      //     const permissionResponse = await GetPermission();
-      //     setPermissionsAction(permissionResponse?.permissions || []);
-      // } else {
-      //     return errorHandler(error, isHandlerEnabled);
-      // }
+      if (error?.response?.status === 403) {
+        const permissionResponse = await GetPermission();
+        setPermissionsAction(permissionResponse?.permissions || []);
+      } else {
+        return errorHandler(error, isHandlerEnabled);
+      }
     };
 
     //Enable request interceptor

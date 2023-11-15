@@ -4,6 +4,7 @@ const REDUX_SLICE_NAMES = {
   TOAST_NOTIFICATION: "toastNotification",
   CHECKING_CHANGES: "checkingChanges",
   CONFIRM_MODAL: 'confirmModal',
+  PERMISSION: 'permission',
 };
 
 export default REDUX_SLICE_NAMES;

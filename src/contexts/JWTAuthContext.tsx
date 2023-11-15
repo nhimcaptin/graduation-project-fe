@@ -8,6 +8,8 @@ import { useSetToastInformationState } from "../redux/store/ToastMessage";
 import { STATUS_TOAST } from "../consts/statusCode";
 import apiService from "../services/api-services";
 import URL_PATHS from "../services/url-path";
+import { GetPermission } from "../redux/store/permissions";
+import { usePermissionState } from "../redux/store/permission";
 
 const ACTION_TYPE = {
   INITIALISE: "INITIALISE",
@@ -24,7 +26,7 @@ interface InitialAuthStateProps {
 const initialAuthState: InitialAuthStateProps = {
   isAuthenticated: false,
   isInitialised: false,
-  user: null
+  user: null,
 };
 
 const reducer = (state: any, action: { type: string; payload?: any }) => {
@@ -73,6 +75,7 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
   const [state, dispatch] = useReducer(reducer, initialAuthState);
   const { setUserInformation } = useSetUserInformationState();
   const { setToastInformation } = useSetToastInformationState();
+  const { setPermission } = usePermissionState();
 
   const login = async (data: any) => {
     localStorage.setItem("token", data.token);
@@ -85,6 +88,8 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
           if (userInfo) {
             setUserInformation(userInfo);
           }
+          const permissionResponse = await GetPermission();
+          setPermission(permissionResponse.permissions);
         }
       }
     } catch (error) {
@@ -119,6 +124,8 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
           if (userInfo) {
             setUserInformation(userInfo);
           }
+          const permissionResponse = await GetPermission();
+          setPermission(permissionResponse.permissions);
         }
       }
     } catch (error) {
