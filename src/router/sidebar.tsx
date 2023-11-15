@@ -1,3 +1,4 @@
+import { SCREEN_ROLE_CODE } from "../consts/permission";
 import Icons from "../consts/Icons";
 import ROUTERS_PATHS from "../consts/router-paths";
 
@@ -13,7 +14,7 @@ export const sidebar = [
     title: "Trang chủ",
     icon: Icons.Dashboard,
     href: ROUTERS_PATHS.DASHBOARD,
-    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    role: [SCREEN_ROLE_CODE.Dashboard],
     subMenu: [],
   },
   {
@@ -21,7 +22,7 @@ export const sidebar = [
     title: "Quản lý vai trò",
     icon: Icons.RoleUser,
     href: ROUTERS_PATHS.Role,
-    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    role: [SCREEN_ROLE_CODE.Role],
     subMenu: [],
   },
   {
@@ -29,7 +30,7 @@ export const sidebar = [
     title: "Khách hàng",
     icon: Icons.Customer,
     href: ROUTERS_PATHS.CUSTOMER,
-    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    role: [SCREEN_ROLE_CODE.User],
     subMenu: [],
   },
   {
@@ -37,7 +38,7 @@ export const sidebar = [
     title: "Nhân viên",
     icon: Icons.User,
     href: ROUTERS_PATHS.USER,
-    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    role: [SCREEN_ROLE_CODE.Staff],
     subMenu: [],
   },
   {
@@ -45,7 +46,7 @@ export const sidebar = [
     title: "Đặt Lịch",
     icon: Icons.Schedule,
     href: ROUTERS_PATHS.BOOKING,
-    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    role: [SCREEN_ROLE_CODE.Booking],
     subMenu: [],
   },
   {
@@ -53,7 +54,7 @@ export const sidebar = [
     title: "Danh sách khám",
     icon: Icons.List,
     href: ROUTERS_PATHS.QUEUE_LIST,
-    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    role: [SCREEN_ROLE_CODE.QueueList],
     subMenu: [],
   },
   {
@@ -61,7 +62,7 @@ export const sidebar = [
     title: "Ghi chú khám bệnh",
     icon: Icons.Note,
     href: ROUTERS_PATHS.MEDICAL_EXAMINATION_NOTES,
-    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    role: [SCREEN_ROLE_CODE.MedicalExaminationNotes],
     subMenu: [],
   },
   {
@@ -69,7 +70,7 @@ export const sidebar = [
     title: "Danh mục dịch vụ",
     icon: Icons.MainService,
     href: ROUTERS_PATHS.MAIN_SERVICES,
-    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    role: [SCREEN_ROLE_CODE.MainService],
     subMenu: [],
   },
   {
@@ -77,7 +78,7 @@ export const sidebar = [
     title: "Dịch vụ",
     icon: Icons.SubService,
     href: ROUTERS_PATHS.SUB_SERVICES,
-    role: [Role.Administrator, Role.Doctor, Role.Receptionist],
+    role: [SCREEN_ROLE_CODE.SubServices],
     subMenu: [],
   },
 ];

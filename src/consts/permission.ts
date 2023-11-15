@@ -2,9 +2,12 @@ export const SCREEN_ROLE_CODE = {
   Dashboard: "Dashboard",
   User: "User",
   Staff: "Staff",
+  Role: "Role",
   Booking: "Booking",
   QueueList: "QueueList",
-  GetListHistory: "GetListHistory",
+  MedicalExaminationNotes: "MedicalExaminationNotes",
+  MainService: "MainService",
+  SubServices: "SubServices",
 };
 
 export const ACTION_ROLE_CODE = {

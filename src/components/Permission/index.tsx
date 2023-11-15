@@ -17,7 +17,7 @@ const Permission = (props: any) => {
       return hasPermission && (permission?.actions || []).some((action: any) => action.code === ACTION_ROLE_CODE.View);
     })
   ) {
-    return <Navigate to={"/list-of-positions"} replace />;
+    return <Navigate to={"/"} replace />;
   }
 
   return <Box>{children}</Box>;

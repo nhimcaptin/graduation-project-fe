@@ -86,7 +86,7 @@ const routes: IRoutesState[] = [
       {
         path: ROUTERS_PATHS.Role,
         component: lazy(() => import("../pages/Role")),
-        role: [SCREEN_ROLE_CODE.Booking],
+        role: [SCREEN_ROLE_CODE.Role],
       },
       {
         path: ROUTERS_PATHS.BOOKING,
@@ -101,32 +101,25 @@ const routes: IRoutesState[] = [
       {
         path: ROUTERS_PATHS.QUEUE_DETAIL,
         component: lazy(() => import("../pages/ViewBookingDoctor")),
-        role: [SCREEN_ROLE_CODE.QueueList],
       },
       {
         path: ROUTERS_PATHS.MEDICAL_EXAMINATION_NOTES,
         component: lazy(() => import("../pages/History")),
-        role: [SCREEN_ROLE_CODE.QueueList],
-      },
-      {
-        path: ROUTERS_PATHS.GET_LIST_HISTORY,
-        component: lazy(() => import("../pages/History")),
-        role: [SCREEN_ROLE_CODE.QueueList],
+        role: [SCREEN_ROLE_CODE.MedicalExaminationNotes],
       },
       {
         path: ROUTERS_PATHS.DETAIL_HISTORY,
         component: lazy(() => import("../pages/ReceptionistNote")),
-        role: [SCREEN_ROLE_CODE.QueueList],
       },
       {
         path: ROUTERS_PATHS.MAIN_SERVICES,
         component: lazy(() => import("../pages/MainService")),
-        role: [SCREEN_ROLE_CODE.QueueList],
+        role: [SCREEN_ROLE_CODE.MainService],
       },
       {
         path: ROUTERS_PATHS.SUB_SERVICES,
         component: lazy(() => import("../pages/SubServices")),
-        role: [SCREEN_ROLE_CODE.QueueList],
+        role: [SCREEN_ROLE_CODE.SubServices],
       },
       {
         path: "*",

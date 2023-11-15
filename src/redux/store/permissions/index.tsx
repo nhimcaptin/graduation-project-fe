@@ -22,9 +22,8 @@ export interface IGetPermissionResponse {
 
 export const GetPermission = async () => {
   try {
-    const res = (await apiService.get(`${URL_PATHS.RESOURCE_ACTION}`)) as IPermission[];
-    const item = { permissions: res } as IGetPermissionResponse;
-    return item;
+    const res = (await apiService.get(`${URL_PATHS.PERMISSIONS}`)) as IGetPermissionResponse;
+    return res;
   } catch (error: any) {
     throw error;
   }
