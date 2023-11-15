@@ -189,7 +189,7 @@ const AddSubService = (props: PropsType) => {
     >
       <Grid container>
         <Grid item xs={12} mt={1}>
-          <LabelCustom title="Mô tả chi tiết" isRequired/>
+          <LabelCustom title="Mô tả chi tiết" isRequired />
           <Controller
             control={control}
             name="description"
@@ -208,8 +208,9 @@ const AddSubService = (props: PropsType) => {
                   errorEditor={!!errors?.description?.message}
                   onBlur={(e: any, content: any) => {
                     onBlur();
-                    onChange((content || "").trim());
+                    onChange(getEditorNewValue(content));
                   }}
+                  ref={ref}
                 />
               </>
             )}

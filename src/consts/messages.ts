@@ -4,6 +4,7 @@ export const MESSAGE_ERROR: any = {
   FileTypeNotValid: 'Định dạng file không hợp lệ.',
   RegPhoneNumber: 'Số điện thoại sai định dạng.',
   RegExpEmail: 'Email sai định dạng.',
+  suneditorUploadFile: 'Tải file không thành công.',
 };
 
 export const MESSAGE_SUCCESS: any = {
