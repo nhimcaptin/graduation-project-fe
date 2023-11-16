@@ -96,7 +96,7 @@ const AddUser = (props: PropsType) => {
       bookingType: data?.bookingType?.value,
       status: data?.bookingType?.value === "Offline" ? "Approved" : "Waiting",
       statusUpdateTime:
-        data?.bookingType.value === "Online" ? moment(new Date()).format("YYYY/MM/DD HH:mm") : undefined,
+        data?.bookingType.value !== "Online" ? moment(new Date()).format("YYYY/MM/DD HH:mm") : undefined,
       birthdayCustomer: data?.birthdayCustomer ? moment(data?.birthdayCustomer).format("YYYY/MM/DD") : "",
       nameCustomer: data?.setType ? data?.nameCustomer : "",
       numberPhoneCustomer: data?.setType ? data?.numberPhoneCustomer : "",

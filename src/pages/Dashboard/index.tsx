@@ -1,13 +1,19 @@
 import { Box, Button, Card, CardContent, Grid, Menu, MenuItem, Paper, Stack, Typography } from "@mui/material";
 import HighchartsReact from "highcharts-react-official";
 import Highcharts from "highcharts";
-import React, { useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import LoadingIcon from "../../components/LoadingIcon";
 import Page from "../../components/Page";
 import styles from "./styles.module.scss";
-import { data } from "./mockData";
-import { TIME_REPORT, numberWithCommas } from "../../utils";
+import { COLOR, dataChart } from "./mockData";
+import { TIME_REPORT, fromDateFormat, numberWithCommas, toDateFormat } from "../../utils";
 import KeyboardArrowDownIcon from "@mui/icons-material/KeyboardArrowDown";
+import apiService from "../../services/api-services";
+import URL_PATHS from "../../services/url-path";
+import { useSetToastInformationState } from "../../redux/store/ToastMessage";
+import { handleErrorMessage } from "../../utils/errorMessage";
+import { STATUS_TOAST } from "../../consts/statusCode";
+import moment from "moment";
 
 interface TimeReportModel {
   title: string;
@@ -22,6 +28,10 @@ const Dashboard = () => {
   const [countedStaffList, setCountedStaffList] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [timeSelected, setTimeSelected] = useState(TIME_REPORT[2]);
+  const [chartDate, setChartDate] = useState([]);
+  const [chartData, setChartData] = useState([]);
+
+  const { setToastInformation } = useSetToastInformationState();
 
   const handleClick = (event: React.MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget);
@@ -35,6 +45,42 @@ const Dashboard = () => {
     handleClose();
     setTimeSelected(time);
   };
+
+  const getDataDashBoard = async () => {
+    const params = {
+      fromDate: moment(timeSelected.fromDate).format(fromDateFormat),
+      toDate: moment(timeSelected.toDate).format(toDateFormat),
+    };
+
+    try {
+      const data: any = await apiService.getFilter(URL_PATHS.DASHBOARD, params);
+      const _item = data?.item?.map((x: any, index: number) => {
+        return {
+          ...x,
+          color: COLOR[index],
+          borderWidth: 0,
+        };
+      });
+      setChartDate(data?.date);
+      setChartData(_item);
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+    }
+  };
+
+  const chart = useMemo(() => {
+    return dataChart(chartDate, chartData);
+  }, [chartDate, chartData]);
+
+  console.log("chart", chart);
+
+  useEffect(() => {
+    getDataDashBoard();
+  }, []);
 
   return (
     <Page className={styles.root} title="Trang chủ" isActive>
@@ -72,7 +118,7 @@ const Dashboard = () => {
           </Card>
         </div>
       </Grid>
-      <Paper elevation={3} >
+      <Paper elevation={3}>
         <Box p={2}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography fontSize={14} fontWeight={700} textTransform="uppercase" color={"#614c4c"}>
@@ -139,7 +185,7 @@ const Dashboard = () => {
             </Stack>
           </Stack>
           <Box height={400} mt={2}>
-            <HighchartsReact highcharts={Highcharts} options={data} />
+            <HighchartsReact highcharts={Highcharts} options={chart} />
           </Box>
         </Box>
       </Paper>

@@ -14,6 +14,7 @@ import DentalKnowledge from "./routes/DentalKnowledge.js";
 import uploadFile from "./routes/upload.js";
 import policyRoute from "./routes/policy.js";
 import news from "./routes/news.js";
+import dashboard from "./routes/dashboard.js";
 
 
 
@@ -68,6 +69,7 @@ app.use("/api/preferential", preferential);
 app.use("/api/DentalKnowledge", DentalKnowledge);
 app.use("/api/policy", policyRoute);
 app.use("/api/News", news);
+app.use("/api/dashboard", dashboard);
 
 app.use("/api",uploadFile)
 

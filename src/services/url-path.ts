@@ -39,5 +39,7 @@ const URL_PATHS = {
   DETAIL_VOUCHER: "api/preferential/detail",
   UPDATE_VOUCHER: "api/preferential/update",
   DELETE_VOUCHER: "api/preferential/delete",
+
+  DASHBOARD: "api/dashboard",
 };
 export default URL_PATHS;
