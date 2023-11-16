@@ -16,6 +16,7 @@ const ROUTERS_PATHS = {
   MY_PROFILE: "/my-profile",
   MAIN_SERVICES: "/main-services",
   SUB_SERVICES: "/sub-services",
+  VOUCHER: "/voucher",
 };
 
 export default ROUTERS_PATHS;

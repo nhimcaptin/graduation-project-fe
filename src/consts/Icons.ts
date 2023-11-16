@@ -11,6 +11,7 @@ import History from "./../assets/icons/history.svg";
 import Note from "./../assets/icons/note-sticky-regular.svg";
 import MainService from "./../assets/icons/category-list-solid-svgrepo-com.svg";
 import SubService from "./../assets/icons/category-add-svgrepo-com.svg";
+import Voucher from "./../assets/icons/loyalty.svg";
 
 const Icons = {
   IconUser,
@@ -26,6 +27,7 @@ const Icons = {
   Note,
   MainService,
   SubService,
+  Voucher
 };
 
 export default Icons;

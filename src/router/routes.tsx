@@ -122,6 +122,11 @@ const routes: IRoutesState[] = [
         role: [SCREEN_ROLE_CODE.SubServices],
       },
       {
+        path: ROUTERS_PATHS.VOUCHER,
+        component: lazy(() => import("../pages/Voucher")),
+        role: [SCREEN_ROLE_CODE.SubServices],
+      },
+      {
         path: "*",
         component: () => <Navigate to={ROUTERS_PATHS.DASHBOARD} replace />,
       },

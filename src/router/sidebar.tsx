@@ -81,4 +81,12 @@ export const sidebar = [
     role: [SCREEN_ROLE_CODE.SubServices],
     subMenu: [],
   },
+  {
+    key: "VOUCHER",
+    title: "Ưu đãi",
+    icon: Icons.Voucher,
+    href: ROUTERS_PATHS.VOUCHER,
+    role: [SCREEN_ROLE_CODE.SubServices],
+    subMenu: [],
+  },
 ];

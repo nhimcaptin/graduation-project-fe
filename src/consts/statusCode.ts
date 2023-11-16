@@ -19,7 +19,7 @@ export const STATUS_CHIP = {
 };
 export interface IStatusType {
   label: string;
-  value: string;
+  value: string | boolean;
   chipType: string;
 }
 
@@ -48,5 +48,15 @@ export const statusOptions: IStatusType[] = [
     label: "Đã khám",
     value: "Done",
     chipType: STATUS_CHIP.DONE,
+  },
+  {
+    label: "Đang hoạt động",
+    value: true,
+    chipType: STATUS_CHIP.ACTIVE,
+  },
+  {
+    label: "Không hoạt động",
+    value: false,
+    chipType: STATUS_CHIP.INACTIVE,
   },
 ];
