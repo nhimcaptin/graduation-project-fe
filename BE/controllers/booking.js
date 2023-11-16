@@ -55,11 +55,13 @@ export const createBooking = async (req, res, next) => {
 
     await sendMail({
       email: newBooking.emailCustomer,
-      subject: "Bạn đã đặt lịch thành công",
+      subject: "Thông báo từ Phòng Khám Nha Khoa Tây Đô",
       html: `
-        <h1>đtặ lịch thành công vui lòng kiểm tra lại thông tin lịch hẹn</h1>
+        <h1> Bạn đã đặt lịch thành công. Vui lòng kiểm tra lại thông tin lịch hẹn dưới đây</h1>
         <ul>
-          <li> username: </li>
+        <li> Tên bệnh nhân: ${newBooking.nameCustomer}  </li>
+        <li> Ngày khám: ${newBooking.date}  </li>
+        <li> Giờ vào khám: ${newBooking.timeTypeId}  </li>
         </ul>
       `
     })
