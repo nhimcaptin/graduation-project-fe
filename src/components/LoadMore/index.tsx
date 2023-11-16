@@ -14,7 +14,7 @@ const LoadMore = (props: any) => {
 
     const observer = new IntersectionObserver(loadMore, config);
     observer.observe(elementRef.current);
-    return () => observer.unobserve(elementRef.current);
+    return () => elementRef.current && observer?.unobserve(elementRef.current);
   }, []);
   return <div className="opacity-0" ref={elementRef}></div>;
 };
