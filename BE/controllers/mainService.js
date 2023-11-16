@@ -23,7 +23,7 @@ export const createMainService = async (req, res, next) => {
 export const getMainService = async (req, res, next) => {
   try {
     const mainServiceId = req.params.id;
-    const mainService = await MainService.findById(mainServiceId).select("-_id -createdAt -updatedAt -__v").lean();
+    const mainService = await MainService.findById(mainServiceId).select("-createdAt -updatedAt -__v").lean();
 
     if (!mainService) {
       return next(createError(404, "Dịch vụ k tồn tại."));
@@ -50,27 +50,22 @@ export const getAllMainServices = async (req, res, next) => {
     const totalUsers = await MainService.countDocuments(total);
 
     res.status(200).json({ mainServices, totalUsers });
-    } catch (err) {
-      next(err);
-    }
-  };
-  
-export const updateMainServices = async (req, res, next) => {
-    try {
-      const mainServices = await MainService.findByIdAndUpdate (
-        req.params.id,
-        { $set: req.body }, 
-        { new: true });
-      if(!mainServices) {
-        return res.status(401).json({message: "Không tìm thấy MainServices"})
-      }
-      res.status(200).json({mainServices, message : "Update  Thành Công"});
-    } catch (err) {
-      next(err);
-    }
+  } catch (err) {
+    next(err);
+  }
 };
-  
 
+export const updateMainServices = async (req, res, next) => {
+  try {
+    const mainServices = await MainService.findByIdAndUpdate(req.params.id, { $set: req.body }, { new: true });
+    if (!mainServices) {
+      return res.status(401).json({ message: "Không tìm thấy MainServices" });
+    }
+    res.status(200).json({ mainServices, message: "Update  Thành Công" });
+  } catch (err) {
+    next(err);
+  }
+};
 
 export const deleteMainServices = async (req, res, next) => {
   try {

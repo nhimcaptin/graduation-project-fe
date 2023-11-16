@@ -1,6 +1,8 @@
-
+// TRang kiến thức Nha khoa
 
 import DentalKnowledge from "../models/DentalKnowledge.js";
+import { convertFilter } from "../util/index.js";
+
 
   export const createDentalKnowledge = async (req, res, next) => {
     try {
@@ -55,22 +57,23 @@ export const deleteDentalKnowledge = async (req, res, next) => {
       next(err);
     }
   };
-  export const getSubservice = async (req, res, next) => {
+
+  export const getDentalKnowledge  = async (req, res, next) => {
     try {
       const { Page, PageSize, Sorts, filters } = req.query;
       const page = parseInt(Page) || 1;
       const pageSize = parseInt(PageSize) || 10;
       const _filter = convertFilter(filters);
-      const getSubservice = await SubService.find(_filter, "-createdAt -updatedAt -__v")
+      const getDentalKnowledge  = await DentalKnowledge.find(_filter, "-createdAt -updatedAt -__v")
         .find()
         .skip((page - 1) * pageSize)
         .limit(pageSize)
         .sort(Sorts)
         .lean();
-      const total = SubService.find(_filter);
-      const totalUsers = await SubService.countDocuments(total);
+      const total = DentalKnowledge.find(_filter);
+      const totalUsers = await DentalKnowledge.countDocuments(total);
   
-      res.status(200).json({ getSubservice, totalUsers });
+      res.status(200).json({ getDentalKnowledge , totalUsers });
       } catch (err) {
         next(err);
       }

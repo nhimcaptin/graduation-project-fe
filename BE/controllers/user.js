@@ -107,28 +107,14 @@ export const getListUser = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
-    const total = User.find(_filter?.isAdmin ? { isAdmin: _filter.isAdmin } : {});
     const query = User.find(_filter);
     const users = await query
+      .populate("role")
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts);
-    const totalUsers = await User.countDocuments(total);
-    const data = [];
-    for (let x of users) {
-      const role = x?.role ? await Role.findById(x?.role) : "";
-      data.push({
-        _id: x.id,
-        address: x?.address,
-        email: x?.email,
-        img: x?.img,
-        name: x?.name,
-        phone: x?.phone,
-        role: role?.roleName,
-        createdAt: x?.createdAt,
-      });
-    }
-    res.json({ data, totalUsers });
+    const totalUsers = await User.countDocuments(User.find(_filter));
+    res.json({ data: users, totalUsers });
   } catch (error) {
     next(error);
   }

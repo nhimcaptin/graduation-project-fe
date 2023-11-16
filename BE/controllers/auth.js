@@ -3,18 +3,27 @@ import bcrypt from "bcryptjs";
 import { createError } from "../middlewares/error.js";
 import jwt from "jsonwebtoken";
 import { MESSAGE_ERROR } from "../const/messages.js";
+import Role from "../models/Role.js";
 
 export const register = async (req, res, next) => {
   try {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(req.body.password, salt);
-
+    const existingUser = await User.findOne({ email: req.body.email });
+    if (existingUser) {
+      return res.status(400).send("Email đã được sử dụng");
+    }
     const newUser = new User({          
       ...req.body,
       password: hash,
       
-    }); 
-    //console.log("body", req.body)
+    });
+     if(req.body.role === "65317023583bf8c93e253b4e"){
+      const { position, specialize } = req.body;
+       if(!position || !specialize ){
+        return res.status(400).send("Vì bạn là bác sĩ nên phải thêm các bằng position,specialize")
+       }
+     }
     await newUser.save();
     res.status(200).send("User has been created.");
   } catch (err) {

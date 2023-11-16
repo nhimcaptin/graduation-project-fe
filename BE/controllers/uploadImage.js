@@ -35,18 +35,11 @@ async function uploadImage(file, quantity) {
 }
 
 export const uploadFile = async (req, res) => {
-  const storageFB = getStorage();
-  const file = {
-    type: req.file.mimetype,
-    buffer: req.file.buffer,
-  };
-  const dateTime = Date.now();
-  const fileName = `images/${dateTime}`;
-  const storageRef = ref(storageFB, fileName);
-  const metadata = {
-    contentType: file.type,
-  };
   try {
+    const file = {
+      type: req.file.mimetype,
+      buffer: req.file.buffer,
+    };
     const { snapshot, fileName } = await uploadImage(file, "single");
     const downloadURL = await getDownloadURL(snapshot.ref);
     res.send({
@@ -55,6 +48,6 @@ export const uploadFile = async (req, res) => {
       downloadURL: downloadURL,
     });
   } catch (err) {
-    console.log(err);
+    res.status(500).json({ message: "Lỗi server." });
   }
 };

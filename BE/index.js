@@ -12,7 +12,12 @@ import historyService from "./routes/historyBooking.js"
 import preferential from "./routes/preferential.js";
 import DentalKnowledge from "./routes/DentalKnowledge.js";
 import uploadFile from "./routes/upload.js";
-import policyRoute from "./routes/policy.js"
+import policyRoute from "./routes/policy.js";
+import news from "./routes/news.js";
+import dashboard from "./routes/dashboard.js";
+
+
+
 
 import cookieParser from "cookie-parser";
 import cors from "cors";
@@ -63,6 +68,9 @@ app.use("/api/history", historyService);
 app.use("/api/preferential", preferential);
 app.use("/api/DentalKnowledge", DentalKnowledge);
 app.use("/api/policy", policyRoute);
+app.use("/api/News", news);
+app.use("/api/dashboard", dashboard);
+
 app.use("/api",uploadFile)
 
 

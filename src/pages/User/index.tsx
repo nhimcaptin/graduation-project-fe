@@ -1,6 +1,4 @@
-import React, { useEffect, useState } from "react";
-import Page from "../../components/Page";
-import styles from "./styles.module.scss";
+import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
 import {
   Grid,
   IconButton,
@@ -14,36 +12,40 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
-  Typography,
 } from "@mui/material";
-import clsx from "clsx";
-import { StickyTableCell } from "../../components/StickyTableCell";
-import { Order } from "../../utils/sortTable";
 import { Box } from "@mui/system";
 import { visuallyHidden } from "@mui/utils";
-import LoadingTableRow from "../../components/LoadingTableRow";
-import { Link } from "react-router-dom";
-import MoreHorizIcon from "@mui/icons-material/MoreHoriz";
-import NoDataTableRow from "../../components/NoDataTableRow";
-import MenuListActions from "../../components/MenuListActions";
-import SearchPopover from "../../components/SearchPopover";
-import LabelCustom from "../../components/LabelCustom";
-import { ButtonIconCustom } from "../../components/ButtonIconCustom";
+import clsx from "clsx";
+import moment from "moment";
+import React, { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
-import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
+import { ButtonIconCustom } from "../../components/ButtonIconCustom";
+import IF from "../../components/IF";
+import LabelCustom from "../../components/LabelCustom";
+import LoadingTableRow from "../../components/LoadingTableRow";
+import MenuListActions from "../../components/MenuListActions";
+import NoDataTableRow from "../../components/NoDataTableRow";
+import Page from "../../components/Page";
+import SearchPopover from "../../components/SearchPopover";
+import SearchResult from "../../components/SearchResult";
+import { StickyTableCell } from "../../components/StickyTableCell";
+import TextFieldCustom from "../../components/TextFieldCustom";
 import DISPLAY_TEXTS from "../../consts/display-texts";
+import { MESSAGES_CONFIRM, MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../consts/messages";
+import { STATUS_TOAST } from "../../consts/statusCode";
+import { useSetToastInformationState } from "../../redux/store/ToastMessage";
+import { useSetConfirmModalState } from "../../redux/store/confirmModal";
+import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
-import { useSetToastInformationState } from "../../redux/store/ToastMessage";
-import { STATUS_TOAST } from "../../consts/statusCode";
+import { FORMAT_DATE, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
 import { handleErrorMessage } from "../../utils/errorMessage";
-import moment from "moment";
+import { RegExpEmail } from "../../utils/regExp";
+import { Order } from "../../utils/sortTable";
 import AddUser from "./components/AddUser";
-import { useSetConfirmModalState } from "../../redux/store/confirmModal";
-import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
-import IF from "../../components/IF";
-import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
-import TextFieldCustom from "../../components/TextFieldCustom";
+import History from "./components/History";
+import styles from "./styles.module.scss";
+import { usePermissionHook } from "../../hook/usePermission";
 
 interface RowDataProps {
   id: number;
@@ -85,7 +87,10 @@ const headCells = [
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const User = () => {
+const User = (props: any) => {
+  const { screenName } = props;
+  const { hasCreate, hasUpdate, hasDelete } = usePermissionHook(screenName);
+
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
@@ -97,6 +102,7 @@ const User = () => {
   const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
   const [filterContext, setFilterContext] = useState<any>({});
   const [isOpenModal, setIsOpenModal] = useState<boolean>(false);
+  const [isOpenModalHistory, setIsOpenModalHistory] = useState<boolean>(false);
   const [isViewMode, setIsViewMode] = useState<boolean>(false);
   const [title, setTitle] = useState<string>("");
   const [userDetail, setUserDetail] = useState(null);
@@ -105,7 +111,35 @@ const User = () => {
   const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
 
-  const { control, handleSubmit, reset, setValue, watch } = useForm({
+  const searchResults = useMemo(() => {
+    let results = [
+      {
+        label: "Họ và tên",
+        value: filterContext?.name || "",
+      },
+      {
+        label: "Email",
+        value: filterContext?.email || "",
+      },
+      {
+        label: "Số điện thoại",
+        value: filterContext?.phone || "",
+      },
+    ];
+    return results;
+  }, [filterContext]);
+
+  const isShowResult = searchResults.some((result) => !!result.value);
+  const tableDiff = isShowResult ? 280 : 250;
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       name: "",
       phone: "",
@@ -125,6 +159,7 @@ const User = () => {
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -141,6 +176,7 @@ const User = () => {
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -151,6 +187,7 @@ const User = () => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -158,12 +195,14 @@ const User = () => {
   };
 
   const handleSearch = (handleCloseSearch?: () => void) => {
-    setPage(0);
-    handleSubmit((data) => onSubmitFilter({ ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 }))();
-    handleCloseSearch && handleCloseSearch();
+    handleSubmit((data) =>
+      onSubmitFilter({ ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 }, handleCloseSearch)
+    )();
   };
 
-  const onSubmitFilter = (data: any) => {
+  const onSubmitFilter = (data: any, handleCloseSearch?: () => void) => {
+    setPage(0);
+    handleCloseSearch && handleCloseSearch();
     setFilterContext(data);
     getData(data);
   };
@@ -174,11 +213,13 @@ const User = () => {
 
   const handleRefresh = () => {
     reset({ name: "", phone: "", email: "" });
+    setFilterContext({});
     getData({});
   };
 
   const handleOpenModal = () => {
     setIsOpenModal(true);
+    setIsOpenModalHistory(false);
     setSelectedItem(null);
     setUserDetail(null);
     setTitle("Thêm mới");
@@ -186,6 +227,7 @@ const User = () => {
 
   const handleCancel = () => {
     setIsOpenModal(false);
+    setIsOpenModalHistory(false);
     setSelectedItem(null);
   };
 
@@ -235,6 +277,14 @@ const User = () => {
     }
   };
 
+  const handleHistory = (dataDetail?: any) => {
+    setAnchorEl(null);
+    setIsViewMode(false);
+    setIsOpenModal(false);
+    setIsOpenModalHistory(true);
+    setTitle("Lịch sử");
+  };
+
   const getData = async (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
@@ -256,8 +306,14 @@ const User = () => {
     const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { isAdmin: "false" } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
+      const _item = (data?.data || []).map((x: any) => {
+        return {
+          ...x,
+          isHighlight: x._id === highlightId,
+        };
+      });
       setTotalCount(data?.totalUsers);
-      setUserState(data?.data);
+      setUserState(_item);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -274,6 +330,7 @@ const User = () => {
       const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_USER}/${id || selectedItem?._id}`);
       setUserDetail(data);
       setIsOpenModal(true);
+      setIsOpenModalHistory(false);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -320,6 +377,12 @@ const User = () => {
                     <Controller
                       control={control}
                       name="email"
+                      rules={{
+                        validate: (value: any) => {
+                          const result = RegExpEmail(value);
+                          return !value || result || MESSAGE_ERROR.RegExpEmail;
+                        },
+                      }}
                       render={({ field: { onChange, onBlur, value, ref, name } }) => (
                         <TextFieldCustom
                           name={name}
@@ -328,6 +391,7 @@ const User = () => {
                           onChange={onChange}
                           placeholder="Nhập email"
                           type="text"
+                          errorMessage={errors?.email?.message}
                         />
                       )}
                     />
@@ -339,6 +403,12 @@ const User = () => {
                     <Controller
                       control={control}
                       name="phone"
+                      // rules={{
+                      //   validate: (value: any) => {
+                      //     const result = RegPhoneNumber(value);
+                      //     return !value || result || MESSAGE_ERROR.RegPhoneNumber;
+                      //   },
+                      // }}
                       render={({ field: { onChange, onBlur, value, ref, name } }) => (
                         <TextFieldCustom
                           name={name}
@@ -347,6 +417,7 @@ const User = () => {
                           onChange={onChange}
                           placeholder="Nhập số điện thoại"
                           type="text"
+                          errorMessage={errors?.phone?.message}
                         />
                       )}
                     />
@@ -361,21 +432,24 @@ const User = () => {
               color="lightgreen"
               onClick={handleRefresh}
             />
+            <SearchResult results={searchResults} />
           </Box>
         </Grid>
         <Grid item xs={2}>
           <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
-            <ButtonIconCustom
-              className="mg-l-10"
-              tooltipTitle="Thêm mới"
-              type="add"
-              color="darkgreen"
-              onClick={handleOpenModal}
-            />
+            {hasCreate && (
+              <ButtonIconCustom
+                className="mg-l-10"
+                tooltipTitle="Thêm mới"
+                type="add"
+                color="darkgreen"
+                onClick={handleOpenModal}
+              />
+            )}
           </Box>
         </Grid>
       </Grid>
-      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - tableDiff }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -485,7 +559,12 @@ const User = () => {
             horizontal: "left",
           }}
         >
-          <MenuListActions actionView={handleView} actionEdit={handleEdit} actionDelete={handleDelete} />
+          <MenuListActions
+            actionView={handleView}
+            actionEdit={hasUpdate ? () => handleEdit() : undefined}
+            actionDelete={hasDelete ? () => handleDelete() : undefined}
+            actionHistory={handleHistory}
+          />
         </Popover>
       </IF>
 
@@ -498,6 +577,9 @@ const User = () => {
           dataDetail={userDetail}
           getData={getData}
         />
+      )}
+      {isOpenModalHistory && (
+        <History isOpen={isOpenModalHistory} title={title} onCancel={handleCancel} dataDetail={selectedItem?._id} />
       )}
     </Page>
   );

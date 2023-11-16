@@ -174,7 +174,7 @@ const Role = () => {
   }, []);
 
   return (
-    <Page className={styles.root} title="QUẢN LÝ VAI TRÒ" isActive>
+    <Page className={styles.root} title="Quản lý vai trò" isActive>
       {/* <Grid container style={{ marginBottom: "20px" }}>
         <Grid item xs={10}></Grid>
         <Grid item xs={2}>

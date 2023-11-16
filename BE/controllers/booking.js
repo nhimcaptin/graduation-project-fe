@@ -44,6 +44,8 @@ export const createBooking = async (req, res, next) => {
     // if (!doctor) {
     //   return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
     // }
+    const patient = await User.findById(patientId);
+
     const newBooking = new Booking({
       patientId,
       doctorId,
@@ -55,11 +57,11 @@ export const createBooking = async (req, res, next) => {
       bookingType,
       setType,
       nameCustomer,
-      birthdayCustomer,
-      numberPhoneCustomer,
-      emailCustomer,
-      genderCustomer,
+      numberPhoneCustomer: numberPhoneCustomer || patient.phone,
+      emailCustomer: emailCustomer || patient.email,
       addressCustomer,
+      genderCustomer,
+      birthdayCustomer,
     });
 
     await newBooking.save();
@@ -92,7 +94,11 @@ export const getBooking = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
-    const booking = await Booking.find({ status: { $ne: "Done" }, ..._filter })
+    if (_filter?.name) {
+      _filter.$or = [{ nameCustomer: _filter?.name }, { "patientId.name": _filter?.name }];
+      delete _filter.name;
+    }
+    const booking = await Booking.find(_filter)
       .populate("doctorId", "-password")
       .populate("patientId", "-password")
       .populate("timeTypeId")
@@ -100,7 +106,7 @@ export const getBooking = async (req, res, next) => {
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort(Sorts);
-    const total = await Booking.find({ status: { $ne: "Done" }, ..._filter });
+    const total = await Booking.find(_filter);
     const totalUsers = total.length;
     res.status(200).json({ data: booking, totalUsers });
   } catch (err) {
@@ -123,7 +129,7 @@ export const updateBookingStatus = async (req, res, next) => {
     if (status !== booking.status) {
       // Chỉ cập nhật thời gian nếu trạng thái thay đổi
       booking.status = status;
-      if(statusUpdateTime){
+      if (statusUpdateTime) {
         booking.statusUpdateTime = statusUpdateTime;
       }
 
@@ -230,7 +236,7 @@ export const getListDoneBookings = async (req, res, next) => {
 export const getListWaitingBookings = async (req, res, next) => {
   try {
     const { Page, PageSize } = req.query;
-    const page = parseInt(Page) || 1;  
+    const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
 
     const approvedBookings = await Booking.find({ status: "Waiting" })

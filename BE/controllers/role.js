@@ -3,7 +3,9 @@ import { createError } from "../middlewares/error.js";
 import Action from "../models/Action.js";
 import Resource from "../models/Resource.js";
 import Role from "../models/Role.js";
-import { convertFilter, getPermissions } from "../util/index.js";
+import User from "../models/User.js";
+import { convertFilter } from "../util/index.js";
+import jwt from "jsonwebtoken";
 
 export const createRole = async (req, res, next) => {
   try {
@@ -117,11 +119,22 @@ export const resourceActions = async (req, res) => {
 export const getDetailRole = async (req, res, next) => {
   try {
     const id = req.query.id;
-    const listRole = await getPermissions(id);
+    const listRole = await Role.findOne(id ? { _id: id } : {})
+      .populate({
+        path: "permissions",
+        populate: {
+          path: "resource",
+          model: "Resource",
+        },
+      })
+      .populate({
+        path: "permissions.actions",
+        model: "Action",
+      });
     if (!listRole) {
       return next(createError(400, MESSAGE_ERROR.ROLE_NOT_EXISTS));
     }
-    const permissions = (listRole[0]?.permissions || [])
+    const permissions = (listRole?.permissions || [])
       .map((x) => {
         return x?.actions.map((y) => {
           return {
@@ -132,12 +145,37 @@ export const getDetailRole = async (req, res, next) => {
       })
       .flat();
     const data = {
-      id: listRole[0]?._id,
-      roleName: listRole[0]?.roleName,
-      description: listRole[0]?.description,
+      id: listRole?._id,
+      roleName: listRole?.roleName,
+      description: listRole?.description,
       permissions: permissions,
     };
     res.status(200).json(data);
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getPermission = async (req, res, next) => {
+  try {
+    const decoded = jwt.verify(req.header("authorization").replace("Bearer ", ""), process.env.JWT);
+    const data = await User.findOne({ _id: decoded.id }).populate({
+      path: "role",
+      populate: {
+        path: "permissions",
+        populate: [
+          {
+            path: "resource",
+            model: "Resource",
+          },
+          {
+            path: "actions",
+            model: "Action",
+          },
+        ],
+      },
+    });
+    return res.status(200).json({ permissions: data?.role?.permissions });
   } catch (error) {
     next(error);
   }

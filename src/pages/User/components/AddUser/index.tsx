@@ -37,6 +37,9 @@ import FocusHiddenInput from "../../../../components/FocusHiddenInput";
 import { ButtonAddFileMainSelect } from "../../../../components/ButtonAddFile/ButtonAddFile";
 import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 import { RegExpEmail, RegPhoneNumber } from "../../../../utils/regExp";
+import { useUploadFileService } from "../../../../services/upload-file.service";
+import { isEmpty } from "lodash";
+import { useSetLoadingScreenState } from "../../../../redux/store/loadingScreen";
 
 interface PropsType {
   isOpen: boolean;
@@ -73,6 +76,8 @@ const headCells = [
 const AddUser = (props: PropsType) => {
   const { isOpen, title, isEdit, onCancel, getData, dataDetail } = props;
   const { setToastInformation } = useSetToastInformationState();
+  const uploadFileService = useUploadFileService();
+  const { setLoadingScreen } = useSetLoadingScreenState();
 
   const [isLoading, setIsLoading] = useState(false);
   const [totalCount, setTotalCount] = useState<number>(0);
@@ -89,11 +94,11 @@ const AddUser = (props: PropsType) => {
   ];
 
   const isCheckImage = (data: any) => {
-    const image = dataDetail?.images.filter((x: any) => x?.imageUrl);
-    return (image?.length > 0 && image) || [];
+    const image = data ? [{ imageUrl: data }] : [];
+    return image;
   };
 
-  const [previewImages, setPreviewImages] = useState<any>(dataDetail ? isCheckImage(dataDetail?.images) : []);
+  const [previewImages, setPreviewImages] = useState<any>(dataDetail ? isCheckImage(dataDetail?.image) : []);
 
   const {
     handleSubmit,
@@ -110,7 +115,7 @@ const AddUser = (props: PropsType) => {
       address: dataDetail ? dataDetail?.address : "",
       role: dataDetail ? dataDetail?.role : "",
       birthday: dataDetail ? dataDetail?.birthday : "",
-      gender: dataDetail ? dataDetail?.gender : "",
+      gender: dataDetail ? listGender.find((x) => x.value == dataDetail?.gender) : "",
       image: dataDetail ? dataDetail?.image : "",
     },
   });
@@ -121,9 +126,26 @@ const AddUser = (props: PropsType) => {
     trigger("image");
   };
 
+  const uploadImage = async (image: File) => {
+    const bodyFormData = new FormData();
+    bodyFormData.append("files", image);
+    const resUpload = await uploadFileService.uploadFileResources(bodyFormData);
+    return resUpload;
+  };
+
   const onSubmit = async (data: any) => {
-    setIsLoading(true);
+    setLoadingScreen(true);
     try {
+      let imageUrl;
+      if (data?.image && data?.image[0] && data?.image[0]?.file) {
+        const uploadImageRes = (await uploadImage(data?.image[0].file as File)) as any;
+        imageUrl = uploadImageRes.downloadURL;
+      } else {
+        imageUrl = isEmpty(data?.image) ? "" : data?.image;
+      }
+      data.image = imageUrl;
+      data.gender = data?.gender?.value;
+
       if (!!dataDetail) {
         await apiService.put(`${URL_PATHS.CREATE_USER}/${dataDetail?._id}`, data);
         setToastInformation({
@@ -139,14 +161,14 @@ const AddUser = (props: PropsType) => {
       }
 
       onCancel && onCancel();
-      getData && getData({});
+      getData && getData({ highlightId: dataDetail?._id });
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
         message: handleErrorMessage(error),
       });
     } finally {
-      setIsLoading(false);
+      setLoadingScreen(false);
     }
   };
 
@@ -234,7 +256,7 @@ const AddUser = (props: PropsType) => {
                     initialUrls={previewImages}
                     multiple={false}
                     error={!!errors.image && errors.image.message}
-                    sizeLimit={1}
+                    sizeLimit={2}
                   />
                 </>
               );
@@ -270,6 +292,9 @@ const AddUser = (props: PropsType) => {
             <Controller
               control={control}
               name="birthday"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <DateTimePickerCustom
                   inputProps={{
@@ -298,6 +323,9 @@ const AddUser = (props: PropsType) => {
             <Controller
               control={control}
               name="gender"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <ReactSelect
                   isClearable
@@ -313,6 +341,7 @@ const AddUser = (props: PropsType) => {
                   placeholder="Chọn giới tính"
                   inputRef={ref}
                   isDisabled={!isEdit}
+                  isValidationFailed
                   errorMessage={errors?.gender?.message as string}
                 />
               )}
@@ -397,77 +426,6 @@ const AddUser = (props: PropsType) => {
             />
           </Grid>
         </Grid>
-        {!isEdit && (
-          <Grid container item xs={12} sx={{ marginTop: "30px" }}>
-            <Grid item xs={12}>
-              <LabelCustom title="Lịch sử khám bệnh" />
-              <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
-                <Table stickyHeader>
-                  <TableHead>
-                    <TableRow>
-                      {headCells.map((header: any, index: number) => {
-                        if (header.label === "Ngày tạo") {
-                          return (
-                            <StickyTableCell
-                              key={index}
-                              style={header.style}
-                              className={clsx("background-table-header")}
-                            >
-                              {header.sort ? <TableSortLabel>{header.label}</TableSortLabel> : header.label}
-                            </StickyTableCell>
-                          );
-                        }
-                        return (
-                          <TableCell
-                            key={index}
-                            style={header.style}
-                            sx={{ fontWeight: "bold", marginTop: "5%" }}
-                            className={clsx("background-table-header")}
-                          >
-                            {header.sort ? <TableSortLabel>{header.label}</TableSortLabel> : header.label}
-                          </TableCell>
-                        );
-                      })}
-                    </TableRow>
-                  </TableHead>
-                  <TableBody>
-                    {loadingTable ? (
-                      <LoadingTableRow colSpan={6} />
-                    ) : dataTable && dataTable.length > 0 ? (
-                      <>
-                        {dataTable.map((data: any, index: number) => {
-                          return (
-                            <TableRow key={index} hover className={clsx({ "highlight-row": data?.isHighlight })}>
-                              <TableCell>{data.doctorName}</TableCell>
-                              <TableCell>{data.bookingType}</TableCell>
-                              <TableCell className="">{data.service}</TableCell>
-                              <TableCell>{moment(data.createdAt).format(FORMAT_DATE)}</TableCell>
-                            </TableRow>
-                          );
-                        })}
-                      </>
-                    ) : (
-                      <NoDataTableRow colSpan={6} />
-                    )}
-                  </TableBody>
-                </Table>
-              </TableContainer>
-            </Grid>
-            <Grid item xs={12}>
-              <TablePagination
-                rowsPerPageOptions={rowsPerPageOptions}
-                component="div"
-                count={totalCount}
-                rowsPerPage={rowsPerPage}
-                page={page}
-                onPageChange={handleChangePage}
-                onRowsPerPageChange={handleChangeRowsPerPage}
-                labelDisplayedRows={labelDisplayedRows}
-                labelRowsPerPage={DISPLAY_TEXTS.rowsPerPage}
-              />
-            </Grid>
-          </Grid>
-        )}
       </Grid>
     </CrudModal>
   );

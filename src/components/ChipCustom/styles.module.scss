@@ -14,10 +14,19 @@
   color: $text;
 }
 
+.done {
+  background: #b2ecff;
+  color: $text;
+}
+.waitingDone {
+  background: #f9bffd;
+  color: $text;
+}
+
 .chipStyles {
   font-weight: 700;
   border-radius: 6px;
   font-size: 14px;
   line-height: 21px;
-  min-width: 120px;
+  min-width: 150px;
 }

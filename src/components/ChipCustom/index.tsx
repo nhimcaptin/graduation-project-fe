@@ -19,6 +19,12 @@ const ChipCustom = (props: ChipProps) => {
       case STATUS_CHIP.WARNING:
         _classNameByType = styles.warning;
         break;
+      case STATUS_CHIP.DONE:
+        _classNameByType = styles.done;
+        break;
+      case STATUS_CHIP.WaitingDone:
+        _classNameByType = styles.waitingDone;
+        break;
 
       case STATUS_CHIP.ACTIVE:
       case STATUS_CHIP.SUCCESS:

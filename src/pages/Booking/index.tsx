@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Page from "../../components/Page";
 import styles from "./styles.module.scss";
 import {
@@ -30,21 +30,32 @@ import SearchPopover from "../../components/SearchPopover";
 import LabelCustom from "../../components/LabelCustom";
 import { ButtonIconCustom } from "../../components/ButtonIconCustom";
 import { Controller, useForm } from "react-hook-form";
-import { FORMAT_DATE, getRowStatus, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
+import {
+  FORMAT_DATE,
+  getMultiFilter,
+  getMultiLabel,
+  getRowStatus,
+  labelDisplayedRows,
+  rowsPerPageOptions,
+} from "../../utils";
 import DISPLAY_TEXTS from "../../consts/display-texts";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
-import { STATUS_TOAST } from "../../consts/statusCode";
+import { STATUS_TOAST, statusOptions } from "../../consts/statusCode";
 import { handleErrorMessage } from "../../utils/errorMessage";
 import moment from "moment";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
-import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
+import { MESSAGES_CONFIRM, MESSAGE_ERROR, MESSAGE_SUCCESS } from "../../consts/messages";
 import IF from "../../components/IF";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import TextFieldCustom from "../../components/TextFieldCustom";
 import AddUser from "./components/AddNew";
 import ChipCustom from "../../components/ChipCustom";
+import ReactSelect from "../../components/ReactSelectView";
+import { RegExpEmail } from "../../utils/regExp";
+import { usePermissionHook } from "../../hook/usePermission";
+import SearchResult from "../../components/SearchResult";
 
 interface RowDataProps {
   id: number;
@@ -71,7 +82,7 @@ const headCells = [
   },
   {
     label: "Kiểu đặt",
-    sort: "bookingType",
+    sort: "setType",
     style: { maxWidth: "10%", minWidth: "180px" },
   },
   {
@@ -97,7 +108,10 @@ const headCells = [
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const Booking = () => {
+const Booking = (props: any) => {
+  const { screenName } = props;
+  const { hasCreate, hasUpdate, hasDelete } = usePermissionHook(screenName);
+
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
@@ -117,11 +131,49 @@ const Booking = () => {
   const { openConfirmModal } = useSetConfirmModalState();
   const { setLoadingScreen } = useSetLoadingScreenState();
 
-  const { control, handleSubmit, reset, setValue, watch } = useForm({
+  const searchResults = useMemo(() => {
+    let results = [
+      {
+        label: "Tên bệnh nhân",
+        value: filterContext?.name || "",
+      },
+      {
+        label: "Email",
+        value: filterContext?.email || "",
+      },
+      {
+        label: "Số điện thoại",
+        value: filterContext?.phone || "",
+      },
+      {
+        label: "Dịch vụ",
+        value: getMultiLabel(filterContext.service, "label"),
+      },
+      {
+        label: "Trạng thái",
+        value: getMultiLabel(filterContext.status, "label"),
+      },
+    ];
+    return results;
+  }, [filterContext]);
+
+  const isShowResult = searchResults.some((result) => !!result.value);
+  const tableDiff = isShowResult ? 280 : 250;
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    setValue,
+    watch,
+    formState: { errors },
+  } = useForm({
     defaultValues: {
       name: "",
-      phone: "",
-      email: "",
+      numberPhoneCustomer: "",
+      emailCustomer: "",
+      service: "",
+      status: true ? [statusOptions[0], statusOptions[1]] : "",
     },
   });
 
@@ -136,7 +188,8 @@ const Booking = () => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-    reset({ name: "", phone: "", email: "" });
+    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
+    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -152,7 +205,8 @@ const Booking = () => {
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
-    reset({ name: "", phone: "", email: "" });
+    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
+    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -162,7 +216,8 @@ const Booking = () => {
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    reset({ name: "", phone: "", email: "" });
+    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
+    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -170,23 +225,33 @@ const Booking = () => {
   };
 
   const handleSearch = (handleCloseSearch?: () => void) => {
-    setPage(0);
-    handleSubmit((data) => onSubmitFilter({ ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 }))();
-    handleCloseSearch && handleCloseSearch();
+    handleSubmit((data) =>
+      onSubmitFilter({ ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 }, handleCloseSearch)
+    )();
   };
 
-  const onSubmitFilter = (data: any) => {
+  const onSubmitFilter = (data: any, handleCloseSearch?: () => void) => {
+    setPage(0);
+    handleCloseSearch && handleCloseSearch();
     setFilterContext(data);
     getData(data);
   };
 
   const handleClearSearch = () => {
-    reset({ name: "", phone: "", email: "" });
+    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
   };
 
   const handleRefresh = () => {
-    reset({ name: "", phone: "", email: "" });
-    getData({});
+    setOrderBy("createdAt");
+    reset({
+      name: "",
+      numberPhoneCustomer: "",
+      emailCustomer: "",
+      service: "",
+      status: [statusOptions[0], statusOptions[1]],
+    });
+    setFilterContext({});
+    getData({ status: [statusOptions[0], statusOptions[1]] });
   };
 
   const handleOpenModal = () => {
@@ -232,26 +297,7 @@ const Booking = () => {
         status: STATUS_TOAST.SUCCESS,
         message: MESSAGE_SUCCESS.CONFIRM_BOOKING,
       });
-      getData && getData({});
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    } finally {
-      setLoadingScreen(false);
-    }
-  };
-
-  const onDelete = async () => {
-    setLoadingScreen(true);
-    try {
-      await apiService.delete(`${URL_PATHS.CREATE_USER}/${selectedItem?._id}`);
-      setToastInformation({
-        status: STATUS_TOAST.SUCCESS,
-        message: MESSAGE_SUCCESS.DELETE_USER,
-      });
-      getData && getData({});
+      getData && getData({ ...filterContext, highlightId: selectedItem?._id });
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -267,8 +313,10 @@ const Booking = () => {
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
     const name = !!props && props.hasOwnProperty("name") ? props.name : "";
-    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : "";
-    const email = !!props && props.hasOwnProperty("email") ? props.email : "";
+    const numberPhoneCustomer = !!props && props.hasOwnProperty("numberPhoneCustomer") ? props.numberPhoneCustomer : "";
+    const emailCustomer = !!props && props.hasOwnProperty("emailCustomer") ? props.emailCustomer : "";
+    const status = !!props && props.hasOwnProperty("status") ? props.status : "";
+    const service = !!props && props.hasOwnProperty("service") ? props.service : "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -280,11 +328,23 @@ const Booking = () => {
       Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
     };
 
-    const filters = { unEncoded: { name: name, phone: phone, email: email } };
+    const filters = {
+      unEncoded: { name: name, numberPhoneCustomer: numberPhoneCustomer, emailCustomer: emailCustomer },
+      equals: {
+        status: status ? getMultiFilter(status, "value") : "",
+        service: service ? getMultiFilter(service, "value") : "",
+      },
+    };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_BOOKING, params, filters);
+      const _item = (data?.data || []).map((x: any) => {
+        return {
+          ...x,
+          isHighlight: x._id === highlightId,
+        };
+      });
       setTotalCount(data?.totalUsers);
-      setUserState(data?.data);
+      setUserState(_item);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -311,8 +371,47 @@ const Booking = () => {
     }
   };
 
+  const getMainServiceOptions = async (searchText: string, page: number, perPage: number) => {
+    const params = {
+      page,
+      perPage,
+    };
+
+    const filters = {
+      name: searchText,
+    };
+    try {
+      const res: any = await await apiService.getFilter(URL_PATHS.GET_LIST_MAIN_SERVICE, params, filters);
+      const resultItems: any[] = res?.mainServices;
+      if (resultItems.length >= 0) {
+        const items: any[] = resultItems.map((item) => {
+          const result = {
+            ...item,
+            label: item?.name || "",
+            value: item?._id || "",
+          };
+          return result;
+        });
+        return {
+          options: items,
+          hasMore: res?.totalUsers / perPage > page,
+        };
+      }
+      return {
+        options: [],
+        hasMore: false,
+      };
+    } catch (error) {
+      return {
+        options: [],
+        hasMore: false,
+      };
+    }
+  };
+
   useEffect(() => {
-    getData({});
+    getData({ status: [statusOptions[0], statusOptions[1]] });
+    setFilterContext({ status: [statusOptions[0], statusOptions[1]] });
   }, []);
 
   return (
@@ -324,7 +423,7 @@ const Booking = () => {
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Họ và tên" />
+                    <LabelCustom title="Tên bệnh nhân" />
                     <Controller
                       control={control}
                       name="name"
@@ -346,7 +445,13 @@ const Booking = () => {
                     <LabelCustom title="Email" />
                     <Controller
                       control={control}
-                      name="email"
+                      name="emailCustomer"
+                      rules={{
+                        validate: (value: any) => {
+                          const result = RegExpEmail(value);
+                          return !value || result || MESSAGE_ERROR.RegExpEmail;
+                        },
+                      }}
                       render={({ field: { onChange, onBlur, value, ref, name } }) => (
                         <TextFieldCustom
                           name={name}
@@ -355,6 +460,7 @@ const Booking = () => {
                           onChange={onChange}
                           placeholder="Nhập email"
                           type="text"
+                          errorMessage={errors?.emailCustomer?.message}
                         />
                       )}
                     />
@@ -365,7 +471,7 @@ const Booking = () => {
                     <LabelCustom title="Số điện thoại" />
                     <Controller
                       control={control}
-                      name="phone"
+                      name="numberPhoneCustomer"
                       render={({ field: { onChange, onBlur, value, ref, name } }) => (
                         <TextFieldCustom
                           name={name}
@@ -374,6 +480,56 @@ const Booking = () => {
                           onChange={onChange}
                           placeholder="Nhập số điện thoại"
                           type="text"
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Dịch vụ" />
+                    <Controller
+                      control={control}
+                      name="service"
+                      render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                        <ReactSelect
+                          isClearable
+                          getOptions={getMainServiceOptions}
+                          value={value}
+                          onChange={(value: any) => {
+                            onChange(value);
+                          }}
+                          fieldName={name}
+                          maxMenuHeight={120}
+                          placeholder="Chọn dịch vụ"
+                          inputRef={ref}
+                          isMulti
+                          isValidationFailed
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Trạng thái" />
+                    <Controller
+                      control={control}
+                      name="status"
+                      render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                        <ReactSelect
+                          isClearable
+                          options={statusOptions}
+                          value={value}
+                          onChange={(value: any) => {
+                            onChange(value);
+                          }}
+                          fieldName={name}
+                          maxMenuHeight={120}
+                          placeholder="Chọn trạng thái"
+                          inputRef={ref}
+                          isMulti
+                          isValidationFailed
                         />
                       )}
                     />
@@ -388,21 +544,24 @@ const Booking = () => {
               color="lightgreen"
               onClick={handleRefresh}
             />
+            <SearchResult results={searchResults} />
           </Box>
         </Grid>
         <Grid item xs={2}>
           <Box display="flex" justifyContent="flex-end" alignItems="flex-end" height="100%">
-            <ButtonIconCustom
-              className="mg-l-10"
-              tooltipTitle="Thêm mới"
-              type="add"
-              color="darkgreen"
-              onClick={handleOpenModal}
-            />
+            {hasCreate && (
+              <ButtonIconCustom
+                className="mg-l-10"
+                tooltipTitle="Thêm mới"
+                type="add"
+                color="darkgreen"
+                onClick={handleOpenModal}
+              />
+            )}
           </Box>
         </Grid>
       </Grid>
-      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - tableDiff }}>
         <Table stickyHeader>
           <TableHead>
             <TableRow>
@@ -529,7 +688,7 @@ const Booking = () => {
         >
           <MenuListActions
             actionView={handleView}
-            actionConfirm={selectedItem?.status == "Approved" ? undefined : () => handleConfirm()}
+            actionConfirm={selectedItem?.status == "Waiting" && hasUpdate ? () => handleConfirm() : undefined}
           />
         </Popover>
       </IF>

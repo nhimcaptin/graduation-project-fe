@@ -9,7 +9,7 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
       unique: true,
-     },
+    },
     password: {
       type: String,
       required: true,
@@ -30,13 +30,25 @@ const UserSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    img: {
+    image: {
       type: String,
     },
-    role: { type: mongoose.Schema.Types.ObjectId, ref: 'Role'},
+    role: { type: mongoose.Schema.Types.ObjectId, ref: "Role" },
     isAdmin: {
       type: Boolean,
       default: false,
+    },
+    position: {
+      type: String,
+      // required: true,
+    },
+    description: {
+      type: String,
+      // require: true
+    },
+    degree: {
+      type: String,
+      // require: true,
     },
   },
   { timestamps: true }

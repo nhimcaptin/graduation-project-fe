@@ -1,32 +1,41 @@
 import mongoose from "mongoose";
 const SubServiceSchema = new mongoose.Schema(
-  {  
-    mainServiceID: { 
-      type: mongoose.Schema.Types.ObjectId, 
-      required: true 
+  {
+    mainServiceID: {
+      type: mongoose.Schema.Types.ObjectId,
+      required: true,
+      ref: "MainService",
     },
-    name: { 
-      type: String, 
-      required: true 
-    },
-    price: { // chi phí
-        type: String,
-        require: true
-    },
-    aesthetics: { // tính thẩm mỹ
+    name: {
       type: String,
-      require: true
+      required: true,
     },
-    treatmentTime: { // thời gian điều trị
+    price: {
+      // chi phí
       type: String,
-      require: true
+      require: true,
     },
-    examination: { // thăm khám
+    aesthetics: {
+      // tính thẩm mỹ
       type: String,
-      require: true
+      require: true,
     },
-    image:{
-        type: String
+    treatmentTime: {
+      // thời gian điều trị
+      type: String,
+      require: true,
+    },
+    examination: {
+      // thăm khám
+      type: String,
+      require: true,
+    },
+    image: {
+      type: String,
+    },
+    description: {
+      type: String,
+      require: true,
     },
   },
   { timestamps: true }
