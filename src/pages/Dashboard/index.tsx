@@ -14,6 +14,7 @@ import { useSetToastInformationState } from "../../redux/store/ToastMessage";
 import { handleErrorMessage } from "../../utils/errorMessage";
 import { STATUS_TOAST } from "../../consts/statusCode";
 import moment from "moment";
+import TableDashBoard from "../../components/TableDashBoard";
 
 interface TimeReportModel {
   title: string;
@@ -23,6 +24,7 @@ interface TimeReportModel {
 
 const Dashboard = () => {
   const [loadingCount, setLoadingCount] = useState(false);
+  const [loadingChart, setLoadingChart] = useState(false);
   const [countedUserList, setCountedUserList] = useState(0);
   const [countedStaffList, setCountedStaffList] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
@@ -46,6 +48,7 @@ const Dashboard = () => {
   };
 
   const getDataDashBoard = async () => {
+    setLoadingChart(true);
     const params = {
       fromDate: moment(timeSelected.fromDate).format(fromDateFormat),
       toDate: moment(timeSelected.toDate).format(toDateFormat),
@@ -68,13 +71,14 @@ const Dashboard = () => {
         message: handleErrorMessage(error),
       });
     } finally {
+      setLoadingChart(false);
     }
   };
 
   const getDataInformationDashBoard = async () => {
     setLoadingCount(true);
     try {
-      const data: any = await apiService.getFilter(URL_PATHS.DASHBOARD_INFORMATION);
+      const data: any = await apiService.getFilter(URL_PATHS.DASHBOARD_COUNT);
       setCountedUserList(data?.countUser);
       setCountedStaffList(data?.countStaff);
     } catch (error: any) {
@@ -92,9 +96,12 @@ const Dashboard = () => {
   }, [chartDate, chartData]);
 
   useEffect(() => {
-    getDataDashBoard();
     getDataInformationDashBoard();
   }, []);
+
+  useEffect(() => {
+    getDataDashBoard();
+  }, [timeSelected]);
 
   return (
     <Page className={styles.root} title="Trang chủ" isActive>
@@ -199,10 +206,27 @@ const Dashboard = () => {
             </Stack>
           </Stack>
           <Box height={400} mt={2}>
-            <HighchartsReact highcharts={Highcharts} options={chart} />
+            {loadingChart ? (
+              <LoadingIcon />
+            ) : chartData && chartData.length > 0 ? (
+              <HighchartsReact highcharts={Highcharts} options={chart} />
+            ) : (
+              <Typography textAlign="center" fontSize={30} lineHeight="400px">
+                Không có dữ liệu
+              </Typography>
+            )}
           </Box>
         </Box>
       </Paper>
+      <Box mt={2} pb={3}>
+        <Typography gutterBottom variant="h5" sx={{ fontWeight: 700, fontSize: "18px" }} component="div">
+          Người dùng mới
+          <span style={{ textAlign: "center", fontSize: "12px", color: "#6F6F6F", marginTop: "0px" }}>
+            (7 ngày gần nhất)
+          </span>
+        </Typography>
+        <TableDashBoard />
+      </Box>
     </Page>
   );
 };

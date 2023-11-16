@@ -62,15 +62,31 @@ export const getDataDashboard = async (req, res, next) => {
   }
 };
 
-export const getDataInformationDashboard = async (req, res, next) => {
+export const getDataCountDashboard = async (req, res, next) => {
   try {
     const countStaff = (await User.find({ role: { $ne: null } })).length;
     const countUser = (await User.find({ role: null })).length;
+    res.status(200).json({ countStaff, countUser });
+  } catch (error) {
+    next(error);
+  }
+};
+export const getDataInformationDashboard = async (req, res, next) => {
+  try {
+    const { Page, PageSize } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
     const listUserMost7Day = await User.find({
       role: null,
       createdAt: { $gte: new Date(moment().subtract(6, "d")), $lte: new Date(moment()) },
+    })
+      .skip((page - 1) * pageSize)
+      .limit(pageSize);
+    const totalCount = await User.countDocuments({
+      role: null,
+      createdAt: { $gte: new Date(moment().subtract(6, "d")), $lte: new Date(moment()) },
     });
-    res.status(200).json({ countStaff, countUser, listUserMost7Day });
+    res.status(200).json({ listUserMost7Day, totalCount });
   } catch (error) {
     next(error);
   }
