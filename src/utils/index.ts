@@ -2,12 +2,19 @@ import { LabelDisplayedRowsArgs } from "@mui/material";
 import DISPLAY_TEXTS from "../consts/display-texts";
 import { statusOptions } from "../consts/statusCode";
 import { SyntheticEvent } from "react";
+import moment from "moment";
 
 export const FORMAT_DATE = "DD/MM/YYYY";
+export const fromDateFormat = "YYYY-MM-DDT00:00:00";
+export const toDateFormat = "YYYY-MM-DDT23:59:00";
 export const rowsPerPageOptions = [10, 20, 50];
 
 export const convertBreakToHtml = (text: string) => {
   return text && text.replace(/\r?\n/g, "<br/>");
+};
+
+export const numberWithCommas = (x: number) => {
+  return x?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 };
 
 export const labelDisplayedRows = (page: LabelDisplayedRowsArgs) =>
@@ -96,3 +103,31 @@ export const isCheckValue = (data: any, arrKeyDelete: any, isDisabled?: boolean)
   });
   return isDisabled && !!Object.values(_data).find((x: any) => !!x);
 };
+
+export const TIME_REPORT = [
+  {
+    title: "Hôm qua",
+    fromDate: moment().subtract(1, "days").format(fromDateFormat),
+    toDate: moment().subtract(1, "days").format(toDateFormat),
+  },
+  {
+    title: "Hôm nay",
+    fromDate: moment().format(fromDateFormat),
+    toDate: moment().format(toDateFormat),
+  },
+  {
+    title: "7 ngày qua",
+    fromDate: moment().subtract(6, "d").format(fromDateFormat),
+    toDate: moment().format(toDateFormat),
+  },
+  {
+    title: "Tháng này",
+    fromDate: moment().startOf("month").format(fromDateFormat),
+    toDate: moment().format(toDateFormat),
+  },
+  {
+    title: "Tháng trước",
+    fromDate: moment().subtract(1, "months").startOf("months").format(fromDateFormat),
+    toDate: moment().subtract(1, "months").endOf("months").format(toDateFormat),
+  },
+];
