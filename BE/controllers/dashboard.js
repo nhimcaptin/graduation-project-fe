@@ -1,13 +1,14 @@
 import moment from "moment";
 import Booking from "../models/Booking.js";
+import User from "../models/User.js";
 
 export const getDataDashboard = async (req, res, next) => {
   try {
     const { fromDate, toDate } = req.query;
+
     const Bookings = await Booking.find({
       status: "Done",
-      fromDate: { $gte: new Date(fromDate) },
-      toDate: { $lte: new Date(toDate) },
+      statusUpdateTime: { $gte: new Date(fromDate), $lte: new Date(toDate) },
       service: { $ne: null },
     })
       .populate("service")
@@ -31,8 +32,8 @@ export const getDataDashboard = async (req, res, next) => {
         numberMax = obj[key].length;
       }
     });
-    const item = {};
 
+    const item = {};
     Object.keys(obj).map((x, index) => {
       obj[x].forEach((y) => {
         const { service } = y;
@@ -56,6 +57,20 @@ export const getDataDashboard = async (req, res, next) => {
     });
 
     res.status(200).json({ item: Object.values(item), date: Object.keys(obj) });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const getDataInformationDashboard = async (req, res, next) => {
+  try {
+    const countStaff = (await User.find({ role: { $ne: null } })).length;
+    const countUser = (await User.find({ role: null })).length;
+    const listUserMost7Day = await User.find({
+      role: null,
+      createdAt: { $gte: new Date(moment().subtract(6, "d")), $lte: new Date(moment()) },
+    });
+    res.status(200).json({ countStaff, countUser, listUserMost7Day });
   } catch (error) {
     next(error);
   }

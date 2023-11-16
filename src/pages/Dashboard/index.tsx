@@ -22,9 +22,8 @@ interface TimeReportModel {
 }
 
 const Dashboard = () => {
-  const [loadingCountUsers, setLoadingCountUsers] = useState(false);
+  const [loadingCount, setLoadingCount] = useState(false);
   const [countedUserList, setCountedUserList] = useState(0);
-  const [loadingCountStaff, setLoadingCountStaff] = useState(false);
   const [countedStaffList, setCountedStaffList] = useState(0);
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null);
   const [timeSelected, setTimeSelected] = useState(TIME_REPORT[2]);
@@ -72,14 +71,29 @@ const Dashboard = () => {
     }
   };
 
+  const getDataInformationDashBoard = async () => {
+    setLoadingCount(true);
+    try {
+      const data: any = await apiService.getFilter(URL_PATHS.DASHBOARD_INFORMATION);
+      setCountedUserList(data?.countUser);
+      setCountedStaffList(data?.countStaff);
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingCount(false);
+    }
+  };
+
   const chart = useMemo(() => {
     return dataChart(chartDate, chartData);
   }, [chartDate, chartData]);
 
-  console.log("chart", chart);
-
   useEffect(() => {
     getDataDashBoard();
+    getDataInformationDashBoard();
   }, []);
 
   return (
@@ -91,7 +105,7 @@ const Dashboard = () => {
               <Typography gutterBottom variant="h5" component="div">
                 Số lượng người dùng
               </Typography>
-              {loadingCountUsers ? (
+              {loadingCount ? (
                 <LoadingIcon />
               ) : (
                 <Typography variant="h4" sx={{ fontWeight: 800 }} color="text.secondary">
@@ -107,7 +121,7 @@ const Dashboard = () => {
               <Typography gutterBottom variant="h5" component="div">
                 Số lượng nhân viên
               </Typography>
-              {loadingCountStaff ? (
+              {loadingCount ? (
                 <LoadingIcon />
               ) : (
                 <Typography variant="h4" sx={{ fontWeight: 800 }} color="text.secondary">

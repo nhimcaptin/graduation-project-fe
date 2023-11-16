@@ -41,5 +41,6 @@ const URL_PATHS = {
   DELETE_VOUCHER: "api/preferential/delete",
 
   DASHBOARD: "api/dashboard",
+  DASHBOARD_INFORMATION: "api/dashboard/data-information",
 };
 export default URL_PATHS;

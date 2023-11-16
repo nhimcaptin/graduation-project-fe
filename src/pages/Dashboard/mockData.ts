@@ -39,6 +39,7 @@ export const dataChart = (xAxisCategories: any, xAxisSeries: any) => {
       title: {
         text: null,
       },
+      tickInterval: 1,
       labels: {
         enabled: true,
         style: {
