@@ -33,5 +33,11 @@ const URL_PATHS = {
   DETAIL_HISTORY: "api/history/get-detail",
   UPDATE_HISTORY: "api/history/update",
   UPLOAD_FILE: "api/upload-image",
+
+  GET_LIST_VOUCHER: "api/preferential/get",
+  CREATE_VOUCHER: "api/preferential/create",
+  DETAIL_VOUCHER: "api/preferential/detail",
+  UPDATE_VOUCHER: "api/preferential/update",
+  DELETE_VOUCHER: "api/preferential/delete",
 };
 export default URL_PATHS;

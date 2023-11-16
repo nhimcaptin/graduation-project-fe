@@ -33,6 +33,10 @@ export const MESSAGE_SUCCESS: any = {
   CREATE_SUB_SERVICE: "Tạo mới dịch vụ thành công",
   EDIT_SUB_SERVICE: "Sửa dịch vụ thành công",
   DELETE_SUB_SERVICE: "Xóa dịch vụ thành công",
+
+  CREATE_VOUCHER: "Tạo mới ưu đãi thành công",
+  EDIT_VOUCHER: "Sửa ưu đãi thành công",
+  DELETE_VOUCHER: "Xóa ưu đãi thành công",
 };
 
 export const MESSAGE_ERROR_API: any = {
@@ -46,4 +50,5 @@ export const MESSAGES_CONFIRM = {
   DeleteSatff: "Bạn có chắc muốn xóa nhân viên này? Người dùng đã xóa không thể khôi phục lại.",
   DeleteMainService: "Bạn có chắc muốn xóa danh mục dịch vụ này? Danh mục dịch vụ đã xóa không thể khôi phục lại.",
   DeleteSubServices: "Bạn có chắc muốn xóa dịch vụ này? Dịch vụ đã xóa không thể khôi phục lại.",
+  DeleteVoucher: "Bạn có chắc muốn xóa ưu đãi này? Ưu đãi đã xóa không thể khôi phục lại.",
 };

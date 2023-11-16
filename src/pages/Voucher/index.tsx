@@ -48,6 +48,7 @@ import { RegExpEmail, RegPhoneNumber } from "../../utils/regExp";
 import { usePermissionHook } from "../../hook/usePermission";
 import SearchResult from "../../components/SearchResult";
 import ChipCustom from "../../components/ChipCustom";
+import AddVoucher from "./components/AddVoucher";
 
 interface RowDataProps {
   id: number;
@@ -65,7 +66,7 @@ const headCells = [
     style: { width: "60%", minWidth: "180px" },
   },
   {
-    label: "Địa chỉ",
+    label: "Trạng thái",
     sort: "status",
     style: { width: "25%", minWidth: "180px" },
   },
@@ -75,6 +76,17 @@ const headCells = [
     style: { maxWidth: "10%", minWidth: "180px" },
   },
   { label: "", style: { minWidth: "5%" } },
+];
+
+const listStatus = [
+  {
+    value: true,
+    label: "Đang hoạt động",
+  },
+  {
+    value: 'false',
+    label: "Không hoạt động",
+  },
 ];
 
 const Voucher = (props: any) => {
@@ -108,7 +120,7 @@ const Voucher = (props: any) => {
       },
       {
         label: "Trạng thái",
-        value: getRowStatus(filterContext?.status)?.label || "",
+        value: filterContext?.status?.label || "",
       },
     ];
     return results;
@@ -232,7 +244,7 @@ const Voucher = (props: any) => {
     openConfirmModal({
       isOpen: true,
       title: "Xóa",
-      message: MESSAGES_CONFIRM.DeleteSatff,
+      message: MESSAGES_CONFIRM.DeleteVoucher,
       cancelBtnLabel: "Hủy",
       okBtnLabel: "Xóa",
       isDeleteConfirm: true,
@@ -243,10 +255,10 @@ const Voucher = (props: any) => {
   const onDelete = async () => {
     setLoadingScreen(true);
     try {
-      await apiService.delete(`${URL_PATHS.CREATE_USER}/${selectedItem?._id}`);
+      await apiService.delete(`${URL_PATHS.DELETE_VOUCHER}/${selectedItem?._id}`);
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
-        message: MESSAGE_SUCCESS.DELETE_STAFF,
+        message: MESSAGE_SUCCESS.DELETE_VOUCHER,
       });
       getData && getData({});
     } catch (error: any) {
@@ -278,11 +290,11 @@ const Voucher = (props: any) => {
 
     const filters = {
       unEncoded: { name: name },
-      equals: { status: status ? getMultiFilter(status, "value") : "" },
+      equals: { status: status ? status?.value : "" },
     };
     try {
-      const data: any = await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
-      const _item = (data?.data || []).map((x: any) => {
+      const data: any = await apiService.getFilter(URL_PATHS.GET_LIST_VOUCHER, params, filters);
+      const _item = (data?.preferentialsWithItems || []).map((x: any) => {
         return {
           ...x,
           isHighlight: x._id === highlightId,
@@ -303,7 +315,7 @@ const Voucher = (props: any) => {
   const getUserDetail = async (id: string | number) => {
     setLoadingScreen(true);
     try {
-      const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_USER}/${id || selectedItem?._id}`);
+      const data: any = await apiService.getFilter(`${URL_PATHS.DETAIL_VOUCHER}/${id || selectedItem?._id}`);
       setUserDetail(data);
       setIsOpenModal(true);
     } catch (error: any) {
@@ -325,9 +337,9 @@ const Voucher = (props: any) => {
       <Grid container style={{ marginBottom: "20px" }}>
         <Grid item xs={10}>
           <Box>
-            <SearchPopover contentWidth="40rem" onFilter={handleSearch} onClear={handleClearSearch}>
+            <SearchPopover contentWidth="20rem" onFilter={handleSearch} onClear={handleClearSearch}>
               <Grid container spacing={2}>
-                <Grid item xs={6}>
+                <Grid item xs={12}>
                   <Box style={{ marginTop: 2 }}>
                     <LabelCustom title="Tên ưu đãi" />
                     <Controller
@@ -341,6 +353,34 @@ const Voucher = (props: any) => {
                           onChange={onChange}
                           placeholder="Nhập tên ưu đãi"
                           type="text"
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Trạng thái" />
+                    <Controller
+                      control={control}
+                      name="status"
+                      render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                        <ReactSelect
+                          isClearable
+                          options={listStatus}
+                          getOptionLabel={(option: any) => option.label}
+                          getOptionValue={(option: any) => option.value}
+                          value={value}
+                          onChange={(value: any) => {
+                            onChange(value);
+                          }}
+                          fieldName={name}
+                          maxMenuHeight={200}
+                          placeholder="Chọn trạng thái"
+                          inputRef={ref}
+                          isValidationFailed
+                          errorMessage={errors?.status?.message as string}
+                          menuPlacement="top"
                         />
                       )}
                     />
@@ -491,8 +531,8 @@ const Voucher = (props: any) => {
         </Popover>
       </IF>
 
-      {/* {isOpenModal && (
-        <AddUser
+      {isOpenModal && (
+        <AddVoucher
           isOpen={isOpenModal}
           title={title}
           onCancel={handleCancel}
@@ -500,7 +540,7 @@ const Voucher = (props: any) => {
           dataDetail={userDetail}
           getData={getData}
         />
-      )} */}
+      )}
     </Page>
   );
 };

@@ -81,3 +81,18 @@ export const handleErrorImage = (e: SyntheticEvent<HTMLImageElement, Event>, fal
 export const uid = () => {
   return Date.now().toString(36) + Math.random().toString(36).substr(2);
 };
+
+export const isCheckValue = (data: any, arrKeyDelete: any, isDisabled?: boolean) => {
+  const _data = { ...((data && data[0]) || {}) };
+  Object.keys(_data).forEach((x) => {
+    if (_data[x] && Array.isArray(_data[x])) {
+      const r = { ...((_data[x] && _data[x][0]) || {}) };
+      Object.assign(_data, r);
+      Reflect.deleteProperty(_data, x);
+    }
+  });
+  arrKeyDelete.forEach((r: any) => {
+    Reflect.deleteProperty(_data, r);
+  });
+  return isDisabled && !!Object.values(_data).find((x: any) => !!x);
+};
