@@ -6,6 +6,7 @@ import TimeType from "../models/TimeType.js";
 import { convertFilter } from "../util/index.js";
 import MainServices from "../models/MainServices.js";
 import {sendMail} from "../middlewares/send.mail.js"
+import moment from "moment"
 
 export const createBooking = async (req, res, next) => {
   try {
@@ -34,11 +35,13 @@ export const createBooking = async (req, res, next) => {
     }
     const patient = await User.findById(patientId);
 
+    const timeType = await TimeType.findById(timeTypeId);
+
     const newBooking = new Booking({
       patientId,
       doctorId,
       date,
-      timeTypeId,
+      timeTypeId: timeType,
       description,
       service,
       status,
@@ -60,8 +63,8 @@ export const createBooking = async (req, res, next) => {
         <h1> Bạn đã đặt lịch thành công. Vui lòng kiểm tra lại thông tin lịch hẹn dưới đây</h1>
         <ul>
         <li> Tên bệnh nhân: ${newBooking.nameCustomer}  </li>
-        <li> Ngày khám: ${newBooking.date}  </li>
-        <li> Giờ vào khám: ${newBooking.timeTypeId}  </li>
+        <li> Ngày khám: ${moment(newBooking.date).format("DD/MM/YYYY")}  </li>
+        <li> Giờ vào khám: ${timeType ? timeType.timeSlot : 'Không xác định'}  </li>
         </ul>
       `
     })
