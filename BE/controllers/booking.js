@@ -5,6 +5,7 @@ import User from "../models/User.js";
 import TimeType from "../models/TimeType.js";
 import { convertFilter } from "../util/index.js";
 import MainServices from "../models/MainServices.js";
+import {sendMail} from "../middlewares/send.mail.js"
 
 export const createBooking = async (req, res, next) => {
   try {
@@ -27,23 +28,10 @@ export const createBooking = async (req, res, next) => {
       addressCustomer,
     } = data;
 
-    // const isExists = await Booking.findOne({ patientId,doctorId, date, timeType });
-    // if (isExists) {
-    //   return next(createError(400, 'Cuộc hẹn đã tồn tại.'));
-    // }
     const existingBooking = await Booking.findOne({ doctorId, date, timeTypeId });
     if (existingBooking && bookingType === "Online") {
       return res.status(400).json({ message: "Cuộc hẹn trùng lặp." });
     }
-    // const time = await TimeType.findById(timeTypeId);
-    // console.log(time);
-    // if (!time) {
-    //   return res.status(400).json({ message: "Không tìm thấy khung giờ khám" });
-    // }
-    // const doctor = await User.findOne({ _id: doctorId, role: 'Doctor' });
-    // if (!doctor) {
-    //   return next(createError(404, MESSAGE_ERROR.CANNOT_FIND));
-    // }
     const patient = await User.findById(patientId);
 
     const newBooking = new Booking({
@@ -63,8 +51,19 @@ export const createBooking = async (req, res, next) => {
       genderCustomer,
       birthdayCustomer,
     });
-
     await newBooking.save();
+
+    await sendMail({
+      email: newBooking.emailCustomer,
+      subject: "Bạn đã đặt lịch thành công",
+      html: `
+        <h1>đtặ lịch thành công vui lòng kiểm tra lại thông tin lịch hẹn</h1>
+        <ul>
+          <li> username: </li>
+        </ul>
+      `
+    })
+
     res.status(200).json({ booking: newBooking, request: req.body });
   } catch (err) {
     next(err);
