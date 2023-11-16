@@ -19,6 +19,9 @@ import DateTimePickerCustom from "../../../../components/DateTimePickerCustom";
 import { useUploadFileService } from "../../../../services/upload-file.service";
 import { isEmpty } from "lodash";
 import { useSetLoadingScreenState } from "../../../../redux/store/loadingScreen";
+import SunEditorShare from "../../../../components/SunEditorStyled";
+import ErrorMessage from "../../../../components/ErrorMessage/ErrorMessage";
+import { stripHTML } from "../../../../utils";
 
 interface PropsType {
   isOpen: boolean;
@@ -68,6 +71,9 @@ const AddUser = (props: PropsType) => {
       role: dataDetail ? dataDetail?.role : "",
       image: dataDetail ? dataDetail?.image : "",
       birthday: dataDetail ? dataDetail?.birthday : "",
+      description: dataDetail ? dataDetail?.description : "",
+      degree: dataDetail ? dataDetail?.degree : "",
+      position: dataDetail ? dataDetail?.position : "",
       gender: dataDetail ? listGender.find((x) => x.value == dataDetail?.gender) : "",
     },
   });
@@ -163,6 +169,12 @@ const AddUser = (props: PropsType) => {
     }
   };
 
+  const getEditorNewValue = (newValue: string) => {
+    const stripedValue = stripHTML(newValue).trim();
+    if (stripedValue.length === 1 && stripedValue.charCodeAt(0) === 8203) return "";
+    return stripedValue === "" ? "" : newValue;
+  };
+
   return (
     <CrudModal
       isOpen={isOpen}
@@ -205,6 +217,33 @@ const AddUser = (props: PropsType) => {
               );
             }}
           />
+        </Grid>
+        <Grid item xs={12} mt={1}>
+          <LabelCustom title="Mô tả chi tiết" />
+          <Controller
+            control={control}
+            name="description"
+            render={({ field: { value, onChange, onBlur, ref } }) => (
+              <>
+                <FocusHiddenInput ref={ref}></FocusHiddenInput>
+                <SunEditorShare
+                  hideToolbarSunEditor={!isEdit}
+                  disableSunEditor={!isEdit}
+                  onChangeEditorState={(newValue: any) => onChange(getEditorNewValue(newValue))}
+                  setContents={value || ""}
+                  minHeight="400px"
+                  errorEditor={!!errors?.description?.message}
+                  onBlur={(e: any, content: any) => {
+                    onBlur();
+                    onChange((content || "").trim());
+                  }}
+                />
+              </>
+            )}
+          />
+          {errors?.description && (
+            <ErrorMessage style={{ marginTop: "-10px" }}>{errors?.description?.message}</ErrorMessage>
+          )}
         </Grid>
         <Grid container item xs={12} mt={2}>
           <Grid item xs={5}>
@@ -374,6 +413,7 @@ const AddUser = (props: PropsType) => {
                   isDisabled={!isEdit}
                   isLoading={isLoadingSelect}
                   errorMessage={errors?.role?.message as string}
+                  menuPlacement="top"
                 />
               )}
             />
@@ -402,7 +442,54 @@ const AddUser = (props: PropsType) => {
               )}
             />
           </Grid>
+          <Grid item xs={2}></Grid>
+          {watch('role')?.label === 'Doctor' &&<Grid item xs={5}>
+            <LabelCustom title="Học vị" isRequired />
+            <Controller
+              control={control}
+              name="degree"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <TextFieldCustom
+                  name={name}
+                  ref={ref}
+                  value={value}
+                  onChange={onChange}
+                  placeholder="Nhập học vị"
+                  disabled={!isEdit}
+                  type="text"
+                  errorMessage={errors?.degree?.message}
+                />
+              )}
+            />
+          </Grid>}
         </Grid>
+        {watch('role')?.label === 'Doctor' && <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+          <Grid item xs={5}>
+            <LabelCustom title="Chức vụ" isRequired />
+            <Controller
+              control={control}
+              name="position"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <TextFieldCustom
+                  name={name}
+                  ref={ref}
+                  value={value}
+                  onChange={onChange}
+                  placeholder="Nhập chức vụ"
+                  disabled={!isEdit}
+                  type="text"
+                  errorMessage={errors?.position?.message}
+                />
+              )}
+            />
+          </Grid>
+        </Grid>}
       </Grid>
     </CrudModal>
   );
