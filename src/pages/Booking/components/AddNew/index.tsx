@@ -64,6 +64,7 @@ const AddUser = (props: PropsType) => {
     control,
     watch,
     setValue,
+    clearErrors,
     formState: { errors },
   } = useForm({
     shouldUnregister: true,
@@ -220,8 +221,8 @@ const AddUser = (props: PropsType) => {
       name: searchText,
     };
     try {
-      const res: any = await await apiService.getFilter(URL_PATHS.GET_LIST_MAIN_SERVICE, params, filters);
-      const resultItems: any[] = res?.mainServices;
+      const res: any = await await apiService.getFilter(URL_PATHS.GET_LIST_SUB_SERVICE, params, filters);
+      const resultItems: any[] = res?.getSubservice;
       if (resultItems.length >= 0) {
         const items: any[] = resultItems.map((item) => {
           const result = {
@@ -387,13 +388,10 @@ const AddUser = (props: PropsType) => {
           </Grid>
           <Grid item xs={2}></Grid>
           <Grid item xs={5}>
-            <LabelCustom title="Dịch vụ" isRequired />
+            <LabelCustom title="Dịch vụ" />
             <Controller
               control={control}
               name="mainService"
-              rules={{
-                required: MESSAGE_ERROR.fieldRequired,
-              }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <ReactSelect
                   isClearable
@@ -406,12 +404,11 @@ const AddUser = (props: PropsType) => {
                   }}
                   fieldName={name}
                   maxMenuHeight={200}
-                  placeholder="Chọn hình thức"
+                  placeholder="Chọn dịch vụ"
                   inputRef={ref}
-                  isValidationFailed
                   isDisabled={!isEdit}
-                  isLoading={isLoadingPatient}
                   errorMessage={errors?.bookingType?.message as string}
+                  menuPlacement="top"
                 />
               )}
             />
@@ -685,6 +682,7 @@ const AddUser = (props: PropsType) => {
                       onChange(e);
                       getListTimeType(moment(e).format("YYYY/MM/DD"));
                       setValue("timeTypeId", "");
+                      clearErrors("timeTypeId")
                     }}
                     inputFormat="DD/MM/YYYY"
                   />
@@ -719,6 +717,7 @@ const AddUser = (props: PropsType) => {
                           })}
                           onClick={(e: any) => {
                             setValue("timeTypeId", item);
+                            clearErrors("timeTypeId")
                           }}
                         >
                           <Typography
@@ -733,6 +732,7 @@ const AddUser = (props: PropsType) => {
                 );
               }}
             />
+
             {isLoadingHour && (
               <div className={styles.loadingHour}>
                 <div className={styles.loader}></div>
@@ -740,6 +740,7 @@ const AddUser = (props: PropsType) => {
             )}
           </Grid>
         )}
+        {errors?.timeTypeId && <ErrorMessage style={{ marginTop: "10px" }}>{errors?.timeTypeId?.message}</ErrorMessage>}
       </Grid>
     </CrudModal>
   );
