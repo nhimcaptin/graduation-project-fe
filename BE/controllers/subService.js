@@ -140,3 +140,18 @@ export const getAllServices = async (req, res, next) => {
     next(err);
   }
 };
+
+export const listSubSerViceForMain = async (req, res, next) => {
+  try {
+    const id = req.params.mainServiceID;
+    console.log("idMain",id)
+    const detailMainservice = await SubService.find({ mainServiceID: id}).exec();
+    console.log("detailMainservice",detailMainservice)
+    if (!detailMainservice) {
+      return res.status(404).json({ message: "Không lấy được ID mainService" });
+    }
+    return res.status(200).json(detailMainservice);
+  } catch (err) {
+    next(err);
+  }
+};

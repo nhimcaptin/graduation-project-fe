@@ -1,5 +1,5 @@
 import express from "express";
-import { createSubService, deleteSubservice, detailSubservice, getAllServices, getSubservice, updateSubservice } from "../controllers/subService.js";
+import { createSubService, deleteSubservice, detailSubservice, getAllServices, getSubservice, listSubSerViceForMain, updateSubservice } from "../controllers/subService.js";
 
 const router = express.Router();
 
@@ -9,6 +9,8 @@ router.delete("/delete/:id", deleteSubservice);
 router.get("/getall", getSubservice);
 router.get("/detailSubservice/:id", detailSubservice);
 router.get("/get-services", getAllServices);
+router.get("/getSubServicesForMainservie/:mainServiceID", listSubSerViceForMain);
+
 
 
 export default router
