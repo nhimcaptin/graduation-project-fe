@@ -30,7 +30,7 @@ import SearchPopover from "../../components/SearchPopover";
 import LabelCustom from "../../components/LabelCustom";
 import { ButtonIconCustom } from "../../components/ButtonIconCustom";
 import { Controller, useForm } from "react-hook-form";
-import { FORMAT_DATE, getMultiFilter, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
+import { FORMAT_DATE, getMultiFilter, getMultiLabel, labelDisplayedRows, rowsPerPageOptions } from "../../utils";
 import DISPLAY_TEXTS from "../../consts/display-texts";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
@@ -131,6 +131,10 @@ const Staff = (props: any) => {
         label: "Số điện thoại",
         value: filterContext?.phone || "",
       },
+      {
+        label: "Vai trò",
+        value: getMultiLabel(filterContext?.role, "label") || "",
+      },
     ];
     return results;
   }, [filterContext]);
@@ -165,8 +169,6 @@ const Staff = (props: any) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-    reset({ name: "", phone: "", email: "", role: "" });
-    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -182,8 +184,6 @@ const Staff = (props: any) => {
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
-    reset({ name: "", phone: "", email: "", role: "" });
-    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -193,8 +193,6 @@ const Staff = (props: any) => {
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    reset({ name: "", phone: "", email: "", role: "" });
-    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -219,9 +217,10 @@ const Staff = (props: any) => {
   };
 
   const handleRefresh = () => {
+    setPage(0);
+    setRowsPerPage(10);
     reset({ name: "", phone: "", email: "", role: "" });
-    setFilterContext({});
-    getData({});
+    getData({ name: "", phone: "", email: "", role: "", pageIndex: 0, pageSize: 10 });
   };
 
   const handleOpenModal = () => {
@@ -286,10 +285,10 @@ const Staff = (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
-    const name = !!props && props.hasOwnProperty("name") ? props.name : null;
-    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : null;
-    const email = !!props && props.hasOwnProperty("email") ? props.email : null;
-    const role = !!props && props.hasOwnProperty("role") ? props.role : null;
+    const name = !!props && props.hasOwnProperty("name") ? props.name : filterContext?.name || "";
+    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : filterContext?.phone || "";
+    const email = !!props && props.hasOwnProperty("email") ? props.email : filterContext?.email || "";
+    const role = !!props && props.hasOwnProperty("role") ? props.role : filterContext?.role || "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -322,6 +321,12 @@ const Staff = (props: any) => {
       });
     } finally {
       setLoadingTable(false);
+      setFilterContext({
+        name,
+        phone,
+        email,
+        role,
+      });
     }
   };
 

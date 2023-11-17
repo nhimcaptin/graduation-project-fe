@@ -36,6 +36,7 @@ const ReceptionistNote = () => {
     control,
     watch,
     setValue,
+    clearErrors,
     formState: { errors },
   } = useForm({
     defaultValues: {
@@ -198,6 +199,8 @@ const ReceptionistNote = () => {
               onChange={(e: any, isInputChecked) => {
                 setIsCheck(isInputChecked);
                 getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
+                setValue("date", moment(new Date()).format("YYYY/MM/DD"));
+                setValue("timeTypeId", "");
               }}
             />
           }
@@ -230,6 +233,7 @@ const ReceptionistNote = () => {
                     onChange(e);
                     getListTimeType(moment(e).format("YYYY/MM/DD"));
                     setValue("timeTypeId", "");
+                    clearErrors("timeTypeId");
                   }}
                   inputFormat="DD/MM/YYYY"
                 />
@@ -242,6 +246,7 @@ const ReceptionistNote = () => {
       {isCheck && (
         <Grid container item xs={5} sx={{ marginTop: "10px", position: "relative" }}>
           <Controller
+            shouldUnregister
             control={control}
             name="timeTypeId"
             rules={{
@@ -262,6 +267,7 @@ const ReceptionistNote = () => {
                         })}
                         onClick={(e: any) => {
                           setValue("timeTypeId", item);
+                          clearErrors("timeTypeId")
                         }}
                       >
                         <Typography
@@ -276,6 +282,9 @@ const ReceptionistNote = () => {
               );
             }}
           />
+          {errors?.timeTypeId && (
+            <ErrorMessage style={{ marginTop: "10px" }}>{errors?.timeTypeId?.message}</ErrorMessage>
+          )}
           {isLoadingHour && (
             <div className={styles.loadingHour}>
               <div className={styles.loader}></div>

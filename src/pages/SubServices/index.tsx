@@ -146,8 +146,6 @@ const SubServices = (props: any) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-    reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -163,8 +161,6 @@ const SubServices = (props: any) => {
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
-    reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -174,8 +170,6 @@ const SubServices = (props: any) => {
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -200,9 +194,10 @@ const SubServices = (props: any) => {
   };
 
   const handleRefresh = () => {
-    reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
-    getData({});
+    setPage(0);
+    setRowsPerPage(10);
+    reset({ name: "" });
+    getData({ name: "", pageIndex: 0, pageSize: 10 });
   };
 
   const handleOpenModal = () => {
@@ -267,7 +262,7 @@ const SubServices = (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
-    const name = !!props && props.hasOwnProperty("name") ? props.name : "";
+    const name = !!props && props.hasOwnProperty("name") ? props.name : filterContext?.name || "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -297,6 +292,7 @@ const SubServices = (props: any) => {
       });
     } finally {
       setLoadingTable(false);
+      setFilterContext({ name });
     }
   };
 
