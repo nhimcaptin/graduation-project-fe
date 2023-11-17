@@ -5,8 +5,8 @@ import User from "../models/User.js";
 import TimeType from "../models/TimeType.js";
 import { convertFilter } from "../util/index.js";
 import MainServices from "../models/MainServices.js";
-import {sendMail} from "../middlewares/send.mail.js"
-import moment from "moment"
+import { sendMail } from "../middlewares/send.mail.js";
+import moment from "moment";
 
 export const createBooking = async (req, res, next) => {
   try {
@@ -64,10 +64,10 @@ export const createBooking = async (req, res, next) => {
         <ul>
         <li> Tên bệnh nhân: ${newBooking.nameCustomer}  </li>
         <li> Ngày khám: ${moment(newBooking.date).format("DD/MM/YYYY")}  </li>
-        <li> Giờ vào khám: ${timeType ? timeType.timeSlot : 'Không xác định'}  </li>
+        <li> Giờ vào khám: ${timeType ? timeType.timeSlot : "Không xác định"}  </li>
         </ul>
-      `
-    })
+      `,
+    });
 
     res.status(200).json({ booking: newBooking, request: req.body });
   } catch (err) {
@@ -98,8 +98,12 @@ export const getBooking = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
+    const users = await User.find({ name: _filter?.name });
+    const idUser = users.map((x) => {
+      return x._id;
+    });
     if (_filter?.name) {
-      _filter.$or = [{ nameCustomer: _filter?.name }, { "patientId.name": _filter?.name }];
+      _filter.$or = [{ nameCustomer: _filter?.name }, { patientId: { $in: idUser } }];
       delete _filter.name;
     }
     const booking = await Booking.find(_filter)

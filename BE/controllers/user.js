@@ -3,8 +3,9 @@ import { createError } from "../middlewares/error.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { convertFilter } from "../util/index.js";
+import { convertFilter, randomStringInRange } from "../util/index.js";
 import Role from "../models/Role.js";
+import { sendMail } from "../middlewares/send.mail.js";
 
 export const createUser = async (req, res, next) => {
   try {
@@ -14,14 +15,24 @@ export const createUser = async (req, res, next) => {
     if (isExists) {
       return next(createError(400, MESSAGE_ERROR.MAIL_ALREADY_EXISTS));
     }
+    const password = data?.role ? randomStringInRange(7, 12) : data?.password;
     const salt = bcrypt.genSaltSync(10);
-    const hash = bcrypt.hashSync("admin123456", salt);
+    const hash = bcrypt.hashSync(password, salt);
     await new User({
       ...data,
       role: data?.role || undefined,
       isAdmin: !!data?.role,
       password: hash,
     }).save();
+
+    await sendMail({
+      email: email,
+      subject: "Thông báo từ Phòng Khám Nha Khoa Tây Đô",
+      html: `
+        <p> Bạn đã đăng kí thành công tài khoản. Dưới đây là mật khẩu tài khoản của bạn. Vui lòng không chia sẻ cho bất kì ai!</p>
+        <p>Mật khẩu của bạn là: ${password}</p>
+      `,
+    });
     res.status(200).send("User has been created.");
   } catch (err) {
     next(err);
@@ -61,7 +72,7 @@ export const detailUser = async (req, res, next) => {
 export const detailDoctor = async (req, res, next) => {
   try {
     const doctor = await User.findOne({ _id: req.params.id, role: "65317023583bf8c93e253b4e" }).exec();
-    
+
     if (!doctor) {
       return res.status(404).json({ message: "Bác sĩ không tồn tại." });
     }
