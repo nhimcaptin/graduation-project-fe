@@ -8,6 +8,10 @@ const MainServiceSchema = new mongoose.Schema(
     description: {
       type: String,
       require: true
+    },
+    descriptionMain: {
+      type: String,
+      require: true
     }
   },
   { timestamps: true }
