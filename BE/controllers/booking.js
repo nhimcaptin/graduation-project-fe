@@ -47,7 +47,7 @@ export const createBooking = async (req, res, next) => {
       status,
       bookingType,
       setType,
-      nameCustomer,
+      nameCustomer: nameCustomer || patient.name,
       numberPhoneCustomer: numberPhoneCustomer || patient.phone,
       emailCustomer: emailCustomer || patient.email,
       addressCustomer,
@@ -60,14 +60,19 @@ export const createBooking = async (req, res, next) => {
       email: newBooking.emailCustomer,
       subject: "Thông báo từ Phòng Khám Nha Khoa Tây Đô",
       html: `
-        <h1> Bạn đã đặt lịch thành công. Vui lòng kiểm tra lại thông tin lịch hẹn dưới đây</h1>
-        <ul>
-        <li> Tên bệnh nhân: ${newBooking.nameCustomer}  </li>
-        <li> Ngày khám: ${moment(newBooking.date).format("DD/MM/YYYY")}  </li>
-        <li> Giờ vào khám: ${timeType ? timeType.timeSlot : "Không xác định"}  </li>
-        </ul>
-      `,
-    });
+      <h1 style="font-size: 24px; color: #333;"> Bạn đã đặt lịch thành công. Vui lòng kiểm tra lại thông tin lịch hẹn dưới đây</h1>
+      <ul>
+        <li style="font-size: larger;"> Tên bệnh nhân: ${newBooking.nameCustomer}  </li>
+        <li style="font-size: larger;"> Ngày khám: ${moment(newBooking.date).format("DD/MM/YYYY")}  </li>
+        <li style="font-size: larger;"> Giờ vào khám: ${timeType ? timeType.timeSlot : 'Không xác định'}  </li>
+      </ul>
+        <br><br><hr>
+        <p style="color: gray; font-size: small;"><strong>From:</strong> Nha Khoa Tây Đô</p>
+        <p style="color: gray; font-size: small;"><strong>Address:</strong> Tân Tây Đô, Đan Phượng, Hà Nội</p>
+        <p style="color: gray; font-size: small;"><strong>Phonenumber:</strong> +84961106507</p>
+
+      `
+    })
 
     res.status(200).json({ booking: newBooking, request: req.body });
   } catch (err) {
