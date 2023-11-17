@@ -197,23 +197,6 @@ const AddUser = (props: PropsType) => {
     }
   };
 
-  const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
-    setPage(newPage);
-    getListTable({
-      pageIndex: newPage,
-      pageSize: rowsPerPage,
-    });
-  };
-
-  const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    setRowsPerPage(parseInt(event.target.value));
-    setPage(0);
-    getListTable({
-      pageIndex: 0,
-      pageSize: parseInt(event.target.value),
-    });
-  };
-
   useEffect(() => {
     if (!isEdit) {
       getListTable({});
@@ -302,7 +285,7 @@ const AddUser = (props: PropsType) => {
                   }}
                   staticDateTimePickerProps={{
                     disabled: !isEdit,
-                    minDateTime: new Date(),
+                    maxDateTime: new Date(),
                     views: ["year", "day"],
                     ampm: true,
                   }}

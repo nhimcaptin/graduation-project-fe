@@ -171,7 +171,6 @@ const History = (props: any) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-    reset({ name: "", phone: "", email: "" });
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -187,7 +186,6 @@ const History = (props: any) => {
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
-    reset({ name: "", phone: "", email: "" });
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -197,7 +195,6 @@ const History = (props: any) => {
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    reset({ name: "", phone: "", email: "" });
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -222,8 +219,10 @@ const History = (props: any) => {
   };
 
   const handleRefresh = () => {
+    setPage(0);
+    setRowsPerPage(10);
     reset({ name: "", phone: "", email: "" });
-    getData({});
+    getData({ name: "", phone: "", email: "", pageIndex: 0, pageSize: 10 });
   };
 
   const handleOpenModal = () => {
@@ -241,40 +240,13 @@ const History = (props: any) => {
     setTitle("Xem chi tiết");
   };
 
-  const confirmBooking = async (id: any) => {
-    setLoadingScreen(true);
-    try {
-      const dateHour = selectedItem?.timeSlot && selectedItem?.timeSlot.split("-")[1];
-      const date = dateHour
-        ? `${moment(selectedItem?.date).format("YYYY-MM-DD")} ${dateHour}`
-        : moment(new Date()).format("YYYY-MM-DD HH:mm");
-      const data = {
-        status: "Approved",
-        statusUpdateTime: date,
-      };
-      await apiService.put(`${URL_PATHS.CONFIRM_BOOKING}/${id || selectedItem?._id}`, data);
-      setToastInformation({
-        status: STATUS_TOAST.SUCCESS,
-        message: MESSAGE_SUCCESS.CONFIRM_BOOKING,
-      });
-      getData && getData({});
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    } finally {
-      setLoadingScreen(false);
-    }
-  };
-
   const getData = async (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
-    const name = !!props && props.hasOwnProperty("name") ? props.name : "";
-    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : "";
-    const email = !!props && props.hasOwnProperty("email") ? props.email : "";
+    const name = !!props && props.hasOwnProperty("name") ? props.name : filterContext?.name || "";
+    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : filterContext?.phone || "";
+    const email = !!props && props.hasOwnProperty("email") ? props.email : filterContext?.email || "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;

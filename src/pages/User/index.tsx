@@ -158,8 +158,6 @@ const User = (props: any) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-    reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -175,8 +173,6 @@ const User = (props: any) => {
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
-    reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -186,8 +182,6 @@ const User = (props: any) => {
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -212,9 +206,10 @@ const User = (props: any) => {
   };
 
   const handleRefresh = () => {
+    setPage(0);
+    setRowsPerPage(10);
     reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
-    getData({});
+    getData({ name: "", phone: "", email: "", pageIndex: 0, pageSize: 10 });
   };
 
   const handleOpenModal = () => {
@@ -289,9 +284,9 @@ const User = (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
-    const name = !!props && props.hasOwnProperty("name") ? props.name : "";
-    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : "";
-    const email = !!props && props.hasOwnProperty("email") ? props.email : "";
+    const name = !!props && props.hasOwnProperty("name") ? props.name : filterContext?.name || "";
+    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : filterContext?.phone || "";
+    const email = !!props && props.hasOwnProperty("email") ? props.email : filterContext?.email || "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -321,6 +316,11 @@ const User = (props: any) => {
       });
     } finally {
       setLoadingTable(false);
+      setFilterContext({
+        name,
+        phone,
+        email,
+      });
     }
   };
 

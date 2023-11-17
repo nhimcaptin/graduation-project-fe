@@ -284,7 +284,7 @@ const AddUser = (props: PropsType) => {
                   }}
                   staticDateTimePickerProps={{
                     disabled: !isEdit,
-                    minDateTime: new Date(),
+                    maxDateTime: new Date(),
                     views: ["year", "day"],
                     ampm: true,
                   }}

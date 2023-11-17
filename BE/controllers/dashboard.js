@@ -25,13 +25,7 @@ export const getDataDashboard = async (req, res, next) => {
       }
     });
 
-    let numberMax = 0;
-
-    Object.keys(obj).forEach((key) => {
-      if (obj[key].length > numberMax) {
-        numberMax = obj[key].length;
-      }
-    });
+    let numberMax = Object.keys(obj).length;
 
     const item = {};
     Object.keys(obj).map((x, index) => {

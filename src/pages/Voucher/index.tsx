@@ -84,7 +84,7 @@ const listStatus = [
     label: "Đang hoạt động",
   },
   {
-    value: 'false',
+    value: "false",
     label: "Không hoạt động",
   },
 ];
@@ -154,8 +154,6 @@ const Voucher = (props: any) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-    reset({ name: "", status: "" });
-    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -171,8 +169,6 @@ const Voucher = (props: any) => {
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
-    reset({ name: "", status: "" });
-    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -182,8 +178,6 @@ const Voucher = (props: any) => {
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    reset({ name: "", status: "" });
-    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -208,9 +202,10 @@ const Voucher = (props: any) => {
   };
 
   const handleRefresh = () => {
+    setPage(0);
+    setRowsPerPage(10);
     reset({ name: "", status: "" });
-    setFilterContext({});
-    getData({});
+    getData({ name: "", status: "", pageIndex: 0, pageSize: 10 });
   };
 
   const handleOpenModal = () => {
@@ -275,8 +270,8 @@ const Voucher = (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
-    const name = !!props && props.hasOwnProperty("name") ? props.name : null;
-    const status = !!props && props.hasOwnProperty("status") ? props.status : null;
+    const name = !!props && props.hasOwnProperty("name") ? props.name : filterContext?.name || "";
+    const status = !!props && props.hasOwnProperty("status") ? props.status : filterContext?.status || "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -309,6 +304,10 @@ const Voucher = (props: any) => {
       });
     } finally {
       setLoadingTable(false);
+      setFilterContext({
+        name,
+        status,
+      });
     }
   };
 

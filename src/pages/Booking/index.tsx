@@ -188,8 +188,6 @@ const Booking = (props: any) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
-    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -205,8 +203,6 @@ const Booking = (props: any) => {
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
-    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
-    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -216,8 +212,6 @@ const Booking = (props: any) => {
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
-    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -243,6 +237,8 @@ const Booking = (props: any) => {
 
   const handleRefresh = () => {
     setOrderBy("createdAt");
+    setPage(0);
+    setRowsPerPage(10);
     reset({
       name: "",
       numberPhoneCustomer: "",
@@ -250,8 +246,15 @@ const Booking = (props: any) => {
       service: "",
       status: [statusOptions[0], statusOptions[1]],
     });
-    setFilterContext({});
-    getData({ status: [statusOptions[0], statusOptions[1]] });
+    getData({
+      name: "",
+      numberPhoneCustomer: "",
+      emailCustomer: "",
+      service: "",
+      status: [statusOptions[0], statusOptions[1]],
+      pageIndex: 0,
+      pageSize: 10,
+    });
   };
 
   const handleOpenModal = () => {
@@ -312,11 +315,15 @@ const Booking = (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
     const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
-    const name = !!props && props.hasOwnProperty("name") ? props.name : "";
-    const numberPhoneCustomer = !!props && props.hasOwnProperty("numberPhoneCustomer") ? props.numberPhoneCustomer : "";
-    const emailCustomer = !!props && props.hasOwnProperty("emailCustomer") ? props.emailCustomer : "";
-    const status = !!props && props.hasOwnProperty("status") ? props.status : "";
-    const service = !!props && props.hasOwnProperty("service") ? props.service : "";
+    const name = !!props && props.hasOwnProperty("name") ? props.name : filterContext?.name || "";
+    const numberPhoneCustomer =
+      !!props && props.hasOwnProperty("numberPhoneCustomer")
+        ? props.numberPhoneCustomer
+        : filterContext?.numberPhoneCustomer || "";
+    const emailCustomer =
+      !!props && props.hasOwnProperty("emailCustomer") ? props.emailCustomer : filterContext?.emailCustomer || "";
+    const status = !!props && props.hasOwnProperty("status") ? props.status : filterContext?.status || "";
+    const service = !!props && props.hasOwnProperty("service") ? props.service : filterContext?.service || "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -352,6 +359,13 @@ const Booking = (props: any) => {
       });
     } finally {
       setLoadingTable(false);
+      setFilterContext({
+        name,
+        numberPhoneCustomer,
+        emailCustomer,
+        status,
+        service,
+      });
     }
   };
 

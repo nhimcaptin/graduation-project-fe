@@ -132,8 +132,6 @@ const MainService = (props: any) => {
     const isAsc = orderBy === property && order === "asc";
     setOrder(isAsc ? "desc" : "asc");
     setOrderBy(property);
-    reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
     getData({ sortBy: property, sortDirection: isAsc ? "desc" : "asc" });
   };
 
@@ -149,8 +147,6 @@ const MainService = (props: any) => {
 
   const handleChangePage = (_event: React.MouseEvent<HTMLButtonElement> | null, newPage: number) => {
     setPage(newPage);
-    reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
     getData({
       pageIndex: newPage,
       pageSize: rowsPerPage,
@@ -160,8 +156,6 @@ const MainService = (props: any) => {
   const handleChangeRowsPerPage = async (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setRowsPerPage(parseInt(event.target.value));
     setPage(0);
-    reset({ name: "", phone: "", email: "" });
-    setFilterContext({});
     getData({
       pageIndex: 0,
       pageSize: parseInt(event.target.value),
@@ -186,9 +180,10 @@ const MainService = (props: any) => {
   };
 
   const handleRefresh = () => {
-    setFilterContext({});
+    setPage(0);
+    setRowsPerPage(10);
     reset({ name: "", phone: "", email: "" });
-    getData({});
+    getData({ name: "", phone: "", email: "", pageIndex: 0, pageSize: 10 });
   };
 
   const handleOpenModal = () => {
@@ -283,6 +278,7 @@ const MainService = (props: any) => {
       });
     } finally {
       setLoadingTable(false);
+      setFilterContext({ name });
     }
   };
 
