@@ -94,6 +94,7 @@ export const getCurrentUser = async (req, res, next) => {
       address: data.address,
       image: data.image,
       role: data.role,
+      _id: data._id,
     };
     return res.status(200).json(user);
   } catch (error) {

@@ -44,7 +44,7 @@ const BookingSchema = new mongoose.Schema(
     },
     service: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: "MainService",
+      ref: "SubService",
     },
     status: {
       type: String,
