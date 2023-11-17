@@ -60,7 +60,8 @@ export const detailUser = async (req, res, next) => {
 
 export const detailDoctor = async (req, res, next) => {
   try {
-    const doctor = await User.findOne({ _id: req.params.id, role: "Doctor" }).exec();
+    const doctor = await User.findOne({ _id: req.params.id, role: "65317023583bf8c93e253b4e" }).exec();
+    
     if (!doctor) {
       return res.status(404).json({ message: "Bác sĩ không tồn tại." });
     }
@@ -92,6 +93,7 @@ export const getCurrentUser = async (req, res, next) => {
       email: data.email,
       phone: data.phone,
       address: data.address,
+      // img: data.address,
       image: data.image,
       role: data.role,
       _id: data._id,

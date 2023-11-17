@@ -37,6 +37,10 @@ const SubServiceSchema = new mongoose.Schema(
       type: String,
       require: true,
     },
+    descriptionMain: {
+      type: String,
+      // require: true,
+    },
   },
   { timestamps: true }
 );

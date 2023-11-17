@@ -4,7 +4,7 @@ import { convertFilter } from "../util/index.js";
 
 export const createSubService = async (req, res, next) => {
   try {
-    const { mainServiceID, name, price, aesthetics, treatmentTime, examination, image } = req.body;
+    const { mainServiceID, name, price, aesthetics, treatmentTime, examination, image ,description ,descriptionMain } = req.body;
     const newSubService = new SubService({
       mainServiceID,
       name,
@@ -13,6 +13,8 @@ export const createSubService = async (req, res, next) => {
       treatmentTime,
       examination,
       image,
+      description,
+      descriptionMain
     });
     const createdSubService = await newSubService.save();
 
@@ -90,7 +92,7 @@ export const detailSubservice = async (req, res, next) => {
     // if (!subService) {
     //   return res.status(404).json({ message: "Service không tồn tại" });
     // }
-    // const data = { ...subService._doc, nameService };
+    // const data = { ...subService._doc, nameService };  
     // return res.status(200).json(data);
     const subService = await SubService.findById(req.params.id, "-updatedAt -__v").populate(
       "mainServiceID",
@@ -117,7 +119,7 @@ export const getAllServices = async (req, res, next) => {
           aesthetics: x?.aesthetics,
           treatmentTime: x?.treatmentTime,
           examination: x?.examination,
-          _id: x?._id
+          _id: x?.id
         });
       } else {
         obj[x?.mainServiceID?._id] = {
@@ -130,7 +132,7 @@ export const getAllServices = async (req, res, next) => {
               aesthetics: x?.aesthetics,
               treatmentTime: x?.treatmentTime,
               examination: x?.examination,
-              _id: x?._id
+              _id: x?.id
             },
           ],
         };

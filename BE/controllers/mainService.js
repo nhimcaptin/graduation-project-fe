@@ -4,10 +4,11 @@ import { convertFilter } from "../util/index.js";
 export const createMainService = async (req, res, next) => {
   try {
     const data = req.body;
-    const { name, description } = data;
+    const { name, description ,descriptionMain } = data;
     const newMainService = new MainService({
       name,
       description,
+      descriptionMain
     });
     await newMainService.save();
 
