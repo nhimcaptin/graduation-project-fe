@@ -90,7 +90,7 @@ export const detailSubservice = async (req, res, next) => {
     // if (!subService) {
     //   return res.status(404).json({ message: "Service không tồn tại" });
     // }
-    // const data = { ...subService._doc, nameService };
+    // const data = { ...subService._doc, nameService };  
     // return res.status(200).json(data);
     const subService = await SubService.findById(req.params.id, "-updatedAt -__v").populate(
       "mainServiceID",
