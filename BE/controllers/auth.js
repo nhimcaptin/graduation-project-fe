@@ -13,6 +13,10 @@ export const register = async (req, res, next) => {
     if (existingUser) {
       return res.status(400).send("Email đã được sử dụng");
     }
+    const existingPhoneUser = await User.findOne({ phone: req.body.phone });
+    if (existingPhoneUser) {
+      return res.status(400).send("Số điện thoại đã được sử dụng");
+    }
     const newUser = new User({          
       ...req.body,
       password: hash,
