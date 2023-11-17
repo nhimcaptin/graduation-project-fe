@@ -92,7 +92,7 @@ export const getCurrentUser = async (req, res, next) => {
       email: data.email,
       phone: data.phone,
       address: data.address,
-      img: data.img,
+      image: data.image,
       role: data.role,
     };
     return res.status(200).json(user);

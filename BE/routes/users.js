@@ -17,7 +17,7 @@ router.get("/detail/:id", verifyAdmin, detailUser);
 router.delete("/:id", verifyAdmin, deleteUser);
 
 //GET-CURRENT-USER
-router.get("/get-current-user", verifyAdmin, getCurrentUser);
+router.get("/get-current-user", getCurrentUser);
 
 //GET-LIST-USER
 router.get("/get-list", verifyAdmin, getListUser);

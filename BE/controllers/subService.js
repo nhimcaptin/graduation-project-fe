@@ -117,6 +117,7 @@ export const getAllServices = async (req, res, next) => {
           aesthetics: x?.aesthetics,
           treatmentTime: x?.treatmentTime,
           examination: x?.examination,
+          _id: x?._id
         });
       } else {
         obj[x?.mainServiceID?._id] = {
@@ -129,6 +130,7 @@ export const getAllServices = async (req, res, next) => {
               aesthetics: x?.aesthetics,
               treatmentTime: x?.treatmentTime,
               examination: x?.examination,
+              _id: x?._id
             },
           ],
         };
