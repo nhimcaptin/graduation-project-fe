@@ -275,7 +275,7 @@ const BookingDoctor = () => {
   }, []);
 
   return (
-    <Page className={styles.root} title="Danh sách đặt lịch" isActive>
+    <Page className={styles.root} title="Danh sách khám" isActive>
       <Grid container item xs={12} sx={{ marginTop: "15px" }}>
         <LabelCustom title="Bệnh nhân vào khám" sx={{ fontSize: "18px !important" }} />
         <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>

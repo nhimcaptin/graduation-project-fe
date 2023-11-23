@@ -109,8 +109,12 @@ export const getBooking = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
+    const users = await User.find({ name: _filter?.name });
+    const idUser = users.map((x) => {
+      return x._id;
+    });
     if (_filter?.name) {
-      _filter.$or = [{ nameCustomer: _filter?.name }, { "patientId.name": _filter?.name }];
+      _filter.$or = [{ nameCustomer: _filter?.name }, { patientId: { $in: idUser } }];
       delete _filter.name;
     }
     const booking = await Booking.find(_filter)
