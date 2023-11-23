@@ -153,3 +153,28 @@ export const getListDoctors = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getListFilterUser = async (req, res, next) => {
+  try {
+    const { Page, PageSize, Sorts, filters } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+    const _filter = convertFilter(filters);
+
+    const itemFilter = {
+      ...(Object.keys(_filter).length > 0 ? { $or: [{ name: _filter.name }, { phone: _filter.phone }] } : {}),
+      isAdmin: "false",
+    };
+
+    const query = User.find(itemFilter);
+    const users = await query
+      .populate("role")
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .sort(Sorts);
+    const totalUsers = await User.countDocuments(User.find(itemFilter));
+    res.json({ data: users, totalUsers });
+  } catch (error) {
+    next(error);
+  }
+};

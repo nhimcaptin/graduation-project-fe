@@ -140,16 +140,16 @@ const AddUser = (props: PropsType) => {
 
     const filters = {
       name: searchText,
-      equals: { isAdmin: "false" },
+      phone: searchText,
     };
     try {
-      const res: any = await await apiService.getFilter(URL_PATHS.GET_USER, params, filters);
+      const res: any = await await apiService.getFilter(URL_PATHS.GET_FILTER_USER, params, filters);
       const resultItems: any[] = res?.data;
       if (resultItems.length >= 0) {
         const items: any[] = resultItems.map((item) => {
           const result = {
             ...item,
-            label: item?.name || "",
+            label: item?.name ? `${item?.name}${item?.phone ? ` - ${item?.phone}` : ""}` : "",
             value: item?._id || "",
           };
           return result;
@@ -682,7 +682,7 @@ const AddUser = (props: PropsType) => {
                       onChange(e);
                       getListTimeType(moment(e).format("YYYY/MM/DD"));
                       setValue("timeTypeId", "");
-                      clearErrors("timeTypeId")
+                      clearErrors("timeTypeId");
                     }}
                     inputFormat="DD/MM/YYYY"
                   />
@@ -713,11 +713,11 @@ const AddUser = (props: PropsType) => {
                           variant={value?._id === item._id ? "contained" : "outlined"}
                           className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
                             [styles.isDisabled]:
-                              (item.isDisabled && dataDetail?.timeTypeId?._id !== item._id) || !isEdit,
+                              (item.isDisabled && dataDetail?.timeTypeId?._id !== item._id && false) || !isEdit,
                           })}
                           onClick={(e: any) => {
                             setValue("timeTypeId", item);
-                            clearErrors("timeTypeId")
+                            clearErrors("timeTypeId");
                           }}
                         >
                           <Typography

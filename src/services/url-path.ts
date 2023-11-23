@@ -5,6 +5,7 @@ const URL_PATHS = {
   GET_CURRENT_USER: "api/users/get-current-user",
   CREATE_USER: "api/users",
   GET_USER: "api/users/get-list",
+  GET_FILTER_USER: "api/users/get-list-filter-user",
   DETAIL_USER: "api/users/detail",
   RESOURCE_ACTION: "api/role/resource-actions",
   PERMISSIONS: "api/role/permissions",

@@ -1,5 +1,5 @@
 import express from "express";
-import { createUser, deleteUser, detailDoctor, detailUser, getCurrentUser, getListDoctors, getListUser, updateUser } from "../controllers/user.js";
+import { createUser, deleteUser, detailDoctor, detailUser, getCurrentUser, getListDoctors, getListFilterUser, getListUser, updateUser } from "../controllers/user.js";
 import { verifyAdmin } from "../middlewares/verifyToken.js";
 
 const router = express.Router();
@@ -27,5 +27,7 @@ router.get("/get-list-doctor", getListDoctors);
 
 //GET-DETAIL-DOCTOR
 router.get("/detail-doctor/:id", detailDoctor);
+
+router.get("/get-list-filter-user", verifyAdmin, getListFilterUser);
 
 export default router;
