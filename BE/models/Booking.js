@@ -42,10 +42,10 @@ const BookingSchema = new mongoose.Schema(
     description: {
       type: String,
     },
-    service: {
+    service: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubService",
-    },
+    }],
     status: {
       type: String,
       required: true,

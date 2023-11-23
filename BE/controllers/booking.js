@@ -4,7 +4,7 @@ import Booking from "../models/Booking.js";
 import User from "../models/User.js";
 import TimeType from "../models/TimeType.js";
 import { convertFilter } from "../util/index.js";
-import MainServices from "../models/MainServices.js";
+import SubService from "../models/SubService.js";
 import { sendMail } from "../middlewares/send.mail.js"
 import moment from "moment"
 
@@ -36,6 +36,7 @@ export const createBooking = async (req, res, next) => {
     const patient = await User.findById(patientId);
 
     const timeType = await TimeType.findById(timeTypeId);
+    const servicesDetails = await SubService.find({ _id: { $in: service } });
 
     const newBooking = new Booking({
       patientId,
@@ -43,7 +44,7 @@ export const createBooking = async (req, res, next) => {
       date,
       timeTypeId: timeType,
       description,
-      service,
+      service: servicesDetails,
       status,
       bookingType,
       setType,
@@ -55,7 +56,7 @@ export const createBooking = async (req, res, next) => {
       birthdayCustomer,
     });
     await newBooking.save();
-
+    const servicesList = servicesDetails.map(service => `<li>${service.name}</li>`).join('');
     await sendMail({
       email: newBooking.emailCustomer,
       subject: "Thông báo từ Phòng Khám Nha Khoa Tây Đô",
@@ -65,6 +66,11 @@ export const createBooking = async (req, res, next) => {
         <li style="font-size: larger;"> Tên bệnh nhân: ${newBooking.nameCustomer}  </li>
         <li style="font-size: larger;"> Ngày khám: ${moment(newBooking.date).format("DD/MM/YYYY")}  </li>
         <li style="font-size: larger;"> Giờ vào khám: ${timeType ? timeType.timeSlot : 'Không xác định'}  </li>
+        <li style="font-size: larger;"> Dịch vụ:
+        <ul>
+          ${servicesList}
+        </ul>
+      </li>
       </ul>
         <br><br><hr>
         <p style="color: gray; font-size: small;"><strong>From:</strong> Nha Khoa Tây Đô</p>
