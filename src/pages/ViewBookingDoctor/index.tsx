@@ -1,23 +1,25 @@
-import { Box, Grid } from "@mui/material";
-import TextFieldCustom from "../../components/TextFieldCustom";
+import { Box, Button, Checkbox, FormControlLabel, Grid, Typography } from "@mui/material";
+import clsx from "clsx";
+import moment from "moment";
+import { useEffect, useMemo, useState } from "react";
+import { Controller, useForm } from "react-hook-form";
+import { useParams } from "react-router-dom";
+import ButtonCustom from "../../components/ButtonCustom";
+import DateTimePickerCustom from "../../components/DateTimePickerCustom";
+import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
+import FocusHiddenInput from "../../components/FocusHiddenInput";
 import LabelCustom from "../../components/LabelCustom";
 import Page from "../../components/Page";
-import styles from "./styles.module.scss";
-import { Controller, useForm } from "react-hook-form";
-import FocusHiddenInput from "../../components/FocusHiddenInput";
 import SunEditorShare from "../../components/SunEditorStyled";
-import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
-import { stripHTML } from "../../utils";
-import ButtonCustom from "../../components/ButtonCustom";
-import { useEffect, useState } from "react";
+import TextFieldCustom from "../../components/TextFieldCustom";
+import { MESSAGE_ERROR, MESSAGE_ERROR_API, MESSAGE_SUCCESS } from "../../consts/messages";
+import { STATUS_TOAST } from "../../consts/statusCode";
+import { useSetToastInformationState } from "../../redux/store/ToastMessage";
+import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
-import { useParams } from "react-router-dom";
-import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
-import { useSetToastInformationState } from "../../redux/store/ToastMessage";
-import { STATUS_TOAST } from "../../consts/statusCode";
-import { MESSAGE_SUCCESS } from "../../consts/messages";
-import moment from "moment";
+import { stripHTML } from "../../utils";
+import styles from "./styles.module.scss";
 import ReactSelect from "../../components/ReactSelectView";
 
 const ViewBookingDoctor = () => {
@@ -28,7 +30,13 @@ const ViewBookingDoctor = () => {
     phone: "",
     nameService: "",
   });
+  const [isIdHistory, setIsIdHistory] = useState<any>("");
+  const [isIdBooking, setIsIdBookingy] = useState<any>("");
   const [isDone, setIsDone] = useState<boolean>(false);
+  const [isCheck, setIsCheck] = useState(false);
+  const [isLoadingHour, setIsLoadingHour] = useState(false);
+  const [hourInDateData, setHourInDateData] = useState([]);
+
   const { setLoadingScreen } = useSetLoadingScreenState();
   const { setToastInformation } = useSetToastInformationState();
   const params = useParams();
@@ -37,12 +45,15 @@ const ViewBookingDoctor = () => {
     handleSubmit,
     control,
     watch,
+    clearErrors,
     setValue,
     formState: { errors },
   } = useForm({
     defaultValues: {
       condition: "",
-      mainService: "",
+      date: "",
+      timeTypeId: "",
+      mainServicerReExamination: "",
     },
   });
 
@@ -55,6 +66,7 @@ const ViewBookingDoctor = () => {
     };
     try {
       const data: any = await apiService.post(URL_PATHS.CREATE_HISTORY, _item);
+      setIsIdHistory(data?._id);
       setIsDone(true);
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
@@ -65,6 +77,35 @@ const ViewBookingDoctor = () => {
       setLoadingScreen(false);
     }
   };
+
+  const onSubmitReExamination = async (data: any) => {
+    setLoadingScreen(true);
+    const mainServicerReExamination = data.mainServicerReExamination.map((x: any) => x?._id);
+    const _item = {
+      ...dataUser,
+      ...data,
+      timeTypeId: data?.timeTypeId?._id,
+      mainServicerReExamination,
+      isCheck,
+      bookingId: isIdBooking,
+    };
+    try {
+      const res: any = await apiService.post(URL_PATHS.UPDATE_HISTORY + "/" + isIdHistory, _item);
+      setIsIdBookingy(res?.bookingId);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: MESSAGE_SUCCESS.UPDATE_STATUS,
+      });
+    } catch (error) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: MESSAGE_ERROR_API.ERROR_SYSTEM,
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
+  };
+
   const getEditorNewValue = (newValue: string) => {
     const stripedValue = stripHTML(newValue).trim();
     if (stripedValue.length === 1 && stripedValue.charCodeAt(0) === 8203) return "";
@@ -82,7 +123,7 @@ const ViewBookingDoctor = () => {
         phone: data?.numberPhoneCustomer || data?.patientId?.phone,
         gender: data?.genderCustomer || data?.patientId?.gender,
         birthday: data?.birthdayCustomer || data?.patientId?.birthday,
-        nameService: data?.service?.name,
+        nameService: data?.service,
         idService: data?.service?._id,
         idPatient: data?.user?._id,
         idDoctor: data?.doctorId?._id,
@@ -95,8 +136,63 @@ const ViewBookingDoctor = () => {
     }
   };
 
+  const getListTimeType = async (date: any) => {
+    setIsLoadingHour(true);
+    try {
+      const params = {
+        equals: {
+          date,
+        },
+      };
+      const res: any = await apiService.getFilter(URL_PATHS.GET_LIST_TIME_TYPE, null, params);
+      setHourInDateData(res);
+    } catch (error) {
+    } finally {
+      setIsLoadingHour(false);
+    }
+  };
+
+  const getMainServiceOptions = async (searchText: string, page: number, perPage: number) => {
+    const params = {
+      page,
+      perPage,
+    };
+
+    const filters = {
+      name: searchText,
+    };
+    try {
+      const res: any = await await apiService.getFilter(URL_PATHS.GET_LIST_SUB_SERVICE, params, filters);
+      const resultItems: any[] = res?.getSubservice;
+      if (resultItems.length >= 0) {
+        const items: any[] = resultItems.map((item) => {
+          const result = {
+            ...item,
+            label: item?.name || "",
+            value: item?._id || "",
+          };
+          return result;
+        });
+        return {
+          options: items,
+          hasMore: res?.totalUsers / perPage > page,
+        };
+      }
+      return {
+        options: [],
+        hasMore: false,
+      };
+    } catch (error) {
+      return {
+        options: [],
+        hasMore: false,
+      };
+    }
+  };
+
   useEffect(() => {
     getDetail();
+    getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
   }, []);
   return (
     <Page className={styles.root} title="Thông tin bệnh nhân" isActive>
@@ -155,10 +251,158 @@ const ViewBookingDoctor = () => {
         <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Dịch vụ" />
-            <TextFieldCustom value={dataUser?.nameService} disabled placeholder="Nhập dịch vụ" type="text" />
+            <ReactSelect
+              isClearable
+              getOptionLabel={(option: any) => option.name}
+              getOptionValue={(option: any) => option._id}
+              value={dataUser?.nameService}
+              isMulti
+              isDisabled
+              fieldName="name"
+              maxMenuHeight={200}
+              placeholder="Chọn dịch vụ tái khám"
+              errorMessage={errors?.mainServicerReExamination?.message as string}
+              menuPlacement="top"
+            />
           </Box>
         </Grid>
       </Grid>
+
+      {isDone && (
+        <Grid container item xs={5} sx={{ marginTop: "15px" }}>
+          <FormControlLabel
+            control={
+              <Checkbox
+                checked={isCheck}
+                onChange={(e: any, isInputChecked) => {
+                  setIsCheck(isInputChecked);
+                  getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
+                  setValue("date", moment(new Date()).format("YYYY/MM/DD"));
+                  setValue("timeTypeId", "");
+                }}
+              />
+            }
+            label={<LabelCustom title="Đặt lịch tái khám" sx={{ marginBottom: "0px !important" }} />}
+          />
+        </Grid>
+      )}
+
+      {isCheck && (
+        <Grid container item xs={12} sx={{ marginTop: "5px" }}>
+          <Grid item xs={2.5}>
+            <LabelCustom title="Dịch vụ tái khám" />
+            <Controller
+              control={control}
+              name="mainServicerReExamination"
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <ReactSelect
+                  isClearable
+                  getOptions={getMainServiceOptions}
+                  getOptionLabel={(option: any) => option.name}
+                  getOptionValue={(option: any) => option._id}
+                  value={value}
+                  onChange={(value: any) => {
+                    onChange(value);
+                  }}
+                  isMulti
+                  fieldName={name}
+                  maxMenuHeight={200}
+                  placeholder="Chọn dịch vụ tái khám"
+                  inputRef={ref}
+                  errorMessage={errors?.mainServicerReExamination?.message as string}
+                  menuPlacement="top"
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+      )}
+
+      {isCheck && (
+        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+          <Grid item xs={2.5}>
+            <LabelCustom title="Ngày đặt lịch" isRequired />
+            <Controller
+              control={control}
+              name="date"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              render={({ field: { value, onChange } }) => (
+                <DateTimePickerCustom
+                  inputProps={{
+                    errorMessage: errors?.date?.message,
+                  }}
+                  staticDateTimePickerProps={{
+                    minDateTime: new Date(),
+                    views: ["year", "day"],
+                    ampm: true,
+                  }}
+                  value={value}
+                  onChange={(e: any) => {
+                    onChange(e);
+                    getListTimeType(moment(e).format("YYYY/MM/DD"));
+                    setValue("timeTypeId", "");
+                    clearErrors("timeTypeId");
+                  }}
+                  inputFormat="DD/MM/YYYY"
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+      )}
+
+      {isCheck && (
+        <Grid container item xs={5} sx={{ marginTop: "10px", position: "relative" }}>
+          <Controller
+            shouldUnregister
+            control={control}
+            name="timeTypeId"
+            rules={{
+              required: MESSAGE_ERROR.fieldRequired,
+            }}
+            render={({ field: { value, onChange } }: any) => {
+              return (
+                <>
+                  {hourInDateData.map((item: any, index: number) => {
+                    const dateHour = item?.timeSlot.split("-")[1];
+                    const dateEnd = moment(new Date().getHours() + 1).format("YYYY-MM-DD HH:mm");
+                    const date = moment(new Date()).format("YYYY-MM-DD");
+                    return (
+                      <Button
+                        variant={value?._id === item._id ? "contained" : "outlined"}
+                        className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
+                          [styles.isDisabled]:
+                            item.isDisabled && dataUser?.bookingId?.timeTypeId?._id !== item._id && false,
+                        })}
+                        onClick={(e: any) => {
+                          setValue("timeTypeId", item);
+                          clearErrors("timeTypeId");
+                        }}
+                      >
+                        <Typography
+                          className={clsx({ [styles.titleActive]: value?._id === item._id }, `${styles.title}`)}
+                        >
+                          {item.timeSlot}
+                        </Typography>
+                      </Button>
+                    );
+                  })}
+                </>
+              );
+            }}
+          />
+          {errors?.timeTypeId && (
+            <ErrorMessage style={{ marginTop: "10px" }}>{errors?.timeTypeId?.message}</ErrorMessage>
+          )}
+          {isLoadingHour && (
+            <div className={styles.loadingHour}>
+              <div className={styles.loader}></div>
+            </div>
+          )}
+        </Grid>
+      )}
 
       <Grid container item xs={12} sx={{ marginTop: "15px" }}>
         <Grid item xs={8.5} mt={1}>
@@ -202,6 +446,9 @@ const ViewBookingDoctor = () => {
           xs={8.5}
           sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
         >
+          {isCheck && (
+            <ButtonCustom type="submit" title="Tái khám" color="blue" onClick={handleSubmit(onSubmitReExamination)} />
+          )}
           <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onSubmit)} />
           <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmit)} />
         </Grid>

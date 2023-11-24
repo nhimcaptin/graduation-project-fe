@@ -39,10 +39,10 @@ export const addHistory = async (req, res, next) => {
       bookingType: data?.bookingType,
     };
     await Booking.findOneAndUpdate({ _id: data?.id }, { $set: { status: "Done" } }, { new: true });
-    await new HistoryBooking({
+    const _item = await new HistoryBooking({
       ...item,
     }).save();
-    res.status(200).json({ message: "SUCCESS" });
+    res.status(200).json(_item);
   } catch (err) {
     next(err);
   }
@@ -85,7 +85,7 @@ export const bookingReExamination = async (req, res, next) => {
         date: data?.date,
         timeTypeId: data?.timeTypeId,
         description: data?.description,
-        service: data?.idService,
+        service: data?.mainServicerReExamination,
         bookingType: data?.bookingType,
         setType: "ReExamination",
         nameCustomer: data?.name,
@@ -103,12 +103,20 @@ export const bookingReExamination = async (req, res, next) => {
       await Booking.findOneAndUpdate({ _id: data?.bookingId }, { $set: { status: "Cancel" } }, { new: true });
     }
 
-    await HistoryBooking.findOneAndUpdate(
+    if (data?.bookingId) {
+      await Booking.findOneAndUpdate(
+        { _id: data?.bookingId },
+        { $set: { service: data?.mainServicerReExamination, date: data?.date, timeTypeId: data?.timeTypeId } },
+        { new: true }
+      );
+    }
+
+    const _item = await HistoryBooking.findOneAndUpdate(
       { _id: id },
-      { $set: { condition: data?.condition, bookingId: data?.isCheck  ? idBooking : null } },
+      { $set: { condition: data?.condition, bookingId: data?.isCheck ? idBooking : null } },
       { new: true }
     );
-    res.status(200).json("SUCCESS");
+    res.status(200).json(_item);
   } catch (err) {
     next(err);
   }
