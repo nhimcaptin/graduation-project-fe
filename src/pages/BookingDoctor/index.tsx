@@ -176,52 +176,6 @@ const BookingDoctor = () => {
     });
   };
 
-  const confirmBooking = async (id: any) => {
-    setLoadingScreen(true);
-    try {
-      const dateHour = selectedItem?.timeSlot && selectedItem?.timeSlot.split("-")[1];
-      const date = dateHour
-        ? `${moment(selectedItem?.date).format("YYYY-MM-DD")} ${dateHour}`
-        : moment(new Date()).format("YYYY-MM-DD HH:mm");
-      const data = {
-        status: "Approved",
-        statusUpdateTime: date,
-      };
-      await apiService.put(`${URL_PATHS.CONFIRM_BOOKING}/${id || selectedItem?._id}`, data);
-      setToastInformation({
-        status: STATUS_TOAST.SUCCESS,
-        message: MESSAGE_SUCCESS.CONFIRM_BOOKING,
-      });
-      getData && getData({});
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    } finally {
-      setLoadingScreen(false);
-    }
-  };
-
-  const onDelete = async () => {
-    setLoadingScreen(true);
-    try {
-      await apiService.delete(`${URL_PATHS.CREATE_USER}/${selectedItem?._id}`);
-      setToastInformation({
-        status: STATUS_TOAST.SUCCESS,
-        message: MESSAGE_SUCCESS.DELETE_USER,
-      });
-      getData && getData({});
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    } finally {
-      setLoadingScreen(false);
-    }
-  };
-
   const getData = async (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;

@@ -30,10 +30,12 @@ const HistoryBookingSchema = new mongoose.Schema(
       ref: "User",
       required: true,
     },
-    service: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "MainService",
-    },
+    service: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "SubService",
+      },
+    ],
     bookingType: {
       type: String,
       default: "Online",

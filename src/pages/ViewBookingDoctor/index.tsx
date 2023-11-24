@@ -18,6 +18,7 @@ import { useSetToastInformationState } from "../../redux/store/ToastMessage";
 import { STATUS_TOAST } from "../../consts/statusCode";
 import { MESSAGE_SUCCESS } from "../../consts/messages";
 import moment from "moment";
+import ReactSelect from "../../components/ReactSelectView";
 
 const ViewBookingDoctor = () => {
   const [dataUser, setDataUser] = useState<any>({
@@ -27,6 +28,7 @@ const ViewBookingDoctor = () => {
     phone: "",
     nameService: "",
   });
+  const [isDone, setIsDone] = useState<boolean>(false);
   const { setLoadingScreen } = useSetLoadingScreenState();
   const { setToastInformation } = useSetToastInformationState();
   const params = useParams();
@@ -39,7 +41,8 @@ const ViewBookingDoctor = () => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      description: "",
+      condition: "",
+      mainService: "",
     },
   });
 
@@ -47,10 +50,12 @@ const ViewBookingDoctor = () => {
     setLoadingScreen(true);
     const _item = {
       ...dataUser,
+      condition: data?.condition,
       id: params?.id,
     };
     try {
       const data: any = await apiService.post(URL_PATHS.CREATE_HISTORY, _item);
+      setIsDone(true);
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
         message: MESSAGE_SUCCESS.UPDATE_STATUS,
@@ -83,7 +88,7 @@ const ViewBookingDoctor = () => {
         idDoctor: data?.doctorId?._id,
         bookingType: data?.bookingType,
       });
-      setValue("description", data?.description);
+      setIsDone(data?.status == "Done");
     } catch (error) {
     } finally {
       setLoadingScreen(false);
@@ -95,31 +100,31 @@ const ViewBookingDoctor = () => {
   }, []);
   return (
     <Page className={styles.root} title="Thông tin bệnh nhân" isActive>
-      <Grid container item xs={5} sx={{ marginTop: "15px" }}>
-        <Grid item xs={5}>
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Họ và tên" />
             <TextFieldCustom value={dataUser?.name} disabled placeholder="Nhập họ và tên" type="text" />
           </Box>
         </Grid>
-        <Grid item xs={2}></Grid>
-        <Grid item xs={5}>
+        <Grid item xs={0.5}></Grid>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Số điện thoại" />
             <TextFieldCustom value={dataUser?.phone} disabled placeholder="Nhập số điện thoại" type="text" />
           </Box>
         </Grid>
-      </Grid>
-
-      <Grid container item xs={5} sx={{ marginTop: "15px" }}>
-        <Grid item xs={5}>
+        <Grid item xs={0.5}></Grid>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Email" />
             <TextFieldCustom value={dataUser?.email} disabled placeholder="Nhập email" type="text" />
           </Box>
         </Grid>
-        <Grid item xs={2}></Grid>
-        <Grid item xs={5}>
+      </Grid>
+
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Ngày sinh" />
             <TextFieldCustom
@@ -130,16 +135,15 @@ const ViewBookingDoctor = () => {
             />
           </Box>
         </Grid>
-      </Grid>
-      <Grid container item xs={5} sx={{ marginTop: "15px" }}>
-        <Grid item xs={5}>
+        <Grid item xs={0.5}></Grid>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Giới tính" />
             <TextFieldCustom value={dataUser?.gender} disabled placeholder="Nhập giới tính" type="text" />
           </Box>
         </Grid>
-        <Grid item xs={2}></Grid>
-        <Grid item xs={5}>
+        <Grid item xs={0.5}></Grid>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Địa chỉ" />
             <TextFieldCustom value={dataUser?.address} disabled placeholder="Nhập địa" type="text" />
@@ -147,8 +151,8 @@ const ViewBookingDoctor = () => {
         </Grid>
       </Grid>
 
-      <Grid container item xs={5} sx={{ marginTop: "15px" }}>
-        <Grid item xs={5}>
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Dịch vụ" />
             <TextFieldCustom value={dataUser?.nameService} disabled placeholder="Nhập dịch vụ" type="text" />
@@ -156,12 +160,12 @@ const ViewBookingDoctor = () => {
         </Grid>
       </Grid>
 
-      <Grid container item xs={6} sx={{ marginTop: "15px" }}>
-        <Grid item xs={12} mt={1}>
-          <LabelCustom title="Mô tả" />
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <Grid item xs={8.5} mt={1}>
+          <LabelCustom title="Tình trạng" />
           <Controller
             control={control}
-            name="description"
+            name="condition"
             render={({ field: { value, onChange, onBlur, ref } }) => (
               <>
                 <FocusHiddenInput ref={ref}></FocusHiddenInput>
@@ -171,7 +175,7 @@ const ViewBookingDoctor = () => {
                   onChangeEditorState={(newValue: any) => onChange(getEditorNewValue(newValue))}
                   setContents={value || ""}
                   minHeight="400px"
-                  errorEditor={!!errors?.description?.message}
+                  errorEditor={!!errors?.condition?.message}
                   onBlur={(e: any, content: any) => {
                     onBlur();
                     onChange((content || "").trim());
@@ -182,14 +186,26 @@ const ViewBookingDoctor = () => {
           />
         </Grid>
       </Grid>
-      <Grid
-        container
-        item
-        xs={6}
-        sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
-      >
-        <ButtonCustom type="submit" title="Khám xong" color="yellow" onClick={handleSubmit(onSubmit)} />
-      </Grid>
+      {!isDone ? (
+        <Grid
+          container
+          item
+          xs={8.5}
+          sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
+        >
+          <ButtonCustom type="submit" title="Khám xong" color="yellow" onClick={handleSubmit(onSubmit)} />
+        </Grid>
+      ) : (
+        <Grid
+          container
+          item
+          xs={8.5}
+          sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
+        >
+          <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onSubmit)} />
+          <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmit)} />
+        </Grid>
+      )}
     </Page>
   );
 };

@@ -75,7 +75,7 @@ const AddUser = (props: PropsType) => {
       bookingType: dataDetail ? dataType.find((x) => x.value === dataDetail?.bookingType) : null,
       date: dataDetail ? dataDetail?.date : new Date(),
       timeTypeId: dataDetail ? { _id: dataDetail?.timeTypeId?._id, timeSlot: dataDetail?.timeTypeId?.name } : "",
-      mainService: dataDetail ? { value: dataDetail?.service?._id, label: dataDetail?.service?.name } : "",
+      mainService: dataDetail ? dataDetail?.service : "",
       setType: dataDetail ? dataDetail?.setType : "",
       nameCustomer: dataDetail ? dataDetail?.nameCustomer : "",
       birthdayCustomer: dataDetail ? dataDetail?.birthdayCustomer : "",
@@ -396,18 +396,19 @@ const AddUser = (props: PropsType) => {
                 <ReactSelect
                   isClearable
                   getOptions={getMainServiceOptions}
-                  getOptionLabel={(option: any) => option.label}
-                  getOptionValue={(option: any) => option.value}
+                  getOptionLabel={(option: any) => option.name}
+                  getOptionValue={(option: any) => option._id}
                   value={value}
                   onChange={(value: any) => {
                     onChange(value);
                   }}
+                  isMulti
                   fieldName={name}
                   maxMenuHeight={200}
                   placeholder="Chọn dịch vụ"
                   inputRef={ref}
                   isDisabled={!isEdit}
-                  errorMessage={errors?.bookingType?.message as string}
+                  errorMessage={errors?.mainService?.message as string}
                   menuPlacement="top"
                 />
               )}
