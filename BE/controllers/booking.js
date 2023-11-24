@@ -29,10 +29,17 @@ export const createBooking = async (req, res, next) => {
       addressCustomer,
     } = data;
 
-    const existingBooking = await Booking.findOne({ doctorId, date, timeTypeId });
-    if (existingBooking && bookingType === "Online") {
-      return res.status(400).json({ message: "Cuộc hẹn trùng lặp." });
+    const maxAppointmentsPerSlot = 3; 
+
+    const existingAppointments = await Booking.find({ doctorId, date, timeTypeId });
+    if (existingAppointments.length >= maxAppointmentsPerSlot && bookingType === "Online") {
+      return res.status(400).json({ message: "Không còn chỗ trống trong khung giờ này." });
     }
+
+    // const existingBooking = await Booking.findOne({ doctorId, date, timeTypeId });
+    // if (existingBooking && bookingType === "Online") {
+    //   return res.status(400).json({ message: "Cuộc hẹn trùng lặp." });
+    // }
     const patient = await User.findById(patientId);
 
     const timeType = await TimeType.findById(timeTypeId);
