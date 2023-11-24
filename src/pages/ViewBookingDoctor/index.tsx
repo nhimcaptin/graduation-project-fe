@@ -116,6 +116,7 @@ const ViewBookingDoctor = () => {
     setLoadingScreen(true);
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_DETAIL_COME_CHECK + "/" + params?.id);
+      const idService = data?.service?.map((x: any) => x?._id);
       setDataUser({
         address: data?.addressCustomer || data?.patientId?.address,
         email: data?.emailCustomer || data?.patientId?.email,
@@ -124,7 +125,7 @@ const ViewBookingDoctor = () => {
         gender: data?.genderCustomer || data?.patientId?.gender,
         birthday: data?.birthdayCustomer || data?.patientId?.birthday,
         nameService: data?.service,
-        idService: data?.service?._id,
+        idService: idService,
         idPatient: data?.user?._id,
         idDoctor: data?.doctorId?._id,
         bookingType: data?.bookingType,
@@ -260,8 +261,7 @@ const ViewBookingDoctor = () => {
               isDisabled
               fieldName="name"
               maxMenuHeight={200}
-              placeholder="Chọn dịch vụ tái khám"
-              errorMessage={errors?.mainServicerReExamination?.message as string}
+              placeholder="Chọn dịch vụ"
               menuPlacement="top"
             />
           </Box>

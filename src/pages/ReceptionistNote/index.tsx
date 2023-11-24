@@ -20,12 +20,14 @@ import { MESSAGE_ERROR, MESSAGE_ERROR_API, MESSAGE_SUCCESS } from "../../consts/
 import moment from "moment";
 import clsx from "clsx";
 import DateTimePickerCustom from "../../components/DateTimePickerCustom";
+import ReactSelect from "../../components/ReactSelectView";
 
 const ReceptionistNote = () => {
   const [dataUser, setDataUser] = useState<any>({});
   const { setLoadingScreen } = useSetLoadingScreenState();
   const { setToastInformation } = useSetToastInformationState();
   const [isCheck, setIsCheck] = useState(false);
+  const [isDisabled, setIsDisabled] = useState(false);
   const [isLoadingHour, setIsLoadingHour] = useState(false);
   const [hourInDateData, setHourInDateData] = useState([]);
 
@@ -41,6 +43,7 @@ const ReceptionistNote = () => {
   } = useForm({
     defaultValues: {
       condition: "",
+      mainServicerReExamination: "",
       timeTypeId: !dataUser
         ? { _id: dataUser?.bookingId?._id || "", timeSlot: dataUser?.bookingId?.timeSlot || "" }
         : "",
@@ -81,7 +84,9 @@ const ReceptionistNote = () => {
   const getDetail = async () => {
     setLoadingScreen(true);
     try {
-      const { data }: any = await apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id);
+      const { data, isDisabled }: any = await apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id);
+      setIsDisabled(isDisabled);
+      const idService = data?.service?.map((x: any) => x?._id);
       setDataUser({
         address: data?.address || data?.patientId?.address,
         email: data?.email || data?.patientId?.email,
@@ -89,14 +94,15 @@ const ReceptionistNote = () => {
         phone: data?.phone || data?.patientId?.phone,
         gender: data?.gender || data?.patientId?.gender,
         birthday: data?.birthday || data?.patientId?.birthday,
-        nameService: data?.service?.name,
-        idService: data?.service?._id,
+        nameService: data?.service,
+        idService: idService,
         idPatient: data?.user?._id,
         idDoctor: data?.doctorId?._id,
         bookingType: data?.bookingType,
         bookingId: data?.bookingId,
       });
       setValue("condition", data?.condition);
+      setValue("mainServicerReExamination", data?.bookingId?.service);
       setValue("timeTypeId", {
         _id: data?.bookingId?.timeTypeId?._id || "",
         timeSlot: data?.bookingId?.timeTypeId?.timeSlot || "",
@@ -125,37 +131,75 @@ const ReceptionistNote = () => {
     }
   };
 
+  const getMainServiceOptions = async (searchText: string, page: number, perPage: number) => {
+    const params = {
+      page,
+      perPage,
+    };
+
+    const filters = {
+      name: searchText,
+    };
+    try {
+      const res: any = await await apiService.getFilter(URL_PATHS.GET_LIST_SUB_SERVICE, params, filters);
+      const resultItems: any[] = res?.getSubservice;
+      if (resultItems.length >= 0) {
+        const items: any[] = resultItems.map((item) => {
+          const result = {
+            ...item,
+            label: item?.name || "",
+            value: item?._id || "",
+          };
+          return result;
+        });
+        return {
+          options: items,
+          hasMore: res?.totalUsers / perPage > page,
+        };
+      }
+      return {
+        options: [],
+        hasMore: false,
+      };
+    } catch (error) {
+      return {
+        options: [],
+        hasMore: false,
+      };
+    }
+  };
+
   useEffect(() => {
     getDetail();
     getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
   }, []);
   return (
     <Page className={styles.root} title="Thông tin bệnh nhân" isActive>
-      <Grid container item xs={5} sx={{ marginTop: "15px" }}>
-        <Grid item xs={5}>
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Họ và tên" />
             <TextFieldCustom value={dataUser?.name} disabled placeholder="Nhập họ và tên" type="text" />
           </Box>
         </Grid>
-        <Grid item xs={2}></Grid>
-        <Grid item xs={5}>
+        <Grid item xs={0.5}></Grid>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Số điện thoại" />
             <TextFieldCustom value={dataUser?.phone} disabled placeholder="Nhập số điện thoại" type="text" />
           </Box>
         </Grid>
-      </Grid>
-
-      <Grid container item xs={5} sx={{ marginTop: "15px" }}>
-        <Grid item xs={5}>
+        <Grid item xs={0.5}></Grid>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Email" />
             <TextFieldCustom value={dataUser?.email} disabled placeholder="Nhập email" type="text" />
           </Box>
         </Grid>
-        <Grid item xs={2}></Grid>
-        <Grid item xs={5}>
+      </Grid>
+
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Ngày sinh" />
             <TextFieldCustom
@@ -166,16 +210,15 @@ const ReceptionistNote = () => {
             />
           </Box>
         </Grid>
-      </Grid>
-      <Grid container item xs={5} sx={{ marginTop: "15px" }}>
-        <Grid item xs={5}>
+        <Grid item xs={0.5}></Grid>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Giới tính" />
             <TextFieldCustom value={dataUser?.gender} disabled placeholder="Nhập giới tính" type="text" />
           </Box>
         </Grid>
-        <Grid item xs={2}></Grid>
-        <Grid item xs={5}>
+        <Grid item xs={0.5}></Grid>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Địa chỉ" />
             <TextFieldCustom value={dataUser?.address} disabled placeholder="Nhập địa" type="text" />
@@ -183,11 +226,22 @@ const ReceptionistNote = () => {
         </Grid>
       </Grid>
 
-      <Grid container item xs={5} sx={{ marginTop: "15px" }}>
-        <Grid item xs={5}>
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <Grid item xs={2.5}>
           <Box style={{ marginTop: 2 }}>
             <LabelCustom title="Dịch vụ" />
-            <TextFieldCustom value={dataUser?.nameService} disabled placeholder="Nhập dịch vụ" type="text" />
+            <ReactSelect
+              isClearable
+              getOptionLabel={(option: any) => option.name}
+              getOptionValue={(option: any) => option._id}
+              value={dataUser?.nameService}
+              isMulti
+              isDisabled
+              fieldName="name"
+              maxMenuHeight={200}
+              placeholder="Chọn dịch vụ"
+              menuPlacement="top"
+            />
           </Box>
         </Grid>
       </Grid>
@@ -196,6 +250,7 @@ const ReceptionistNote = () => {
           control={
             <Checkbox
               checked={isCheck}
+              disabled={isDisabled}
               onChange={(e: any, isInputChecked) => {
                 setIsCheck(isInputChecked);
                 getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
@@ -209,8 +264,40 @@ const ReceptionistNote = () => {
       </Grid>
 
       {isCheck && (
-        <Grid container item xs={5} sx={{ marginTop: "5px" }}>
-          <Grid item xs={5}>
+        <Grid container item xs={12} sx={{ marginTop: "5px" }}>
+          <Grid item xs={2.5}>
+            <LabelCustom title="Dịch vụ tái khám" />
+            <Controller
+              control={control}
+              name="mainServicerReExamination"
+              render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                <ReactSelect
+                  isClearable
+                  isDisabled={isDisabled}
+                  getOptions={getMainServiceOptions}
+                  getOptionLabel={(option: any) => option.name}
+                  getOptionValue={(option: any) => option._id}
+                  value={value}
+                  onChange={(value: any) => {
+                    onChange(value);
+                  }}
+                  isMulti
+                  fieldName={name}
+                  maxMenuHeight={200}
+                  placeholder="Chọn dịch vụ tái khám"
+                  inputRef={ref}
+                  errorMessage={errors?.mainServicerReExamination?.message as string}
+                  menuPlacement="top"
+                />
+              )}
+            />
+          </Grid>
+        </Grid>
+      )}
+
+      {isCheck && (
+        <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+          <Grid item xs={2.5}>
             <LabelCustom title="Ngày đặt lịch" isRequired />
             <Controller
               control={control}
@@ -224,6 +311,7 @@ const ReceptionistNote = () => {
                     errorMessage: errors?.date?.message,
                   }}
                   staticDateTimePickerProps={{
+                    disabled: isDisabled,
                     minDateTime: new Date(),
                     views: ["year", "day"],
                     ampm: true,
@@ -263,11 +351,13 @@ const ReceptionistNote = () => {
                       <Button
                         variant={value?._id === item._id ? "contained" : "outlined"}
                         className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
-                          [styles.isDisabled]: item.isDisabled && dataUser?.bookingId?.timeTypeId?._id !== item._id && false,
+                          [styles.isDisabled]:
+                            isDisabled ||
+                            (item.isDisabled && dataUser?.bookingId?.timeTypeId?._id !== item._id && false),
                         })}
                         onClick={(e: any) => {
                           setValue("timeTypeId", item);
-                          clearErrors("timeTypeId")
+                          clearErrors("timeTypeId");
                         }}
                       >
                         <Typography
@@ -304,7 +394,7 @@ const ReceptionistNote = () => {
                 <FocusHiddenInput ref={ref}></FocusHiddenInput>
                 <SunEditorShare
                   hideToolbarSunEditor={false}
-                  disableSunEditor={false}
+                  disableSunEditor={isDisabled}
                   onChangeEditorState={(newValue: any) => onChange(getEditorNewValue(newValue))}
                   setContents={value || ""}
                   minHeight="400px"
@@ -325,7 +415,9 @@ const ReceptionistNote = () => {
         xs={6}
         sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
       >
-        <ButtonCustom type="submit" title="Lưu" color="yellow" onClick={handleSubmit(onSubmit)} />
+        <ButtonCustom type="submit" title="Tái khám" color="blue" onClick={handleSubmit(onSubmit)} />
+        <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onSubmit)} />
+        <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmit)} />
       </Grid>
     </Page>
   );

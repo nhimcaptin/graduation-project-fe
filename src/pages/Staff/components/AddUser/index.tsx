@@ -74,7 +74,7 @@ const AddUser = (props: PropsType) => {
       description: dataDetail ? dataDetail?.description : "",
       degree: dataDetail ? dataDetail?.degree : "",
       position: dataDetail ? dataDetail?.position : "",
-      gender: dataDetail ? listGender.find((x) => x.value == dataDetail?.gender) : "",
+      gender: dataDetail ? listGender.find((x) => x.value?.toLocaleLowerCase() == dataDetail?.gender?.toLocaleLowerCase()) : "",
     },
   });
 

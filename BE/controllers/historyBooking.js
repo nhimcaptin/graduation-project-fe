@@ -57,6 +57,13 @@ export const getDetailHistory = async (req, res, next) => {
       .populate({
         path: "bookingId",
         populate: {
+          path: "service",
+          model: "SubService",
+        },
+      })
+      .populate({
+        path: "bookingId",
+        populate: {
           path: "timeTypeId",
           model: "TimeType",
         },

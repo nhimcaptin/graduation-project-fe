@@ -81,7 +81,7 @@ const AddUser = (props: PropsType) => {
       birthdayCustomer: dataDetail ? dataDetail?.birthdayCustomer : "",
       numberPhoneCustomer: dataDetail ? dataDetail?.numberPhoneCustomer : "",
       emailCustomer: dataDetail ? dataDetail?.emailCustomer : "",
-      genderCustomer: dataDetail ? listGender.find((x) => x.value === dataDetail?.genderCustomer) : "",
+      genderCustomer: dataDetail ? listGender.find((x) => x.value?.toLocaleLowerCase() === dataDetail?.genderCustomer?.toLocaleLowerCase()) : "",
       addressCustomer: dataDetail ? dataDetail?.addressCustomer : "",
     },
   });
