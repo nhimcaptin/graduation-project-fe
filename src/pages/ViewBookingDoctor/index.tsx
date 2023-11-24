@@ -21,6 +21,9 @@ import URL_PATHS from "../../services/url-path";
 import { stripHTML } from "../../utils";
 import styles from "./styles.module.scss";
 import ReactSelect from "../../components/ReactSelectView";
+import axios from "axios";
+import CrudModal from "../../components/CrudModal";
+import { isEmpty } from "lodash";
 
 const ViewBookingDoctor = () => {
   const [dataUser, setDataUser] = useState<any>({
@@ -36,10 +39,22 @@ const ViewBookingDoctor = () => {
   const [isCheck, setIsCheck] = useState(false);
   const [isLoadingHour, setIsLoadingHour] = useState(false);
   const [hourInDateData, setHourInDateData] = useState([]);
+  const [openQR, setOpenQR] = useState<boolean>(false);
+  const [imageQR, setImageQR] = useState<any>(null);
 
   const { setLoadingScreen } = useSetLoadingScreenState();
   const { setToastInformation } = useSetToastInformationState();
   const params = useParams();
+
+  const moenyService = useMemo(() => {
+    if (isEmpty(dataUser?.nameService)) {
+      return 0;
+    }
+    return dataUser?.nameService.reduce(
+      (accumulator: any, currentValue: any) => accumulator + (currentValue?.price ? Number(currentValue?.price) : 0),
+      0
+    );
+  }, [dataUser?.nameService]);
 
   const {
     handleSubmit,
@@ -104,6 +119,38 @@ const ViewBookingDoctor = () => {
     } finally {
       setLoadingScreen(false);
     }
+  };
+
+  const onSubmitBankTransfer = async () => {
+    const data = {
+      accountNo: "1014543955",
+      accountName: "TRAN DANH DOANH",
+      acqId: 970415,
+      amount: moenyService,
+      addInfo: `DTTD_${params?.id}_DTTD`,
+      format: "text",
+      template: "print",
+    };
+    return await axios
+      .post("https://api.vietqr.io/v2/generate", data)
+      .then(function (res: any) {
+        if (res?.data?.code === "00") {
+          setImageQR(res?.data?.data?.qrDataURL);
+          setOpenQR(true);
+          return true;
+        } else {
+          return setToastInformation({
+            status: STATUS_TOAST.ERROR,
+            message: MESSAGE_ERROR_API.QRBankTransfer,
+          });
+        }
+      })
+      .catch(function (error) {
+        return setToastInformation({
+          status: STATUS_TOAST.ERROR,
+          message: MESSAGE_ERROR_API.ERROR_SYSTEM,
+        });
+      });
   };
 
   const getEditorNewValue = (newValue: string) => {
@@ -450,9 +497,27 @@ const ViewBookingDoctor = () => {
             <ButtonCustom type="submit" title="Tái khám" color="blue" onClick={handleSubmit(onSubmitReExamination)} />
           )}
           <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onSubmit)} />
-          <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmit)} />
+          <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />
         </Grid>
       )}
+      <CrudModal
+        isOpen={openQR}
+        formTitle="Mã QR"
+        handleClose={() => {
+          setOpenQR(false);
+        }}
+        saveBtnLabel="Thanh toán"
+        cancelBtnLabel="Thoát"
+        dialogProps={{
+          fullWidth: true,
+          maxWidth: "sm",
+          sx: { zIndex: 9999 },
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <img src={imageQR} alt="" style={{ width: "560px" }} />
+        </div>
+      </CrudModal>
     </Page>
   );
 };

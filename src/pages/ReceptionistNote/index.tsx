@@ -9,7 +9,7 @@ import SunEditorShare from "../../components/SunEditorStyled";
 import ErrorMessage from "../../components/ErrorMessage/ErrorMessage";
 import { stripHTML } from "../../utils";
 import ButtonCustom from "../../components/ButtonCustom";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
 import { useParams } from "react-router-dom";
@@ -21,6 +21,9 @@ import moment from "moment";
 import clsx from "clsx";
 import DateTimePickerCustom from "../../components/DateTimePickerCustom";
 import ReactSelect from "../../components/ReactSelectView";
+import { isEmpty } from "lodash";
+import axios from "axios";
+import CrudModal from "../../components/CrudModal";
 
 const ReceptionistNote = () => {
   const [dataUser, setDataUser] = useState<any>({});
@@ -30,8 +33,20 @@ const ReceptionistNote = () => {
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoadingHour, setIsLoadingHour] = useState(false);
   const [hourInDateData, setHourInDateData] = useState([]);
+  const [openQR, setOpenQR] = useState<boolean>(false);
+  const [imageQR, setImageQR] = useState<any>(null);
 
   const params = useParams();
+
+  const moenyService = useMemo(() => {
+    if (isEmpty(dataUser?.nameService)) {
+      return 0;
+    }
+    return dataUser?.nameService.reduce(
+      (accumulator: any, currentValue: any) => accumulator + (currentValue?.price ? Number(currentValue?.price) : 0),
+      0
+    );
+  }, [dataUser?.nameService]);
 
   const {
     handleSubmit,
@@ -167,6 +182,38 @@ const ReceptionistNote = () => {
         hasMore: false,
       };
     }
+  };
+
+  const onSubmitBankTransfer = async () => {
+    const data = {
+      accountNo: "1014543955",
+      accountName: "TRAN DANH DOANH",
+      acqId: 970415,
+      amount: moenyService,
+      addInfo: `DTTD_${params?.id}_DTTD`,
+      format: "text",
+      template: "print",
+    };
+    return await axios
+      .post("https://api.vietqr.io/v2/generate", data)
+      .then(function (res: any) {
+        if (res?.data?.code === "00") {
+          setImageQR(res?.data?.data?.qrDataURL);
+          setOpenQR(true);
+          return true;
+        } else {
+          return setToastInformation({
+            status: STATUS_TOAST.ERROR,
+            message: MESSAGE_ERROR_API.QRBankTransfer,
+          });
+        }
+      })
+      .catch(function (error) {
+        return setToastInformation({
+          status: STATUS_TOAST.ERROR,
+          message: MESSAGE_ERROR_API.ERROR_SYSTEM,
+        });
+      });
   };
 
   useEffect(() => {
@@ -383,8 +430,8 @@ const ReceptionistNote = () => {
         </Grid>
       )}
 
-      <Grid container item xs={6} sx={{ marginTop: "15px" }}>
-        <Grid item xs={12} mt={1}>
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <Grid item xs={8.5} mt={1}>
           <LabelCustom title="Tình trạng" />
           <Controller
             control={control}
@@ -412,13 +459,31 @@ const ReceptionistNote = () => {
       <Grid
         container
         item
-        xs={6}
+        xs={8.5}
         sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
       >
-        <ButtonCustom type="submit" title="Tái khám" color="blue" onClick={handleSubmit(onSubmit)} />
+        {isCheck && <ButtonCustom type="submit" title="Tái khám" color="blue" onClick={handleSubmit(onSubmit)} />}
         <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onSubmit)} />
-        <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmit)} />
+        <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />
       </Grid>
+      <CrudModal
+        isOpen={openQR}
+        formTitle="Mã QR"
+        handleClose={() => {
+          setOpenQR(false);
+        }}
+        saveBtnLabel="Thanh toán"
+        cancelBtnLabel="Thoát"
+        dialogProps={{
+          fullWidth: true,
+          maxWidth: "sm",
+          sx: { zIndex: 9999 },
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "center" }}>
+          <img src={imageQR} alt="" style={{ width: "560px" }} />
+        </div>
+      </CrudModal>
     </Page>
   );
 };
