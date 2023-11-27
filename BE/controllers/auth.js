@@ -4,6 +4,7 @@ import { createError } from "../middlewares/error.js";
 import jwt from "jsonwebtoken";
 import { MESSAGE_ERROR } from "../const/messages.js";
 import Role from "../models/Role.js";
+import { sendMail } from "../middlewares/send.mail.js";
 
 export const register = async (req, res, next) => {
   try {
@@ -100,6 +101,92 @@ export const logout = async (req, res) => {
      res.status(500).json({
       message : 'Server error'
      })
+  }
+
+}
+
+export const sendPasswordLink = async(req,res)=>{
+  console.log(req.body)
+
+  const {email} = req.body;
+
+  if(!email){
+      res.status(401).json({status:401,message:"Enter Your Email"})
+  }
+  try {
+      const userFind = await User.findOne({email:email});
+      //console.log(userFind)
+
+      // token generate for reset password
+      const token = jwt.sign({_id:userFind._id},process.env.JWT,{
+          expiresIn:"1200s"
+      });
+      //console.log(token)
+      
+      const setUserToken = await User.findByIdAndUpdate({_id:userFind._id},{verifytoken:token},{new:true});
+      //console.log(setUserToken)
+      
+      if(setUserToken){
+        await sendMail({
+          email: email,
+          subject: "Thông báo thay doi mat khau từ Phòng Khám Nha Khoa Tây Đô",
+          html: `Sau 20p link này sẽ k còn khả dụng http://localhost:3000/forgotpassword/${userFind.id}/${setUserToken.verifytoken}`,
+        });
+  
+        }
+
+  } catch (error) {
+      res.status(401).json({status:401,message:"invalid user"})
+  }
+}
+
+export const forgotPassword = async(req,res)=>{
+  const {id,token} = req.params;
+  //console.log(id, token)
+  try{
+      const validuser = await User.findOne({_id:id,verifytoken:token});
+      //console.log(validuser)
+
+      const verifyToken = jwt.verify(token,process.env.JWT);
+      console.log(verifyToken)
+
+      if(validuser && verifyToken._id){
+          res.status(201).json({status:201,validuser})
+      }else{
+          res.status(401).json({status:401,message:"user does not exist"})
+      }
+      
+      
+  }catch(error){
+
+  }
+}
+
+export const resetPassword = async(req,res)=>{
+
+  const {id,token} = req.params;
+
+  const {password} = req.body;
+
+  try{
+      const validuser = await User.findOne({_id:id,verifytoken:token});
+      
+      const verifyToken = jwt.verify(token,process.env.JWT);
+
+      if(validuser && verifyToken._id){
+          const newpassword = await bcrypt.hash(password,12);
+
+          const setnewuserpass = await User.findByIdAndUpdate({_id:id},{password:newpassword});
+
+          setnewuserpass.save();
+          res.status(201).json({status:201,setnewuserpass})
+
+      }else{
+          res.status(401).json({status:401,message:"user not exist"})
+      }
+
+  }catch(error){
+      res.status(401).json({status:401,error})
   }
 
 }
