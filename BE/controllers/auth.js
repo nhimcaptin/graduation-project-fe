@@ -129,10 +129,10 @@ export const sendPasswordLink = async(req,res)=>{
       if(setUserToken){
         await sendMail({
           email: email,
-          subject: "Thông báo thay doi mat khau từ Phòng Khám Nha Khoa Tây Đô",
+          subject: "Thông báo thay đổi mật khẩu tài khoản từ Website Phòng Khám Nha Khoa Tây Đô",
           html: `Sau 20p link này sẽ k còn khả dụng http://localhost:3000/forgotpassword/${userFind.id}/${setUserToken.verifytoken}`,
         });
-  
+        return res.status(200).json({status: 200, message: "password reset link sent successfully"});
         }
 
   } catch (error) {
