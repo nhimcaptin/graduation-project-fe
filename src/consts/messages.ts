@@ -43,6 +43,7 @@ export const MESSAGE_ERROR_API: any = {
   ERROR_SYSTEM: "Hệ thống lỗi vui lòng thử lại sau.",
   MAIL_ALREADY_NOT_EXISTS: "Mail không tồn tại trên hệ thống.",
   WRONG_ACCOUNT: "Mật khẩu không đúng. Vui lòng nhập lại.",
+  QRBankTransfer: 'Vui lòng kiếm tra lại thông tin tài khoản ngân hàng',
 };
 
 export const MESSAGES_CONFIRM = {
