@@ -283,7 +283,7 @@ const History = (props: any) => {
   }, []);
 
   return (
-    <Page className={styles.root} title="Ghi chú khám bệnh" isActive>
+    <Page className={styles.root} title="Ghi phiếu khám bệnh" isActive>
       <Grid container style={{ marginBottom: "20px" }}>
         <Grid item xs={10}>
           <Box>

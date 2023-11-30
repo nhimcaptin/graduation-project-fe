@@ -87,13 +87,14 @@ const AddUser = (props: PropsType) => {
   });
 
   const onSubmit = async (data: any) => {
+    const service = (data?.mainService || []).map((x: any) => x?._id);
     const item = {
       patientId: data?.patient?._id,
       doctorId: data?.doctor?._id,
       date: data?.bookingType?.value === "Online" ? moment(data?.date).format("YYYY/MM/DD") : undefined,
       timeTypeId: data?.timeTypeId?._id,
       description: data?.description,
-      service: data?.mainService?._id,
+      service: service,
       bookingType: data?.bookingType?.value,
       status: data?.bookingType?.value === "Offline" ? "Approved" : "Waiting",
       statusUpdateTime:
