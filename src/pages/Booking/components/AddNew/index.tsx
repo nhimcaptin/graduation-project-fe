@@ -722,7 +722,7 @@ const AddUser = (props: PropsType) => {
                           variant={value?._id === item._id ? "contained" : "outlined"}
                           className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
                             [styles.isDisabled]:
-                              (item.isDisabled && dataDetail?.timeTypeId?._id !== item._id && false) || !isEdit,
+                              (item?.count === 3 && dataDetail?.timeTypeId?._id !== item._id) || !isEdit,
                           })}
                           onClick={(e: any) => {
                             setValue("timeTypeId", item);
@@ -750,6 +750,11 @@ const AddUser = (props: PropsType) => {
           </Grid>
         )}
         {errors?.timeTypeId && <ErrorMessage style={{ marginTop: "10px" }}>{errors?.timeTypeId?.message}</ErrorMessage>}
+        {watch("timeTypeId") && (
+          <p style={{ margin: "4px 0px 0px 2px", color: "#1A6332", fontSize: "14px", fontWeight: "700" }}>
+            Số thứ tự của bạn trong khung giờ khám từ {(watch("timeTypeId") as any)?.timeSlot} là {Number((watch("timeTypeId") as any)?.count || 0) + 1}
+          </p>
+        )}
       </Grid>
     </CrudModal>
   );

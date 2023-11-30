@@ -35,6 +35,7 @@ const ReceptionistNote = () => {
   const [hourInDateData, setHourInDateData] = useState([]);
   const [openQR, setOpenQR] = useState<boolean>(false);
   const [imageQR, setImageQR] = useState<any>(null);
+  const [isPushCount, setIsPushCount] = useState<boolean>(false);
 
   const params = useParams();
 
@@ -99,31 +100,34 @@ const ReceptionistNote = () => {
   const getDetail = async () => {
     setLoadingScreen(true);
     try {
-      const { data, isDisabled }: any = await apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id);
-      setIsDisabled(isDisabled);
-      const idService = data?.service?.map((x: any) => x?._id);
-      setDataUser({
-        address: data?.address || data?.patientId?.address,
-        email: data?.email || data?.patientId?.email,
-        name: data?.name || data?.patientId?.name,
-        phone: data?.phone || data?.patientId?.phone,
-        gender: data?.gender || data?.patientId?.gender,
-        birthday: data?.birthday || data?.patientId?.birthday,
-        nameService: data?.service,
-        idService: idService,
-        idPatient: data?.user?._id,
-        idDoctor: data?.doctorId?._id,
-        bookingType: data?.bookingType,
-        bookingId: data?.bookingId,
+      Promise.all([
+        apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id),
+        getListTimeType(moment(new Date()).format("YYYY/MM/DD")),
+      ]).then((values: any) => {
+        const { data, isDisabled } = values[0];
+        const timeTypeId = (values[1] || []).find((x: any) => x?._id === data?.bookingId?.timeTypeId?._id);
+        setIsDisabled(isDisabled);
+        const idService = data?.service?.map((x: any) => x?._id);
+        setDataUser({
+          address: data?.address || data?.patientId?.address,
+          email: data?.email || data?.patientId?.email,
+          name: data?.name || data?.patientId?.name,
+          phone: data?.phone || data?.patientId?.phone,
+          gender: data?.gender || data?.patientId?.gender,
+          birthday: data?.birthday || data?.patientId?.birthday,
+          nameService: data?.service,
+          idService: idService,
+          idPatient: data?.user?._id,
+          idDoctor: data?.doctorId?._id,
+          bookingType: data?.bookingType,
+          bookingId: data?.bookingId,
+        });
+        setValue("condition", data?.condition);
+        setValue("mainServicerReExamination", data?.bookingId?.service);
+        setValue("timeTypeId", timeTypeId);
+        setValue("date", data?.bookingId?.date);
+        setIsCheck(!!data?.bookingId);
       });
-      setValue("condition", data?.condition);
-      setValue("mainServicerReExamination", data?.bookingId?.service);
-      setValue("timeTypeId", {
-        _id: data?.bookingId?.timeTypeId?._id || "",
-        timeSlot: data?.bookingId?.timeTypeId?.timeSlot || "",
-      });
-      setValue("date", data?.bookingId?.date);
-      setIsCheck(!!data?.bookingId);
     } catch (error) {
     } finally {
       setLoadingScreen(false);
@@ -140,7 +144,9 @@ const ReceptionistNote = () => {
       };
       const res: any = await apiService.getFilter(URL_PATHS.GET_LIST_TIME_TYPE, null, params);
       setHourInDateData(res);
+      return res;
     } catch (error) {
+      return null;
     } finally {
       setIsLoadingHour(false);
     }
@@ -221,13 +227,12 @@ const ReceptionistNote = () => {
   }, [dataUser?.nameService]);
 
   const amountMoney = useMemo(() => {
-    const _item: any = typeof watch("mainServicerReExamination") == "string" ? [] : watch("mainServicerReExamination")
+    const _item: any = typeof watch("mainServicerReExamination") == "string" ? [] : watch("mainServicerReExamination");
     return (_item || [])?.reduce((next: any, pre: any) => Number(pre?.price) + next, 0);
   }, [watch("mainServicerReExamination")]);
 
   useEffect(() => {
     getDetail();
-    getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
   }, []);
   return (
     <Page className={styles.root} title="Thông tin bệnh nhân" isActive>
@@ -415,12 +420,12 @@ const ReceptionistNote = () => {
                         variant={value?._id === item._id ? "contained" : "outlined"}
                         className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
                           [styles.isDisabled]:
-                            isDisabled ||
-                            (item.isDisabled && dataUser?.bookingId?.timeTypeId?._id !== item._id && false),
+                            isDisabled || (item?.count === 3 && dataUser?.bookingId?.timeTypeId?._id !== item._id),
                         })}
                         onClick={(e: any) => {
                           setValue("timeTypeId", item);
                           clearErrors("timeTypeId");
+                          setIsPushCount(dataUser?.bookingId?.timeTypeId?._id !== item._id);
                         }}
                       >
                         <Typography
@@ -442,6 +447,14 @@ const ReceptionistNote = () => {
             <div className={styles.loadingHour}>
               <div className={styles.loader}></div>
             </div>
+          )}
+          {watch("timeTypeId") && (
+            <p style={{ margin: "4px 0px 0px 2px", color: "#1A6332", fontSize: "14px", fontWeight: "700" }}>
+              Số thứ tự của bạn trong khung giờ khám từ {(watch("timeTypeId") as any)?.timeSlot} là{" "}
+              {isPushCount
+                ? Number((watch("timeTypeId") as any)?.count || 0) + 1
+                : Number((watch("timeTypeId") as any)?.count || 0)}
+            </p>
           )}
         </Grid>
       )}
@@ -478,7 +491,9 @@ const ReceptionistNote = () => {
         xs={8.5}
         sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
       >
-        {isCheck && <ButtonCustom type="submit" title="Đặt lịch tái khám" color="blue" onClick={handleSubmit(onSubmit)} />}
+        {isCheck && (
+          <ButtonCustom type="submit" title="Đặt lịch tái khám" color="blue" onClick={handleSubmit(onSubmit)} />
+        )}
         <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onSubmit)} />
         <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />
       </Grid>
