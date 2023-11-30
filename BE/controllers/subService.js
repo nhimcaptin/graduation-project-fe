@@ -29,7 +29,6 @@ export const updateSubservice = async (req, res, next) => {
     const subservicerId = req?.params?.id;
     const data = req.body;
     const checkID = await SubService.findOne({ _id: subservicerId });
-    console.log("checkID", checkID);
     if (!checkID) {
       return res.status(404).json({ message: "dich vu khong ton tai" });
     }

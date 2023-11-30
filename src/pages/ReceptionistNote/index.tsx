@@ -216,6 +216,15 @@ const ReceptionistNote = () => {
       });
   };
 
+  const amountMoneyCur = useMemo(() => {
+    return (dataUser?.nameService || [])?.reduce((next: any, pre: any) => Number(pre?.price) + next, 0);
+  }, [dataUser?.nameService]);
+
+  const amountMoney = useMemo(() => {
+    const _item: any = typeof watch("mainServicerReExamination") == "string" ? [] : watch("mainServicerReExamination")
+    return (_item || [])?.reduce((next: any, pre: any) => Number(pre?.price) + next, 0);
+  }, [watch("mainServicerReExamination")]);
+
   useEffect(() => {
     getDetail();
     getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
@@ -292,6 +301,12 @@ const ReceptionistNote = () => {
           </Box>
         </Grid>
       </Grid>
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <LabelCustom
+          title={`Tổng đơn: ${amountMoneyCur?.toLocaleString("en")} VND`}
+          sx={{ color: "#bf1e2e !important" }}
+        />
+      </Grid>
       <Grid container item xs={5} sx={{ marginTop: "15px" }}>
         <FormControlLabel
           control={
@@ -338,6 +353,7 @@ const ReceptionistNote = () => {
                 />
               )}
             />
+            {!!amountMoney && <p className={styles.amountMoney}>Tương ứng: {amountMoney.toLocaleString("en")} VND</p>}
           </Grid>
         </Grid>
       )}
@@ -462,7 +478,7 @@ const ReceptionistNote = () => {
         xs={8.5}
         sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
       >
-        {isCheck && <ButtonCustom type="submit" title="Tái khám" color="blue" onClick={handleSubmit(onSubmit)} />}
+        {isCheck && <ButtonCustom type="submit" title="Đặt lịch tái khám" color="blue" onClick={handleSubmit(onSubmit)} />}
         <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onSubmit)} />
         <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />
       </Grid>

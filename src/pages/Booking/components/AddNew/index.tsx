@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CrudModal from "../../../../components/CrudModal";
 import { Box, Button, FormControl, Grid, RadioGroup, Typography } from "@mui/material";
 import LabelCustom from "../../../../components/LabelCustom";
@@ -81,7 +81,9 @@ const AddUser = (props: PropsType) => {
       birthdayCustomer: dataDetail ? dataDetail?.birthdayCustomer : "",
       numberPhoneCustomer: dataDetail ? dataDetail?.numberPhoneCustomer : "",
       emailCustomer: dataDetail ? dataDetail?.emailCustomer : "",
-      genderCustomer: dataDetail ? listGender.find((x) => x.value?.toLocaleLowerCase() === dataDetail?.genderCustomer?.toLocaleLowerCase()) : "",
+      genderCustomer: dataDetail
+        ? listGender.find((x) => x.value?.toLocaleLowerCase() === dataDetail?.genderCustomer?.toLocaleLowerCase())
+        : "",
       addressCustomer: dataDetail ? dataDetail?.addressCustomer : "",
     },
   });
@@ -266,6 +268,10 @@ const AddUser = (props: PropsType) => {
     }
   };
 
+  const amountMoney = useMemo(() => {
+    return (watch("mainService") || [])?.reduce((next: any, pre: any) => Number(pre?.price) + next, 0);
+  }, [watch("mainService")]);
+
   useEffect(() => {
     getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
   }, []);
@@ -414,6 +420,7 @@ const AddUser = (props: PropsType) => {
                 />
               )}
             />
+            {!!amountMoney && <p className={styles.amountMoney}>Tương ứng: {amountMoney.toLocaleString("en")} VND</p>}
           </Grid>
         </Grid>
         <Grid container item xs={12}>

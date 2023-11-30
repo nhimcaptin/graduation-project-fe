@@ -133,8 +133,8 @@ const AddSubService = (props: PropsType) => {
   const onSubmit = async (data: any) => {
     const _data = {
       ...data,
-      mainServiceID: data?.mainServiceID?.value,
-      aesthetics: data?.aesthetics?.value,
+      mainServiceID: data?.mainServiceID?.value || "",
+      aesthetics: data?.aesthetics?.value || "",
     };
 
     setLoadingScreen(true);
@@ -327,13 +327,10 @@ const AddSubService = (props: PropsType) => {
           </Grid>
           <Grid item xs={2}></Grid>
           <Grid item xs={5}>
-            <LabelCustom title="Tính thẩm mĩ" isRequired />
+            <LabelCustom title="Tính thẩm mĩ" />
             <Controller
               control={control}
               name="aesthetics"
-              rules={{
-                required: MESSAGE_ERROR.fieldRequired,
-              }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <ReactSelect
                   isClearable
@@ -358,13 +355,10 @@ const AddSubService = (props: PropsType) => {
         </Grid>
         <Grid container item xs={12} sx={{ marginTop: "15px" }}>
           <Grid item xs={5}>
-            <LabelCustom title="Thời gian điều trị" isRequired />
+            <LabelCustom title="Thời gian điều trị" />
             <Controller
               control={control}
               name="treatmentTime"
-              rules={{
-                required: MESSAGE_ERROR.fieldRequired,
-              }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <PriceInput
                   placeholder="Nhập thời gian điều trị"
@@ -380,13 +374,10 @@ const AddSubService = (props: PropsType) => {
           </Grid>
           <Grid item xs={2}></Grid>
           <Grid item xs={5}>
-            <LabelCustom title="Thời gian thăm khám" isRequired />
+            <LabelCustom title="Thời gian thăm khám" />
             <Controller
               control={control}
               name="examination"
-              rules={{
-                required: MESSAGE_ERROR.fieldRequired,
-              }}
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <PriceInput
                   placeholder="Nhập thời gian thăm khám"
