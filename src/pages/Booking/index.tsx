@@ -345,8 +345,10 @@ const Booking = (props: any) => {
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_BOOKING, params, filters);
       const _item = (data?.data || []).map((x: any) => {
+        const service = x?.service.map((y: any) => y?.name).join(", ");
         return {
           ...x,
+          service,
           isHighlight: x._id === highlightId,
         };
       });
@@ -654,7 +656,7 @@ const Booking = (props: any) => {
                           ""}
                       </TableCell>
                       <TableCell>{data.bookingType}</TableCell>
-                      <TableCell className="">{data?.service?.name}</TableCell>
+                      <TableCell className="">{data?.service}</TableCell>
                       <TableCell>
                         {data?.timeTypeId?.timeSlot
                           ? `${data?.timeTypeId?.timeSlot} | ${moment(data.date).format(FORMAT_DATE)}`

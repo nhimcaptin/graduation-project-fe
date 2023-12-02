@@ -41,6 +41,7 @@ const ViewBookingDoctor = () => {
   const [hourInDateData, setHourInDateData] = useState([]);
   const [openQR, setOpenQR] = useState<boolean>(false);
   const [imageQR, setImageQR] = useState<any>(null);
+  const [isPushCount, setIsPushCount] = useState<boolean>(false);
 
   const { setLoadingScreen } = useSetLoadingScreenState();
   const { setToastInformation } = useSetToastInformationState();
@@ -238,6 +239,15 @@ const ViewBookingDoctor = () => {
     }
   };
 
+  const amountMoneyCur = useMemo(() => {
+    return (dataUser?.nameService || [])?.reduce((next: any, pre: any) => Number(pre?.price) + next, 0);
+  }, [dataUser?.nameService]);
+
+  const amountMoney = useMemo(() => {
+    const _item: any = typeof watch("mainServicerReExamination") == "string" ? [] : watch("mainServicerReExamination");
+    return (_item || [])?.reduce((next: any, pre: any) => Number(pre?.price) + next, 0);
+  }, [watch("mainServicerReExamination")]);
+
   useEffect(() => {
     getDetail();
     getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
@@ -314,6 +324,12 @@ const ViewBookingDoctor = () => {
           </Box>
         </Grid>
       </Grid>
+      <Grid container item xs={12} sx={{ marginTop: "15px" }}>
+        <LabelCustom
+          title={`Tổng đơn: ${amountMoneyCur?.toLocaleString("en")} VND`}
+          sx={{ color: "#bf1e2e !important" }}
+        />
+      </Grid>
 
       {isDone && (
         <Grid container item xs={5} sx={{ marginTop: "15px" }}>
@@ -361,6 +377,7 @@ const ViewBookingDoctor = () => {
                 />
               )}
             />
+            {!!amountMoney && <p className={styles.amountMoney}>Tương ứng: {amountMoney.toLocaleString("en")} VND</p>}
           </Grid>
         </Grid>
       )}
@@ -420,12 +437,12 @@ const ViewBookingDoctor = () => {
                       <Button
                         variant={value?._id === item._id ? "contained" : "outlined"}
                         className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
-                          [styles.isDisabled]:
-                            item.isDisabled && dataUser?.bookingId?.timeTypeId?._id !== item._id && false,
+                          [styles.isDisabled]: item?.count === 3 && dataUser?.bookingId?.timeTypeId?._id !== item._id,
                         })}
                         onClick={(e: any) => {
                           setValue("timeTypeId", item);
                           clearErrors("timeTypeId");
+                          setIsPushCount(dataUser?.bookingId?.timeTypeId?._id !== item._id);
                         }}
                       >
                         <Typography
@@ -447,6 +464,14 @@ const ViewBookingDoctor = () => {
             <div className={styles.loadingHour}>
               <div className={styles.loader}></div>
             </div>
+          )}
+          {watch("timeTypeId") && (
+            <p style={{ margin: "4px 0px 0px 2px", color: "#1A6332", fontSize: "14px", fontWeight: "700" }}>
+              Số thứ tự của bạn trong khung giờ khám từ {(watch("timeTypeId") as any)?.timeSlot} là{" "}
+              {isPushCount
+                ? Number((watch("timeTypeId") as any)?.count || 0) + 1
+                : Number((watch("timeTypeId") as any)?.count || 0)}
+            </p>
           )}
         </Grid>
       )}
@@ -494,7 +519,12 @@ const ViewBookingDoctor = () => {
           sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
         >
           {isCheck && (
-            <ButtonCustom type="submit" title="Tái khám" color="blue" onClick={handleSubmit(onSubmitReExamination)} />
+            <ButtonCustom
+              type="submit"
+              title="Đặt lịch tái khám"
+              color="blue"
+              onClick={handleSubmit(onSubmitReExamination)}
+            />
           )}
           <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onSubmit)} />
           <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />

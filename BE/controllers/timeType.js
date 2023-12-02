@@ -35,7 +35,7 @@ export const getListTimeTypes = async (req, res, next) => {
     const listHour = timeTypes?.map((x) => {
       return {
         ...x,
-        isDisabled: !!date.find((y) => y?.timeTypeId?.toString() == x?._id?.toString()),
+        count: date.filter((y) => y?.timeTypeId?.toString() == x?._id?.toString())?.length,
       };
     });
 

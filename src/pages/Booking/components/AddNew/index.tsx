@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import CrudModal from "../../../../components/CrudModal";
 import { Box, Button, FormControl, Grid, RadioGroup, Typography } from "@mui/material";
 import LabelCustom from "../../../../components/LabelCustom";
@@ -81,19 +81,22 @@ const AddUser = (props: PropsType) => {
       birthdayCustomer: dataDetail ? dataDetail?.birthdayCustomer : "",
       numberPhoneCustomer: dataDetail ? dataDetail?.numberPhoneCustomer : "",
       emailCustomer: dataDetail ? dataDetail?.emailCustomer : "",
-      genderCustomer: dataDetail ? listGender.find((x) => x.value?.toLocaleLowerCase() === dataDetail?.genderCustomer?.toLocaleLowerCase()) : "",
+      genderCustomer: dataDetail
+        ? listGender.find((x) => x.value?.toLocaleLowerCase() === dataDetail?.genderCustomer?.toLocaleLowerCase())
+        : "",
       addressCustomer: dataDetail ? dataDetail?.addressCustomer : "",
     },
   });
 
   const onSubmit = async (data: any) => {
+    const service = (data?.mainService || []).map((x: any) => x?._id);
     const item = {
       patientId: data?.patient?._id,
       doctorId: data?.doctor?._id,
       date: data?.bookingType?.value === "Online" ? moment(data?.date).format("YYYY/MM/DD") : undefined,
       timeTypeId: data?.timeTypeId?._id,
       description: data?.description,
-      service: data?.mainService?._id,
+      service: service,
       bookingType: data?.bookingType?.value,
       status: data?.bookingType?.value === "Offline" ? "Approved" : "Waiting",
       statusUpdateTime:
@@ -265,6 +268,10 @@ const AddUser = (props: PropsType) => {
     }
   };
 
+  const amountMoney = useMemo(() => {
+    return (watch("mainService") || [])?.reduce((next: any, pre: any) => Number(pre?.price) + next, 0);
+  }, [watch("mainService")]);
+
   useEffect(() => {
     getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
   }, []);
@@ -413,6 +420,7 @@ const AddUser = (props: PropsType) => {
                 />
               )}
             />
+            {!!amountMoney && <p className={styles.amountMoney}>Tương ứng: {amountMoney.toLocaleString("en")} VND</p>}
           </Grid>
         </Grid>
         <Grid container item xs={12}>
@@ -714,7 +722,7 @@ const AddUser = (props: PropsType) => {
                           variant={value?._id === item._id ? "contained" : "outlined"}
                           className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
                             [styles.isDisabled]:
-                              (item.isDisabled && dataDetail?.timeTypeId?._id !== item._id && false) || !isEdit,
+                              (item?.count === 3 && dataDetail?.timeTypeId?._id !== item._id) || !isEdit,
                           })}
                           onClick={(e: any) => {
                             setValue("timeTypeId", item);
@@ -742,6 +750,11 @@ const AddUser = (props: PropsType) => {
           </Grid>
         )}
         {errors?.timeTypeId && <ErrorMessage style={{ marginTop: "10px" }}>{errors?.timeTypeId?.message}</ErrorMessage>}
+        {watch("timeTypeId") && (
+          <p style={{ margin: "4px 0px 0px 2px", color: "#1A6332", fontSize: "14px", fontWeight: "700" }}>
+            Số thứ tự của bạn trong khung giờ khám từ {(watch("timeTypeId") as any)?.timeSlot} là {Number((watch("timeTypeId") as any)?.count || 0) + 1}
+          </p>
+        )}
       </Grid>
     </CrudModal>
   );

@@ -59,7 +59,7 @@ export const sidebar = [
   },
   {
     key: "MEDICAL_EXAMINATION_NOTES",
-    title: "Ghi chú khám bệnh",
+    title: "Ghi phiếu khám bệnh",
     icon: Icons.Note,
     href: ROUTERS_PATHS.MEDICAL_EXAMINATION_NOTES,
     role: [SCREEN_ROLE_CODE.MedicalExaminationNotes],

@@ -72,7 +72,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
     },
     {
       icon: <EditIcon className="icon-edit" />,
-      label: "Ghi chú",
+      label: "Ghi phiếu",
       action: actionNote,
     },
     {
