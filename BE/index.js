@@ -16,6 +16,7 @@ import policyRoute from "./routes/policy.js";
 import news from "./routes/news.js";
 import dashboard from "./routes/dashboard.js";
 import invoice from "./routes/invoice.js";
+import commentRoute from "./routes/comment.js";
 
 
 import cookieParser from "cookie-parser";
@@ -70,6 +71,7 @@ app.use("/api/policy", policyRoute);
 app.use("/api/News", news);
 app.use("/api/dashboard", dashboard);
 app.use("/api/invoice", invoice);
+app.use("/api/comment", commentRoute);
 
 app.use("/api",uploadFile)
 

@@ -19,9 +19,19 @@ export const verifyToken = (req, res, next, verifyPermissions) => {
   verifyPermissions && verifyPermissions();
 };
 
+// export const verifyUser = (req, res, next) => {
+//   verifyToken(req, res, next, () => {
+//     if (req.user.id === req.params.id || req.user.isAdmin) {
+//       next();
+//     } else {
+//       return next(createError(403, MESSAGE_ERROR.NOT_PERMISSIONS));
+//     }
+//   });
+// };
+
 export const verifyUser = (req, res, next) => {
   verifyToken(req, res, next, () => {
-    if (req.user.id === req.params.id || req.user.isAdmin) {
+    if (req.user.id ) {
       next();
     } else {
       return next(createError(403, MESSAGE_ERROR.NOT_PERMISSIONS));
