@@ -46,6 +46,9 @@ const BookingSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "SubService",
     }],
+    totalAmount:{
+      type: String,
+    },
     status: {
       type: String,
       required: true,

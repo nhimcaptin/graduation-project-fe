@@ -36,6 +36,9 @@ const HistoryBookingSchema = new mongoose.Schema(
         ref: "SubService",
       },
     ],
+    totalAmount:{
+      type: String,
+    },
     bookingType: {
       type: String,
       default: "Online",
