@@ -30,41 +30,41 @@ const Login = () => {
     formState: { errors },
   } = useForm<ILogin>();
 
-  // const handleLogin = async (data: ILogin) => {
-  //   try {
-  //     setIsLoading(true);
-  //     const _data = {
-  //       email: data.userName,
-  //       password: data.password,
-  //     };
-  //     const res: any = await apiService.post(URL_PATHS.LOGIN, _data);
-  //     const submitData = {
-  //       token: res?.access_token,
-  //       responseUserInfo: {
-  //         statusCode: 200,
-  //       },
-  //     };
-  //     await login(submitData);
-  //     navigate("/", { replace: false });
-  //   } catch (error: any) {
-  //     setToastInformation({
-  //       status: STATUS_TOAST.ERROR,
-  //       message: handleErrorMessage(error),
-  //     });
-  //   } finally {
-  //     setIsLoading(false);
-  //   }
-  // };
-
   const handleLogin = async (data: ILogin) => {
-    const _data = {
-      amount: 10000,
-      orderType: "other",
-      orderDescription: "Thanh+toan+don+hang"
-    };
-    const res: any = await apiService.post("api/create_payment_url", _data);
-    window.open(res?.vnpUrl);
+    try {
+      setIsLoading(true);
+      const _data = {
+        email: data.userName,
+        password: data.password,
+      };
+      const res: any = await apiService.post(URL_PATHS.LOGIN, _data);
+      const submitData = {
+        token: res?.access_token,
+        responseUserInfo: {
+          statusCode: 200,
+        },
+      };
+      await login(submitData);
+      navigate("/", { replace: false });
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  // const handleLogin = async (data: ILogin) => {
+  //   const _data = {
+  //     amount: 10000,
+  //     orderType: "other",
+  //     orderDescription: "Thanh+toan+don+hang"
+  //   };
+  //   const res: any = await apiService.post("api/create_payment_url", _data);
+  //   window.open(res?.vnpUrl);
+  // };
 
   return (
     <Page className={styles.root} title="Đăng nhập">
