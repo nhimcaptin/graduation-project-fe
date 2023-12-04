@@ -1,5 +1,6 @@
 import Comment from "../models/Comment.js";
 import User from "../models/User.js";
+import moment from "moment";
 
 export const createComment = async (req, res, next) => {
     try {
@@ -38,11 +39,13 @@ export const getCommentsByDoctorId = async (req, res, next) => {
         const commentsWithDoctor = [];
         await Promise.all(comments.map(async (comment) => {
             const user = await User.findById(comment.userId);
+            const formattedDate = moment(comment.createdAt).format('YYYY-MM-DD HH:mm:ss');
             commentsWithDoctor.push({
                 comment: comment.comment,
                 rate: comment.rate,
                 userName: user ? user.name : "Không xác định",
                 doctorName: doctor.name,
+                date: formattedDate,
             });
         }));
 
