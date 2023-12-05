@@ -1,5 +1,5 @@
 import express from "express";
-import { createNews, deleteNews, getNews, getNewsId, updateNews } from "../controllers/news.js";
+import { createNews, deleteNews, getNews, getNewsId, updateNews } from "../controllers/News.js";
 
 const router = express.Router();
 
