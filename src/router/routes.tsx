@@ -41,7 +41,7 @@ export const renderRoutes = (routes: IRoutesState[]) => (
             element={
               <Guard>
                 <Permission role={route.role}>
-                  <Layout>{route.routes ? renderRoutes(route.routes) : <Component screenName={route.role}/>}</Layout>
+                  <Layout>{route.routes ? renderRoutes(route.routes) : <Component screenName={route.role} />}</Layout>
                 </Permission>
               </Guard>
             }
@@ -62,6 +62,11 @@ const routes: IRoutesState[] = [
     guard: GuestGuard,
     path: ROUTERS_PATHS.FORGOT_PASSWORD,
     component: lazy(() => import("../pages/Login")),
+  },
+  {
+    guard: GuestGuard,
+    path: ROUTERS_PATHS.TEST,
+    component: lazy(() => import("../pages/Test")),
   },
   {
     path: ROUTERS_PATHS.ALL,

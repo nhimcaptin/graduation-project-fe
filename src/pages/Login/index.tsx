@@ -17,6 +17,7 @@ import URL_PATHS from "../../services/url-path";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
 import { STATUS_TOAST } from "../../consts/statusCode";
 import { handleErrorMessage } from "../../utils/errorMessage";
+import { URL_LOCAL } from "../../services/base-url";
 
 const Login = () => {
   const { login } = useAuth();
@@ -60,7 +61,9 @@ const Login = () => {
   //   const _data = {
   //     amount: 10000,
   //     orderType: "other",
-  //     orderDescription: "Thanh+toan+don+hang"
+  //     bankCode: "",
+  //     orderDescription: "Thanh+toan+don+hang",
+  //     url: URL_LOCAL + ROUTERS_PATHS.TEST,
   //   };
   //   const res: any = await apiService.post("api/create_payment_url", _data);
   //   window.open(res?.vnpUrl);
