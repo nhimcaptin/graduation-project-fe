@@ -6,6 +6,6 @@ const router = express.Router();
 
 //CREATE
 router.post("/create_payment_url", createdUrl);
-router.get("/querydr", querydr);
+router.post("/querydr", querydr);
 
 export default router;
