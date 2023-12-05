@@ -49,6 +49,11 @@ const BookingSchema = new mongoose.Schema(
     totalAmount:{
       type: String,
     },
+    statusPaymentOrder: {
+      type: String,
+      required: true,
+      default: "Waiting",
+    },
     status: {
       type: String,
       required: true,

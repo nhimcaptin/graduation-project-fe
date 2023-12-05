@@ -3,6 +3,7 @@ import crypto from "crypto";
 import querystring from "qs";
 import moment from "moment";
 import request from "request";
+import Booking from "../models/Booking.js";
 
 export const createdUrl = (req, res, next) => {
   process.env.TZ = "Asia/Ho_Chi_Minh";
@@ -19,7 +20,7 @@ export const createdUrl = (req, res, next) => {
   let tmnCode = config.get("vnp_TmnCode");
   let secretKey = config.get("vnp_HashSecret");
   let vnpUrl = config.get("vnp_Url");
-  let orderId = moment(date).format("DDHHmmss");
+  let orderId = req.body.orderId;
   let amount = req.body.amount;
   let bankCode = req.body.bankCode;
   let returnUrl = req.body.url;
@@ -120,8 +121,15 @@ export const querydr = (req, res, next) => {
       json: true,
       body: dataObj,
     },
-    function (error, response, body) {
-      return res.status(200).json(body);
+    async function (error, response, body) {
+      try {
+        if (body?.vnp_ResponseCode == "00") {
+          await Booking.findOneAndUpdate({ _id: vnp_TxnRef }, { $set: { statusPaymentOrder: "Done" } }, { new: true });
+        }
+        return res.status(200).json(body);
+      } catch (error) {
+        next(error);
+      }
     }
   );
 };
