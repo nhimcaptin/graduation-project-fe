@@ -312,6 +312,7 @@ export const handleFinishedExamination = async (req, res, next) => {
       birthday: approvedBookings?.birthdayCustomer || approvedBookings?.patientId?.birthday,
       service: idService,
       doctorId: approvedBookings?.doctorId?._id,
+      patientId: approvedBookings?.patientId?._id || "",
       bookingType: approvedBookings?.bookingType,
       totalAmount
     };
