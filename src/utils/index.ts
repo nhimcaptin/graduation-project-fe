@@ -71,8 +71,8 @@ export const stripHTML = (html: string) => {
   return doc.body.textContent || "";
 };
 
-export const getRowStatus = (value: any) => {
-  let result = statusOptions.find((s) => s.value === value) || {
+export const getRowStatus = (value: any, op?: any) => {
+  let result = (op || statusOptions).find((s: any) => s.value === value) || {
     label: "",
     chipType: "",
     value: "",
