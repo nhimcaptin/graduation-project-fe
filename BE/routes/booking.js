@@ -1,5 +1,5 @@
 import express from "express";
-import { createBooking, getBooking, getDetailBooking, getDetailComeCheck, getListApprovedBookings, getListCancelBookings, getListDoneBookings, getListWaitingBookings, getUserAndBookings, updateBookingDetail, updateBookingStatus } from "../controllers/booking.js";
+import { createBooking, getBooking, getDetailBooking, getDetailComeCheck, getListApprovedBookings, getListCancelBookings, getListDoneBookings, getListWaitingBookings, getUserAndBookings, handleFinishedExamination, updateBookingDetail, updateBookingStatus } from "../controllers/booking.js";
 
 const router = express.Router();
 
@@ -14,6 +14,7 @@ router.get("/get-userBooking/:id", getUserAndBookings);
 router.put("/update-status/:id", updateBookingStatus);
 router.put("/update-detail/:id", updateBookingDetail);
 router.get("/get-detail-come-check/:id", getDetailComeCheck)
+router.get("/handle-finished-examination/:id", handleFinishedExamination)
 
 
 

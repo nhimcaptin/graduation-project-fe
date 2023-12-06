@@ -11,3 +11,23 @@
     line-height: 42px;
     letter-spacing: 0.953846px;
 }
+
+.svgEntrance{
+    display: flex;
+    width: 30px;
+    height: 30px;
+    cursor: pointer;
+    svg{
+        height: 30px;
+        path{
+            fill: #1A6332
+        }
+    }
+}
+
+.svgDone{
+    width: 30px;
+    height: 30px;
+    color: #1A6332;
+    cursor: pointer;
+}

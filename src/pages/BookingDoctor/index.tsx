@@ -14,6 +14,7 @@ import {
   TablePagination,
   TableRow,
   TableSortLabel,
+  Tooltip,
   Typography,
 } from "@mui/material";
 import clsx from "clsx";
@@ -46,6 +47,8 @@ import TextFieldCustom from "../../components/TextFieldCustom";
 import ChipCustom from "../../components/ChipCustom";
 import ROUTERS_PATHS from "../../consts/router-paths";
 import { URL_LOCAL } from "../../services/base-url";
+import Icons from "../../consts/Icons";
+import DownloadDoneIcon from "@mui/icons-material/DownloadDone";
 
 interface RowDataProps {
   id: number;
@@ -108,10 +111,16 @@ const headCellsAction = [
     sort: "service",
     style: { maxWidth: "15%", minWidth: "180px" },
   },
+  {
+    label: "",
+    sort: "",
+    style: { maxWidth: "4%", minWidth: "10px" },
+  },
 ];
 
 const BookingDoctor = () => {
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
+  const [loadingTableComeCheck, setLoadingTableComeCheck] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
   const [orderBy, setOrderBy] = useState<keyof RowDataProps | string>("createdAt");
   const [anchorEl, setAnchorEl] = useState<HTMLButtonElement | null>(null);
@@ -120,7 +129,7 @@ const BookingDoctor = () => {
   const [totalCount, setTotalCount] = useState<number>(0);
   const [tableState, setUserState] = useState<any>([]);
   const [selectedItem, setSelectedItem] = useState<RowDataProps | any>();
-  const [dataComeCheck, setDataComeCheck] = useState([]);
+  const [dataComeCheck, setDataComeCheck] = useState<any>([]);
 
   const { setToastInformation } = useSetToastInformationState();
   const { setLoadingScreen } = useSetLoadingScreenState();
@@ -197,8 +206,16 @@ const BookingDoctor = () => {
     const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { status: "Approved" } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_BOOKING, params, filters);
+      const _item = (data?.data || []).map((x: any) => {
+        const service = x?.service.map((y: any) => y?.name).join(", ");
+        return {
+          ...x,
+          service,
+          isHighlight: x._id === highlightId,
+        };
+      });
       setTotalCount(data?.totalUsers);
-      setUserState(data?.data);
+      setUserState(_item);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -209,30 +226,87 @@ const BookingDoctor = () => {
     }
   };
 
-  const handleComeCheck = async () => {
+  const getDataWaitingDone = async (props: any) => {
+    setLoadingTableComeCheck(true);
+    const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
+    const pageIndex = !!props && props.hasOwnProperty("pageIndex") ? props.pageIndex || 0 : page;
+    const name = !!props && props.hasOwnProperty("name") ? props.name : "";
+    const phone = !!props && props.hasOwnProperty("phone") ? props.phone : "";
+    const email = !!props && props.hasOwnProperty("email") ? props.email : "";
+    const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
+
+    const sortBy = props?.sortBy || orderBy;
+    const sortOrder = props?.sortDirection || order;
+
+    const params = {
+      Page: pageIndex + 1,
+      PageSize: pageSize,
+      Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
+    };
+
+    const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { status: "WaitingDone" } };
+    try {
+      const data: any = await apiService.getFilter(URL_PATHS.GET_BOOKING, params, filters);
+      const _item = (data?.data || []).map((x: any) => {
+        const service = x?.service.map((y: any) => y?.name).join(", ");
+        return {
+          ...x,
+          service,
+          isHighlight: x._id === highlightId,
+        };
+      });
+      setDataComeCheck(_item);
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingTableComeCheck(false);
+    }
+  };
+
+  const handleComeCheck = async (dataItem: any) => {
     setAnchorEl(null);
-    const _dataCome = tableState.filter((item: any) => item._id === selectedItem._id);
-    const _tableState = tableState.filter((item: any) => item._id !== selectedItem._id);
-    setDataComeCheck(_dataCome);
+    const _dataCome: any = tableState.filter((item: any) => item._id === dataItem._id);
+    const _tableState = tableState.filter((item: any) => item._id !== dataItem._id);
+    const dataPre: any[] = dataComeCheck || [];
+    setDataComeCheck([...dataPre, _dataCome]);
     setUserState(_tableState);
-    window.open(URL_LOCAL + ROUTERS_PATHS.QUEUE_DETAIL.replace(":id", selectedItem._id + ""));
+    // window.open(URL_LOCAL + ROUTERS_PATHS.QUEUE_DETAIL.replace(":id", dataItem._id + ""));
     try {
       const data = {
         status: "WaitingDone",
       };
-      await apiService.put(`${URL_PATHS.CONFIRM_BOOKING}/${selectedItem?._id}`, data);
-    } catch (error) {}
+      await apiService.put(`${URL_PATHS.CONFIRM_BOOKING}/${dataItem?._id}`, data);
+    } catch (error) {
+    } finally {
+      getData({});
+      getDataWaitingDone({});
+    }
+  };
+
+  const handleFinishedExamination = async (item: any) => {
+    console.log("item", item);
+    try {
+      await apiService.getFilter(`${URL_PATHS.FINISHED_EXAMINATION}/${item?._id}`);
+    } catch (error) {
+    } finally {
+      getData({});
+      getDataWaitingDone({});
+    }
   };
 
   useEffect(() => {
     getData({});
+    getDataWaitingDone({});
   }, []);
 
   return (
     <Page className={styles.root} title="Danh sách khám" isActive>
       <Grid container item xs={12} sx={{ marginTop: "15px" }}>
         <LabelCustom title="Bệnh nhân vào khám" sx={{ fontSize: "18px !important" }} />
-        <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 250 }}>
+        <TableContainer component={Paper} sx={{ maxHeight: 300 }}>
           <Table stickyHeader>
             <TableHead>
               <TableRow>
@@ -289,7 +363,7 @@ const BookingDoctor = () => {
               </TableRow>
             </TableHead>
             <TableBody>
-              {false ? (
+              {loadingTableComeCheck ? (
                 <LoadingTableRow colSpan={7} />
               ) : dataComeCheck && dataComeCheck.length > 0 ? (
                 <>
@@ -304,13 +378,31 @@ const BookingDoctor = () => {
                         <TableCell>{data?.setType ? data?.nameCustomer : data?.patientId?.name}</TableCell>
                         <TableCell>{data?.doctorId?.name}</TableCell>
                         <TableCell>{data.bookingType}</TableCell>
-                        <TableCell className="">{data?.service?.name}</TableCell>
+                        <TableCell className="">{data?.service}</TableCell>
+                        <TableCell className="">
+                          <Tooltip title="Khám xong">
+                            <DownloadDoneIcon
+                              onClick={() => {
+                                handleFinishedExamination(data);
+                              }}
+                              className={styles.svgDone}
+                            />
+                            {/* <Box
+                              onClick={() => {
+                                handleComeCheck(data);
+                              }}
+                              className={styles.svgEntrance}
+                            >
+                              <Icons.Entrance />
+                            </Box> */}
+                          </Tooltip>
+                        </TableCell>
                       </TableRow>
                     );
                   })}
                 </>
               ) : (
-                <NoDataTableRow colSpan={6} />
+                <NoDataTableRow colSpan={7} />
               )}
             </TableBody>
           </Table>
@@ -392,21 +484,28 @@ const BookingDoctor = () => {
                       <TableCell>{data?.setType ? data?.nameCustomer : data?.patientId?.name}</TableCell>
                       <TableCell>{data?.doctorId?.name}</TableCell>
                       <TableCell>{data.bookingType}</TableCell>
-                      <TableCell className="">{data?.service?.name}</TableCell>
+                      <TableCell className="">{data?.service}</TableCell>
                       <TableCell className="">
                         <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
                       </TableCell>
                       <TableCell>
-                        <IconButton aria-label="more" onClick={(e) => handleOpenMenuAction(e, data)}>
-                          <MoreHorizIcon />
-                        </IconButton>
+                        <Tooltip title="Vào khám">
+                          <Box
+                            onClick={() => {
+                              handleComeCheck(data);
+                            }}
+                            className={styles.svgEntrance}
+                          >
+                            <Icons.Entrance />
+                          </Box>
+                        </Tooltip>
                       </TableCell>
                     </TableRow>
                   );
                 })}
               </>
             ) : (
-              <NoDataTableRow colSpan={6} />
+              <NoDataTableRow colSpan={7} />
             )}
           </TableBody>
         </Table>

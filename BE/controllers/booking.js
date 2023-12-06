@@ -5,8 +5,9 @@ import User from "../models/User.js";
 import TimeType from "../models/TimeType.js";
 import { convertFilter } from "../util/index.js";
 import SubService from "../models/SubService.js";
-import { sendMail } from "../middlewares/send.mail.js"
-import moment from "moment"
+import { sendMail } from "../middlewares/send.mail.js";
+import moment from "moment";
+import HistoryBooking from "../models/HistoryBooking.js";
 
 export const createBooking = async (req, res, next) => {
   try {
@@ -29,7 +30,7 @@ export const createBooking = async (req, res, next) => {
       addressCustomer,
     } = data;
 
-    const maxAppointmentsPerSlot = 3; 
+    const maxAppointmentsPerSlot = 3;
 
     const existingAppointments = await Booking.find({ doctorId, date, timeTypeId });
     if (existingAppointments.length >= maxAppointmentsPerSlot && bookingType === "Online") {
@@ -63,7 +64,7 @@ export const createBooking = async (req, res, next) => {
       birthdayCustomer,
     });
     await newBooking.save();
-    const servicesList = servicesDetails.map(service => `<li>${service.name}</li>`).join('');
+    const servicesList = servicesDetails.map((service) => `<li>${service.name}</li>`).join("");
     await sendMail({
       email: newBooking.emailCustomer,
       subject: "Thông báo từ Phòng Khám Nha Khoa Tây Đô",
@@ -72,7 +73,7 @@ export const createBooking = async (req, res, next) => {
       <ul>
         <li style="font-size: larger;"> Tên bệnh nhân: ${newBooking.nameCustomer}  </li>
         <li style="font-size: larger;"> Ngày khám: ${moment(newBooking.date).format("DD/MM/YYYY")}  </li>
-        <li style="font-size: larger;"> Giờ vào khám: ${timeType ? timeType.timeSlot : 'Không xác định'}  </li>
+        <li style="font-size: larger;"> Giờ vào khám: ${timeType ? timeType.timeSlot : "Không xác định"}  </li>
         <li style="font-size: larger;"> Dịch vụ:
         <ul>
           ${servicesList}
@@ -84,8 +85,8 @@ export const createBooking = async (req, res, next) => {
         <p style="color: gray; font-size: small;"><strong>Address:</strong> Tân Tây Đô, Đan Phượng, Hà Nội</p>
         <p style="color: gray; font-size: small;"><strong>Phonenumber:</strong> +84961106507</p>
 
-      `
-    })
+      `,
+    });
 
     res.status(200).json({ booking: newBooking, request: req.body });
   } catch (err) {
@@ -285,6 +286,41 @@ export const getDetailComeCheck = async (req, res, next) => {
       .populate("timeTypeId")
       .populate("service");
     res.status(200).json(approvedBookings);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const handleFinishedExamination = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const approvedBookings = await Booking.findById(id)
+      .populate("doctorId", "-password")
+      .populate("patientId", "-password")
+      .populate("timeTypeId")
+      .populate("service");
+
+    const idService = approvedBookings?.service?.map((x) => x?._id);
+
+    console.log("approvedBookings", approvedBookings);
+
+    const item = {
+      address: approvedBookings?.addressCustomer || approvedBookings?.patientId?.address,
+      email: approvedBookings?.emailCustomer || approvedBookings?.patientId?.email,
+      name: approvedBookings?.nameCustomer || approvedBookings?.patientId?.name,
+      phone: approvedBookings?.numberPhoneCustomer || approvedBookings?.patientId?.phone,
+      gender: approvedBookings?.genderCustomer || approvedBookings?.patientId?.gender,
+      birthday: approvedBookings?.birthdayCustomer || approvedBookings?.patientId?.birthday,
+      service: idService,
+      doctorId: approvedBookings?.doctorId?._id,
+      bookingType: approvedBookings?.bookingType,
+    };
+    console.log("item", item);
+    await Booking.findOneAndUpdate({ _id: approvedBookings?.id }, { $set: { status: "Done" } }, { new: true });
+    const _item = await new HistoryBooking({
+      ...item,
+    }).save();
+    res.status(200).json(_item);
   } catch (err) {
     next(err);
   }
