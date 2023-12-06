@@ -268,12 +268,6 @@ const BookingDoctor = () => {
 
   const handleComeCheck = async (dataItem: any) => {
     setAnchorEl(null);
-    const _dataCome: any = tableState.filter((item: any) => item._id === dataItem._id);
-    const _tableState = tableState.filter((item: any) => item._id !== dataItem._id);
-    const dataPre: any[] = dataComeCheck || [];
-    setDataComeCheck([...dataPre, _dataCome]);
-    setUserState(_tableState);
-    // window.open(URL_LOCAL + ROUTERS_PATHS.QUEUE_DETAIL.replace(":id", dataItem._id + ""));
     try {
       const data = {
         status: "WaitingDone",
@@ -287,13 +281,15 @@ const BookingDoctor = () => {
   };
 
   const handleFinishedExamination = async (item: any) => {
-    console.log("item", item);
+    setLoadingScreen(true);
     try {
-      await apiService.getFilter(`${URL_PATHS.FINISHED_EXAMINATION}/${item?._id}`);
+      const res: any = await apiService.getFilter(`${URL_PATHS.FINISHED_EXAMINATION}/${item?._id}`);
+      window.open(URL_LOCAL + ROUTERS_PATHS.DETAIL_HISTORY.replace(":id", res._id));
     } catch (error) {
     } finally {
       getData({});
       getDataWaitingDone({});
+      setLoadingScreen(false);
     }
   };
 

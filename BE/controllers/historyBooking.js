@@ -128,3 +128,17 @@ export const bookingReExamination = async (req, res, next) => {
     next(err);
   }
 };
+
+export const onPrint = async (req, res, next) => {
+  try {
+    const id = req.params.id;
+    const _item = await HistoryBooking.findOneAndUpdate(
+      { _id: id },
+      { $set: { statusPayment: "Done" } },
+      { new: true }
+    );
+    res.status(200).json(_item);
+  } catch (err) {
+    next(err);
+  }
+};

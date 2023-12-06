@@ -301,8 +301,7 @@ export const handleFinishedExamination = async (req, res, next) => {
       .populate("service");
 
     const idService = approvedBookings?.service?.map((x) => x?._id);
-
-    console.log("approvedBookings", approvedBookings);
+    const totalAmount = (approvedBookings?.service || [])?.reduce((next, pre) => Number(pre?.price) + next, 0);
 
     const item = {
       address: approvedBookings?.addressCustomer || approvedBookings?.patientId?.address,
@@ -314,9 +313,10 @@ export const handleFinishedExamination = async (req, res, next) => {
       service: idService,
       doctorId: approvedBookings?.doctorId?._id,
       bookingType: approvedBookings?.bookingType,
+      totalAmount
     };
     console.log("item", item);
-    await Booking.findOneAndUpdate({ _id: approvedBookings?.id }, { $set: { status: "Done" } }, { new: true });
+    await Booking.findOneAndUpdate({ _id: approvedBookings?.id }, { $set: { status: "Done", totalAmount } }, { new: true });
     const _item = await new HistoryBooking({
       ...item,
     }).save();

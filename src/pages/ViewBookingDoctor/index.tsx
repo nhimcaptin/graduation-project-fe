@@ -527,7 +527,7 @@ const ViewBookingDoctor = () => {
             />
           )}
           <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onSubmit)} />
-          <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />
+          <ButtonCustom type="submit" title="Mã QR" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />
         </Grid>
       )}
       <CrudModal

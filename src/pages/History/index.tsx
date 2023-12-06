@@ -35,7 +35,7 @@ import DISPLAY_TEXTS from "../../consts/display-texts";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
-import { STATUS_TOAST } from "../../consts/statusCode";
+import { IStatusType, STATUS_CHIP, STATUS_TOAST } from "../../consts/statusCode";
 import { handleErrorMessage } from "../../utils/errorMessage";
 import moment from "moment";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
@@ -62,6 +62,19 @@ interface RowDataProps {
   [x: number]: string | number | undefined;
 }
 
+export const statusOptions: IStatusType[] = [
+  {
+    label: "Chờ thanh toán",
+    value: "Waiting",
+    chipType: STATUS_CHIP.WARNING,
+  },
+  {
+    label: "Đã thanh toán",
+    value: "Done",
+    chipType: STATUS_CHIP.ACTIVE,
+  },
+];
+
 const headCells = [
   {
     label: "Tên bệnh nhân",
@@ -86,11 +99,16 @@ const headCells = [
   {
     label: "Hình thức",
     sort: "bookingType",
-    style: { maxWidth: "10%", minWidth: "180px" },
+    style: { maxWidth: "10%", minWidth: "100px" },
   },
   {
     label: "Dịch vụ",
     sort: "service",
+    style: { maxWidth: "15%", minWidth: "180px" },
+  },
+  {
+    label: "Trạng thái thanh toán",
+    sort: "statusPayment",
     style: { maxWidth: "15%", minWidth: "180px" },
   },
   {
@@ -261,8 +279,16 @@ const History = (props: any) => {
     const filters = { unEncoded: { name: name, phone: phone, email: email } };
     try {
       const data: any = await apiService.getFilter(URL_PATHS.GET_HISTORY, params, filters);
+      const _item = (data?.data || []).map((x: any) => {
+        const service = x?.service.map((y: any) => y?.name).join(", ");
+        return {
+          ...x,
+          service,
+          isHighlight: x._id === highlightId,
+        };
+      });
       setTotalCount(data?.totalUsers);
-      setUserState(data?.data);
+      setUserState(_item);
     } catch (error: any) {
       setToastInformation({
         status: STATUS_TOAST.ERROR,
@@ -435,7 +461,7 @@ const History = (props: any) => {
             ) : userState && userState.length > 0 ? (
               <>
                 {userState.map((data: any, index: number) => {
-                  let statusContext = getRowStatus(data.status);
+                  let statusContext = getRowStatus(data?.statusPayment, statusOptions);
                   return (
                     <TableRow
                       key={index}
@@ -447,7 +473,10 @@ const History = (props: any) => {
                       <TableCell>{data.phone}</TableCell>
                       <TableCell>{data.email}</TableCell>
                       <TableCell>{data.bookingType}</TableCell>
-                      <TableCell className="">{data?.service?.name}</TableCell>
+                      <TableCell className="">{data?.service}</TableCell>
+                      <TableCell className="">
+                        <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
+                      </TableCell>
                       <TableCell>{moment(data.createdAt).format(FORMAT_DATE)}</TableCell>
                       <TableCell>
                         <IconButton aria-label="more" onClick={(e) => handleOpenMenuAction(e, data)}>

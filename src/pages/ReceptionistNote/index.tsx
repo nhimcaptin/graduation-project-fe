@@ -91,6 +91,24 @@ const ReceptionistNote = () => {
     }
   };
 
+  const onPrint = async () => {
+    setLoadingScreen(true);
+    try {
+      await apiService.get(URL_PATHS.PRINT + "/" + params?.id);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: MESSAGE_SUCCESS.UPDATE_STATUS,
+      });
+    } catch (error) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: MESSAGE_ERROR_API.ERROR_SYSTEM,
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
+  };
+
   const getEditorNewValue = (newValue: string) => {
     const stripedValue = stripHTML(newValue).trim();
     if (stripedValue.length === 1 && stripedValue.charCodeAt(0) === 8203) return "";
@@ -491,11 +509,9 @@ const ReceptionistNote = () => {
         xs={8.5}
         sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
       >
-        {isCheck && (
-          <ButtonCustom type="submit" title="Đặt lịch tái khám" color="blue" onClick={handleSubmit(onSubmit)} />
-        )}
-        <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onSubmit)} />
-        <ButtonCustom type="submit" title="Thanh toán" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />
+        <ButtonCustom type="submit" title="Mã QR" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />
+        <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onPrint)} />
+        <ButtonCustom type="submit" title="Lưu" color="blue" onClick={handleSubmit(onSubmit)} />
       </Grid>
       <CrudModal
         isOpen={openQR}

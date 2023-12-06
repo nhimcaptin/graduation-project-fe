@@ -45,5 +45,6 @@ const URL_PATHS = {
   DASHBOARD_COUNT: "api/dashboard/count",
   DASHBOARD_INFORMATION: "api/dashboard/data-information",
   FINISHED_EXAMINATION: "api/booking/handle-finished-examination",
+  PRINT: "api/history/print",
 };
 export default URL_PATHS;

@@ -39,6 +39,11 @@ const HistoryBookingSchema = new mongoose.Schema(
     totalAmount:{
       type: String,
     },
+    statusPayment: {
+      type: String,
+      required: true,
+      default: "Waiting",
+    },
     bookingType: {
       type: String,
       default: "Online",
