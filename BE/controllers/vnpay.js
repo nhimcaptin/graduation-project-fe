@@ -1,9 +1,9 @@
 import config from "config";
-import dateFormat from "dateformat";
 import crypto from "crypto";
 import querystring from "qs";
 import moment from "moment";
 import request from "request";
+import Booking from "../models/Booking.js";
 
 export const createdUrl = (req, res, next) => {
   process.env.TZ = "Asia/Ho_Chi_Minh";
@@ -20,15 +20,12 @@ export const createdUrl = (req, res, next) => {
   let tmnCode = config.get("vnp_TmnCode");
   let secretKey = config.get("vnp_HashSecret");
   let vnpUrl = config.get("vnp_Url");
-  let returnUrl = config.get("vnp_ReturnUrl");
-  let orderId = moment(date).format("DDHHmmss");
+  let orderId = req.body.orderId;
   let amount = req.body.amount;
   let bankCode = req.body.bankCode;
+  let returnUrl = req.body.url;
 
-  let locale = req.body.language;
-  if (locale === null || locale === "") {
-    locale = "vn";
-  }
+  let locale = req.body.language || "vn";
   let currCode = "VND";
   let vnp_Params = {};
   vnp_Params["vnp_Version"] = "2.1.0";
@@ -43,7 +40,7 @@ export const createdUrl = (req, res, next) => {
   vnp_Params["vnp_ReturnUrl"] = returnUrl;
   vnp_Params["vnp_IpAddr"] = ipAddr;
   vnp_Params["vnp_CreateDate"] = createDate;
-  if (bankCode !== null && bankCode !== "") {
+  if (bankCode) {
     vnp_Params["vnp_BankCode"] = bankCode;
   }
 
@@ -62,13 +59,12 @@ export const querydr = (req, res, next) => {
   process.env.TZ = "Asia/Ho_Chi_Minh";
   let date = new Date();
 
-
   let vnp_TmnCode = config.get("vnp_TmnCode");
   let secretKey = config.get("vnp_HashSecret");
   let vnp_Api = config.get("vnp_Api");
 
-  let vnp_TxnRef = "05001155";
-  let vnp_TransactionDate = "20231205001200";
+  let vnp_TxnRef = req.body.vnp_TxnRef;
+  let vnp_TransactionDate = req.body.vnp_TransactionDate;
 
   let vnp_RequestId = moment(date).format("HHmmss");
   let vnp_Version = "2.1.0";
@@ -125,8 +121,15 @@ export const querydr = (req, res, next) => {
       json: true,
       body: dataObj,
     },
-    function (error, response, body) {
-      return res.status(200).json(body);
+    async function (error, response, body) {
+      try {
+        if (body?.vnp_ResponseCode == "00") {
+          await Booking.findOneAndUpdate({ _id: vnp_TxnRef }, { $set: { statusPaymentOrder: "Done" } }, { new: true });
+        }
+        return res.status(200).json(body);
+      } catch (error) {
+        next(error);
+      }
     }
   );
 };
