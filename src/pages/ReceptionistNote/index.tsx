@@ -136,6 +136,7 @@ const ReceptionistNote = () => {
           nameService: data?.service,
           idService: idService,
           idPatient: data?.user?._id,
+          patientId: data?.patientId,
           idDoctor: data?.doctorId?._id,
           bookingType: data?.bookingType,
           bookingId: data?.bookingId,

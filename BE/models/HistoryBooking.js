@@ -25,6 +25,10 @@ const HistoryBookingSchema = new mongoose.Schema(
     condition: {
       type: String,
     },
+    patientId: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
     doctorId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
