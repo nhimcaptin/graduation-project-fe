@@ -32,8 +32,8 @@ export const createBooking = async (req, res, next) => {
 
     const maxAppointmentsPerSlot = 3;
 
-    const existingAppointments = await Booking.find({ doctorId, date, timeTypeId });
-    if (existingAppointments.length >= maxAppointmentsPerSlot && bookingType === "Online") {
+    const existingAppointments = await Booking.find({ doctorId, date, timeTypeId, status: { $ne: "Cancel" } });
+    if (existingAppointments.length >= maxAppointmentsPerSlot) {
       return res.status(400).json({ message: "Không còn chỗ trống trong khung giờ này." });
     }
 
