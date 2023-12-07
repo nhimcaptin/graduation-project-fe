@@ -27,36 +27,31 @@ import ButtonCustom from "../../components/ButtonCustom";
 import { RegExpEmail, RegNumber, RegPhoneNumber } from "../../utils/regExp";
 import DateTimePickerCustom from "../../components/DateTimePickerCustom";
 import avatarDefault from "../../assets/images/avatar-default.png";
+import "./my-profile.scss";
+import ReactSelect from "../../components/ReactSelectView";
+import CrudModalMyProfile from "./CrudModal";
 
 type FormInputs = {
-  firstName: string;
-  lastName: string;
+  name: string;
   email: string;
-  phoneNumber: string;
-  userName: string;
-  otpCode: string;
-  avatar: any;
-  image?: string[];
-  birthDate?: Date;
-  province?: any;
-  district?: any;
-  ward?: any;
+  phone: string;
+  image?: any;
+  birthday?: Date;
   address?: string;
+  gender?: any;
+  role?: any;
 };
-
-interface LocationAttributes {
-  resPath: string;
-  urlPath: string;
-}
 
 export type IUploadFileResponse = {
   fileName: string;
   fileUrl: string;
 }[];
 
-const getLocationSelectedValue = (name: string | null) => {
-  return name ? { label: name, value: name } : null;
-};
+const listGender = [
+  { label: "Nam", value: "Nam" },
+  { label: "Nữ", value: "Nữ" },
+  { label: "Khác", value: "Khácm" },
+];
 const Profile = () => {
   const [isOpenChangePassWordModal, setIsOpenChangePassWordModal] = useState(false);
   const { setToastInformation } = useSetToastInformationState();
@@ -69,24 +64,24 @@ const Profile = () => {
   const [dataSubmit] = useState<any>({});
   const { currentUser } = useSelector((state: any) => state.currentUser);
   const isChangeForm = useSelector((state: any) => state.checkingChanges.isChange);
-  const [previewImages, setPreviewImages] = useState<string>(currentUser.avatar || avatarDefault);
-  const [newImage, setNewImage] = useState<string>(currentUser.avatar);
+  const [previewImages, setPreviewImages] = useState<string>(currentUser.image || avatarDefault);
+  const [newImage, setNewImage] = useState<string>(currentUser.image);
   const [changeFile, setChangeFile] = useState<boolean>(false);
   const [checkChangeFile, setCheckChangeFile] = useState<boolean>(false);
   const defaultValues = {
-    firstName: currentUser?.firstName ? `${currentUser?.firstName}` : "",
-    lastName: currentUser?.lastName ? `${currentUser?.lastName}` : "",
+    name: currentUser?.name ? `${currentUser?.name}` : "",
     email: currentUser?.email ? `${currentUser?.email}` : "",
-    phoneNumber: currentUser?.phoneNumber ? `${currentUser?.phoneNumber}` : "",
-    userName: currentUser?.userName ? `${currentUser?.userName}` : "",
-    otpCode: "123456",
-    avatar: currentUser?.avatar ? currentUser?.avatar : "",
-    birthDate: currentUser?.birthDate ? currentUser?.birthDate : null,
-    district: currentUser?.districtName ? currentUser?.districtName : "",
-    ward: currentUser?.wardName ? currentUser?.wardName : "",
-    province: currentUser?.provinceName ? currentUser?.provinceName : "",
+    phone: currentUser?.phone ? `${currentUser?.phone}` : "",
+    image: currentUser?.image ? currentUser?.image : "",
+    birthday: currentUser?.birthday ? currentUser?.birthday : null,
     address: currentUser?.address ? currentUser?.address : "",
+    role: currentUser ? currentUser?.role : "",
+    gender: currentUser
+      ? listGender.find((x) => x.value?.toLocaleLowerCase() == currentUser?.gender?.toLocaleLowerCase())
+      : "",
   };
+
+  console.log("currentUser", currentUser);
   const {
     formState: { errors },
     handleSubmit,
@@ -109,51 +104,52 @@ const Profile = () => {
     const bodyFormData = new FormData();
     bodyFormData.append("files", image);
     const resUpload = (await uploadFileService.uploadFileResources(bodyFormData)) as IUploadFileResponse;
+    console.log("resUpload", resUpload);
     return resUpload;
   };
 
   const SubmitUpdateProfile = async (data: any) => {
     const id = currentUser.id;
     setIsLoading(true);
-    let uploadImageRes: any = [];
+    let uploadImageRes: any;
     if (checkChangeFile === true) {
-      uploadImageRes = await uploadImage(data.avatar);
+      uploadImageRes = await uploadImage(data.image);
     }
+
+    console.log("uploadImageRes", uploadImageRes);
 
     const requestBody = {
-      firstName: data.firstName,
-      lastName: data.lastName,
-      phoneNumber: data.phoneNumber,
-      email: data.email || null,
-      birthDate: data.birthDate || null,
+      name: data.name,
+      phone: data.phone,
+      email: data.email,
+      birthday: data.birthday,
       address: data.address,
-      wardName: data.ward || null,
-      districtName: data.district || null,
-      provinceName: data.province || null,
-      otpCode: "123456",
-      avatar: uploadImageRes[0]?.fileUrl ? uploadImageRes[0]?.fileUrl : newImage,
+      role: data?.role?._id,
+      gender: data.address,
+      image: uploadImageRes?.downloadURL ? uploadImageRes?.downloadURL : newImage,
     };
+    console.log("requestBody", requestBody);
 
-    try {
-      //   await UpdateProfile(requestBody, id);
-      setToastInformation({
-        status: STATUS_TOAST.SUCCESS,
-        message: "Cập nhập thông tin thành công",
-      });
-      handleCloseSendCode();
-    } catch (error: any) {
-      setToastInformation({
-        status: STATUS_TOAST.ERROR,
-        message: handleErrorMessage(error),
-      });
-    } finally {
-      const userInfo = {
-        ...currentUser,
-        ...requestBody,
-      };
-      setIsLoading(false);
-      setUserInformation(userInfo);
-    }
+    // try {
+    //   //   await UpdateProfile(requestBody, id);
+    //   setToastInformation({
+    //     status: STATUS_TOAST.SUCCESS,
+    //     message: "Cập nhập thông tin thành công",
+    //   });
+    //   handleCloseSendCode();
+    // } catch (error: any) {
+    //   setToastInformation({
+    //     status: STATUS_TOAST.ERROR,
+    //     message: handleErrorMessage(error),
+    //   });
+    // } finally {
+    //   const userInfo = {
+    //     ...currentUser,
+    //     ...requestBody,
+    //   };
+    //   setIsLoading(false);
+    //   setUserInformation(userInfo);
+    // }
   };
 
   const SubmitErrors = () => {
@@ -165,28 +161,13 @@ const Profile = () => {
     setIsOpenChangePassWordModal(false);
   };
 
-  const handleCloseSendCode = () => {
-    setIsOpenSendCodeModal(false);
-    setValue("otpCode", "");
-    setMessageErrorOTP("");
-  };
-
   const handleOpenChangePasswordModal = () => {
     setIsOpenChangePassWordModal(true);
   };
 
-  const handleChange = (otp: any) => {
-    setValue("otpCode", otp);
-  };
-
-  const handleBlurTextField = async (fieldName: keyof FormInputs, value: string) => {
-    await trigger(fieldName);
-    setValue(fieldName, value);
-  };
-
   const handleChangeFile = (file: File) => {
-    setValue("avatar", file);
-    trigger("avatar");
+    setValue("image", file);
+    trigger("image");
     setPreviewImages(URL.createObjectURL(file));
     setNewImage("");
     setChangeFile(true);
@@ -196,32 +177,22 @@ const Profile = () => {
   const handleDeleteImage = () => {
     setPreviewImages("");
     setNewImage("");
-    setValue("avatar", "");
+    setValue("image", "");
     setChangeFile(true);
     setCheckChangeFile(false);
   };
 
-  const [locationParams, setLocationParams] = useState({
-    provinceId: "",
-    districtId: "",
-    wardId: "",
-    provinceName: "",
-    districtName: "",
-    wardName: "",
-  });
-
-  const ImageSrc = `${currentUser.avatar}`;
+  const ImageSrc = `${currentUser.image}`;
 
   return (
     <>
       <p className="titleProfile">TÀI KHOẢN CỦA TÔI</p>
       <Grid
-        style={{ background: "#F5F5F5", borderRadius: "8px", marginLeft: "0px", width: "100%" }}
+        style={{ borderRadius: "8px", marginLeft: "8px", width: "100%", background: "rgb(245, 245, 245)" }}
         container
         spacing={2}
       >
         <Grid item md={4} sm={12}>
-          <p className="titleInfo">Thông tin tài khoản</p>
           <Box style={{ width: "90%" }}>
             <Grid container spacing={2}>
               <Grid item md={4} sm={3}>
@@ -235,7 +206,7 @@ const Profile = () => {
                       ? previewImages
                         ? previewImages
                         : avatarDefault
-                      : currentUser.avatar
+                      : currentUser.image
                       ? ImageSrc
                       : avatarDefault
                   }
@@ -243,14 +214,9 @@ const Profile = () => {
                 />
               </Grid>
               <Grid item md={8} sm={9}>
-                <p className="fullNameProfile">
-                  {currentUser?.lastName && currentUser?.firstName ? `${currentUser?.firstName}` : ""}
-                </p>
-                <p className="emailProfile">{currentUser?.email}</p>
-
                 <Controller
                   control={control}
-                  name="avatar"
+                  name="image"
                   render={({ field: { onChange, value } }) => (
                     <input
                       accept="image/*"
@@ -288,13 +254,13 @@ const Profile = () => {
         <Grid item md={8} sm={12} sx={{ paddingRight: 2 }}>
           {/* <form> */}
           <Grid container spacing={1} sx={{ marginBottom: "10px" }}>
-            <Grid item md={4} sm={6}>
+            <Grid item md={4}>
               <LabelCustom isRequired title="Họ và tên" />
               <Controller
-                key="firstName"
-                render={({ field }: any) => (
+                key="name"
+                render={({ field, onChange }: any) => (
                   <TextFieldCustom
-                    errorMessage={errors?.firstName?.message}
+                    errorMessage={errors?.name?.message}
                     type="text"
                     fullWidth
                     {...field}
@@ -303,10 +269,10 @@ const Profile = () => {
                     onChange={(e) => {
                       field.onChange(e.target.value);
                     }}
-                    onBlur={(e: any) => handleBlurTextField("firstName", e.target.value.trim())}
+                    onBlur={(e: any) => field.onChange(e.target.valuetrim())}
                   />
                 )}
-                name="firstName"
+                name="name"
                 rules={{
                   required: MESSAGE_ERROR.fieldRequired,
                 }}
@@ -314,27 +280,27 @@ const Profile = () => {
                 defaultValue=""
               />
             </Grid>
-            <Grid item md={4} sm={6}>
-              <LabelCustom title="Số điện thoại" />
+            <Grid item md={0.5}></Grid>
+            <Grid item md={4}>
+              <LabelCustom title="Số điện thoại" isRequired />
               <Controller
                 render={({ field }: any) => (
                   <TextFieldCustom
-                    errorMessage={errors?.phoneNumber?.message}
+                    errorMessage={errors?.phone?.message}
                     type="text"
                     fullWidth
                     {...field}
                     inputProps={{ maxLength: 12 }}
                     inputRef={field.ref}
-                    onBlur={(e: any) => handleBlurTextField("phoneNumber", e.target.value.trim())}
+                    onBlur={(e: any) => field.onChange(e.target.value?.trim())}
                     onChange={(e: any) => {
-                      if (e.target.value === "" || RegNumber.test(e.target.value)) {
-                        field.onChange(e.target.value);
-                      }
+                      field.onChange(e.target.value);
                     }}
                   />
                 )}
-                name="phoneNumber"
+                name="phone"
                 rules={{
+                  required: MESSAGE_ERROR.fieldRequired,
                   validate: (value: any) => {
                     const result = RegPhoneNumber(value);
                     return !value || result || MESSAGE_ERROR.RegPhoneNumber;
@@ -344,24 +310,14 @@ const Profile = () => {
                 defaultValue=""
               />
             </Grid>
-            <Grid item md={4} sm={6}>
-              <LabelCustom title="Tên đăng nhập" />
-              <Controller
-                render={({ field }: any) => (
-                  <TextFieldCustom errorMessage={errors?.userName?.message} disabled type="text" fullWidth {...field} />
-                )}
-                name="userName"
-                control={control}
-                defaultValue=""
-              />
-            </Grid>
-            <Grid item md={4} sm={6}>
-              <LabelCustom title="Email" />
+            <Grid item md={4} mt={1}>
+              <LabelCustom title="Email" isRequired />
               <Controller
                 control={control}
                 name="email"
                 defaultValue=""
                 rules={{
+                  required: MESSAGE_ERROR.fieldRequired,
                   validate: (value: any) => {
                     const result = RegExpEmail(value);
                     return !value || result || MESSAGE_ERROR.RegExpEmail;
@@ -378,6 +334,7 @@ const Profile = () => {
                       inputProps={{
                         maxLength: 50,
                       }}
+                      disabled
                       onChange={(e) => {
                         onChange(e.target.value);
                       }}
@@ -386,18 +343,29 @@ const Profile = () => {
                 )}
               />
             </Grid>
-            <Grid item md={4} sm={6}>
-              <LabelCustom title="Ngày sinh" />
+            <Grid item md={0.5}></Grid>
+            <Grid item md={4} mt={1}>
+              <LabelCustom title="Ngày sinh" isRequired />
               <Controller
                 control={control}
-                name="birthDate"
-                defaultValue={currentUser?.birthDate ? currentUser?.birthDate : null}
+                name="birthday"
+                defaultValue={currentUser?.birthday ? currentUser?.birthday : null}
+                rules={{
+                  required: MESSAGE_ERROR.fieldRequired,
+                }}
                 render={({ field: { onChange, value } }) => (
                   <DateTimePickerCustom
                     inputFormat="DD/MM/YYYY"
                     onChange={onChange}
                     value={value}
                     disableFuture={true}
+                    inputProps={{
+                      errorMessage: errors?.birthday?.message,
+                    }}
+                    staticDateTimePickerProps={{
+                      views: ["year", "day"],
+                      ampm: true,
+                    }}
                     sx={{
                       "& input": {
                         fontSize: "14px",
@@ -409,13 +377,43 @@ const Profile = () => {
                 )}
               />
             </Grid>
-            <Grid item md={4} sm={6}>
+
+            <Grid item md={4} mt={1}>
+              <LabelCustom title="Giới tính" isRequired />
+              <Controller
+                control={control}
+                name="gender"
+                rules={{
+                  required: MESSAGE_ERROR.fieldRequired,
+                }}
+                render={({ field: { onChange, onBlur, value, ref, name } }) => (
+                  <ReactSelect
+                    isClearable
+                    options={listGender}
+                    getOptionLabel={(option: any) => option.label}
+                    getOptionValue={(option: any) => option.value}
+                    value={value}
+                    onChange={(value: any) => {
+                      onChange(value);
+                    }}
+                    fieldName={name}
+                    maxMenuHeight={200}
+                    placeholder="Chọn giới tính"
+                    inputRef={ref}
+                    isValidationFailed
+                    errorMessage={errors?.gender?.message as string}
+                  />
+                )}
+              />
+            </Grid>
+            <Grid item md={0.5} mt={1}></Grid>
+            <Grid item md={4} mt={1}>
               <LabelCustom title="Địa chỉ" />
               <Controller
                 key="address"
                 render={({ field }: any) => (
                   <TextFieldCustom
-                    errorMessage={errors?.lastName?.message}
+                    errorMessage={errors?.address?.message}
                     type="text"
                     fullWidth
                     {...field}
@@ -424,7 +422,7 @@ const Profile = () => {
                     onChange={(e) => {
                       field.onChange(e.target.value);
                     }}
-                    onBlur={(e: any) => handleBlurTextField("address", e.target.value.trim())}
+                    onBlur={(e: any) => field.onChange(e.target.trim())}
                   />
                 )}
                 name="address"
@@ -432,7 +430,7 @@ const Profile = () => {
                 defaultValue=""
               />
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={12} mt={1}>
               <ButtonCustom
                 onClick={handleSubmit(SubmitUpdateProfile, SubmitErrors)}
                 loading={isLoading}
@@ -444,7 +442,25 @@ const Profile = () => {
           </Grid>
         </Grid>
       </Grid>
-      {/* {isOpenChangePassWordModal && (
+      <Grid
+        style={{
+          borderRadius: "8px",
+          marginLeft: "8px",
+          marginTop: "8px",
+          width: "100%",
+          background: "rgb(245, 245, 245)",
+        }}
+        container
+        spacing={2}
+      >
+        <Grid style={{ alignItems: "center" }} item md={4} sm={3}>
+          <p className="titleInfo">Phân Quyền</p>
+        </Grid>
+        <Grid item md={8} sm={9}>
+          <p className="titleInfo">{currentUser?.role?.roleName}</p>
+        </Grid>
+      </Grid>
+      {isOpenChangePassWordModal && (
         <CrudModalMyProfile
           setIsOpenChangePassWordModal={setIsOpenChangePassWordModal}
           isOpen={isOpenChangePassWordModal}
@@ -453,7 +469,7 @@ const Profile = () => {
           saveBtnLabel="Cập nhật"
           formTitle="Đổi mật khẩu"
         />
-      )} */}
+      )}
     </>
   );
 };

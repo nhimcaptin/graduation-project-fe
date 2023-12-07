@@ -91,10 +91,11 @@ const Header = () => {
             onClick={(e) => setOpenMenu(true)}
           >
             <div className={styles.textContainer}>
-              <p className={styles.userName}>{currentUser?.firstName} Admin nè</p>
+              <p className={styles.userName}>{currentUser?.name}</p>
+              <p className={styles.userRole}>{currentUser?.role?.roleName}</p>
             </div>
             <img
-              src={currentUser.avatar ? ImageSrc : avatarDefault}
+              src={currentUser.image ? ImageSrc : avatarDefault}
               width={40}
               height={40}
               style={{ borderRadius: "50%" }}
@@ -118,10 +119,10 @@ const Header = () => {
             <MenuList>
               <Link
                 style={{ textDecoration: "unset", color: "#614C4C" }}
-                to={getPath(ROUTERS_PATHS.MY_PROFILE)}
+                to={getPath(ROUTERS_PATHS.PROFILE)}
                 onClick={
-                  getPath(ROUTERS_PATHS.MY_PROFILE) === "#"
-                    ? () => handleCheckFormChanges(ROUTERS_PATHS.MY_PROFILE)
+                  getPath(ROUTERS_PATHS.PROFILE) === "#"
+                    ? () => handleCheckFormChanges(ROUTERS_PATHS.PROFILE)
                     : undefined
                 }
               >

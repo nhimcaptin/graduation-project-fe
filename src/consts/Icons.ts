@@ -13,6 +13,8 @@ import MainService from "./../assets/icons/category-list-solid-svgrepo-com.svg";
 import SubService from "./../assets/icons/category-add-svgrepo-com.svg";
 import Voucher from "./../assets/icons/loyalty.svg";
 import Entrance from "./../assets/icons/entrance-alt1.svg";
+import eyes from "./../assets/icons/icon-eyes.svg";
+import eyesHidden from "./../assets/icons/icon-eyes-hidden.svg";
 
 const Icons = {
   IconUser,
@@ -29,7 +31,9 @@ const Icons = {
   MainService,
   SubService,
   Voucher,
-  Entrance
+  Entrance,
+  eyes,
+  eyesHidden
 };
 
 export default Icons;

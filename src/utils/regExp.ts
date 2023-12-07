@@ -23,6 +23,11 @@ export const RegExpEmail = (email: any) => {
   }
 };
 
+export const RegPassword = (password: any) => {
+  if (password && password.length < 6) {
+      return MESSAGE_ERROR.charactersPassword;
+  }
+};
 
 export const RegNumber = /^[0-9\b]+$/;
 export const REGEX_NON_NUMBER = /[^0-9]/g;

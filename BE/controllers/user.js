@@ -98,7 +98,8 @@ export const deleteUser = async (req, res, next) => {
 export const getCurrentUser = async (req, res, next) => {
   try {
     const decoded = jwt.verify(req.header("authorization").replace("Bearer ", ""), process.env.JWT);
-    const data = await User.findOne({ _id: decoded.id });
+    const data = await User.findOne({ _id: decoded.id }).populate("role");
+    console.log("data", data)
     const user = {
       name: data.name,
       email: data.email,
@@ -107,6 +108,8 @@ export const getCurrentUser = async (req, res, next) => {
       // img: data.address,
       image: data.image,
       role: data.role,
+      birthday: data.birthday,
+      gender: data.gender,
       _id: data._id,
     };
     return res.status(200).json(user);
