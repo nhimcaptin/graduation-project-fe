@@ -79,6 +79,11 @@ const routes: IRoutesState[] = [
         role: [SCREEN_ROLE_CODE.Dashboard],
       },
       {
+        path: ROUTERS_PATHS.PROFILE,
+        component: lazy(() => import("../pages/Profile")),
+        role: [SCREEN_ROLE_CODE.Dashboard],
+      },
+      {
         path: ROUTERS_PATHS.CUSTOMER,
         component: lazy(() => import("../pages/User")),
         role: [SCREEN_ROLE_CODE.User],
