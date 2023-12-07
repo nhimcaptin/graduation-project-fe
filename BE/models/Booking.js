@@ -54,6 +54,9 @@ const BookingSchema = new mongoose.Schema(
       required: true,
       default: "Waiting",
     },
+    transactionDate: {
+      type: String,
+    },
     status: {
       type: String,
       required: true,
