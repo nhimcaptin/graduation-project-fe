@@ -30,6 +30,9 @@ import avatarDefault from "../../assets/images/avatar-default.png";
 import "./my-profile.scss";
 import ReactSelect from "../../components/ReactSelectView";
 import CrudModalMyProfile from "./CrudModal";
+import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
+import apiService from "../../services/api-services";
+import URL_PATHS from "../../services/url-path";
 
 type FormInputs = {
   name: string;
@@ -56,6 +59,7 @@ const Profile = () => {
   const [isOpenChangePassWordModal, setIsOpenChangePassWordModal] = useState(false);
   const { setToastInformation } = useSetToastInformationState();
   const { setUserInformation } = useSetUserInformationState();
+  const { setLoadingScreen } = useSetLoadingScreenState();
   // const { setCheckingChanges } = useSetCheckingChangesState();
 
   const [isOpenSendCodeModal, setIsOpenSendCodeModal] = useState(false);
@@ -81,7 +85,6 @@ const Profile = () => {
       : "",
   };
 
-  console.log("currentUser", currentUser);
   const {
     formState: { errors },
     handleSubmit,
@@ -104,19 +107,16 @@ const Profile = () => {
     const bodyFormData = new FormData();
     bodyFormData.append("files", image);
     const resUpload = (await uploadFileService.uploadFileResources(bodyFormData)) as IUploadFileResponse;
-    console.log("resUpload", resUpload);
     return resUpload;
   };
 
   const SubmitUpdateProfile = async (data: any) => {
-    const id = currentUser.id;
-    setIsLoading(true);
+    setLoadingScreen(true);
+    const id = currentUser._id;
     let uploadImageRes: any;
     if (checkChangeFile === true) {
       uploadImageRes = await uploadImage(data.image);
     }
-
-    console.log("uploadImageRes", uploadImageRes);
 
     const requestBody = {
       name: data.name,
@@ -125,31 +125,30 @@ const Profile = () => {
       birthday: data.birthday,
       address: data.address,
       role: data?.role?._id,
-      gender: data.address,
+      gender: data.gender?.value,
       image: uploadImageRes?.downloadURL ? uploadImageRes?.downloadURL : newImage,
     };
-    console.log("requestBody", requestBody);
 
-    // try {
-    //   //   await UpdateProfile(requestBody, id);
-    //   setToastInformation({
-    //     status: STATUS_TOAST.SUCCESS,
-    //     message: "Cập nhập thông tin thành công",
-    //   });
-    //   handleCloseSendCode();
-    // } catch (error: any) {
-    //   setToastInformation({
-    //     status: STATUS_TOAST.ERROR,
-    //     message: handleErrorMessage(error),
-    //   });
-    // } finally {
-    //   const userInfo = {
-    //     ...currentUser,
-    //     ...requestBody,
-    //   };
-    //   setIsLoading(false);
-    //   setUserInformation(userInfo);
-    // }
+    try {
+      await apiService.put(`${URL_PATHS.CREATE_USER}/${id}`, requestBody);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: "Cập nhập thông tin thành công",
+      });
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      const userInfo = {
+        ...currentUser,
+        ...requestBody,
+        role: currentUser.role,
+      };
+      setLoadingScreen(false);
+      setUserInformation(userInfo);
+    }
   };
 
   const SubmitErrors = () => {

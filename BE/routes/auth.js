@@ -8,10 +8,10 @@ router.post("/login-web", login)
 router.post("/login-admin", login)
 router.post("/logout", logout)
 
-router.post("/sendpasswordlink", sendPasswordLink);
+router.post("/send-password-link", sendPasswordLink);
 
-router.get("/forgotpassword/:id/:token",forgotPassword)
+router.get("/forgot-password/:id/:token",forgotPassword)
 
-router.post("/resetpassword/:id/:token",resetPassword)
+router.post("/reset-password/:id/:token",resetPassword)
 
 export default router

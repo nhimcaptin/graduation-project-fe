@@ -61,7 +61,7 @@ const routes: IRoutesState[] = [
   {
     guard: GuestGuard,
     path: ROUTERS_PATHS.FORGOT_PASSWORD,
-    component: lazy(() => import("../pages/Login")),
+    component: lazy(() => import("../pages/ForgotPassword")),
   },
   {
     guard: GuestGuard,

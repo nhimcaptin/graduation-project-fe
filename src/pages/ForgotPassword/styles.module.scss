@@ -1,0 +1,84 @@
+.root {
+  background-color: '#E5E5E5';
+  display: 'flex';
+  min-height: '100vh'
+}
+
+.cardContainer {
+  padding-bottom: 80px;
+  padding-top: 80px;
+}
+
+.styleCard {
+  box-shadow: 0px 4px 30px rgba(0, 0, 0, 0.06);
+  border-radius: 30px;
+
+  .cardContent {
+    padding: 60px 60px 35px 60px !important;
+    display: flex;
+    flex-direction: column;
+    min-height: 400;
+
+    .cardTextTitle {
+      color: #424242;
+      font-size: 28px;
+      font-weight: bold;
+    }
+
+    .iconNational {
+      display: flex;
+      justify-content: center;
+
+      span {
+        cursor: pointer;
+      }
+
+      .iconNationalFlag {
+        margin-right: 30px;
+      }
+
+      .unselectedFlag {
+        opacity: 0.6;
+      }
+    }
+  }
+}
+
+.textForgotPass {
+  display: flex;
+  justify-content: flex-end;
+  text-decoration: none ;
+  margin: 8px 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: #424242;
+  cursor: pointer;
+}
+
+.textForgotPass:hover {
+  color: #0c0b0b;
+  text-decoration: underline;
+}
+
+.InputContai {
+  position: relative;
+
+  img {
+    position: absolute;
+    top: 32px;
+    left: 13px;
+  }
+}
+
+.inputLogin {
+
+  & input {
+    padding-left: 5px !important;
+    height: 30px !important;
+
+  }
+
+  .MuiOutlinedInput-notchedOutline {
+    border-color: '#D2D1D1',
+  }
+}

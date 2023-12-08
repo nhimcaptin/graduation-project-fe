@@ -48,6 +48,20 @@ export const updateUser = async (req, res, next) => {
   }
 };
 
+export const changePassWord = async (req, res, next) => {
+  try {
+    const user = await User.findOne({ _id: req.body.id });
+    const isPasswordCorrect = await bcrypt.compare(req.body.currentPassword, user.password);
+    if (!isPasswordCorrect) return next(createError(400, MESSAGE_ERROR.WRONG_ACCOUNT_CHANGE));
+    const salt = bcrypt.genSaltSync(10);
+    const hash = bcrypt.hashSync(req.body.newPassword, salt);
+    const updatedUser = await User.findByIdAndUpdate(req.body.id, { $set: { password: hash } }, { new: true });
+    res.status(200).json(updatedUser);
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const detailUser = async (req, res, next) => {
   try {
     const detailUser = await User.findById(req.params.id).exec();
@@ -99,7 +113,6 @@ export const getCurrentUser = async (req, res, next) => {
   try {
     const decoded = jwt.verify(req.header("authorization").replace("Bearer ", ""), process.env.JWT);
     const data = await User.findOne({ _id: decoded.id }).populate("role");
-    console.log("data", data)
     const user = {
       name: data.name,
       email: data.email,

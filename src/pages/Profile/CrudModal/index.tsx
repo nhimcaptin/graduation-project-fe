@@ -13,8 +13,14 @@ import CrudModal from "../../../components/CrudModal";
 import LabelCustom from "../../../components/LabelCustom";
 import TextFieldCustom from "../../../components/TextFieldCustom";
 import Icons from "../../../consts/Icons";
-import { MESSAGE_ERROR } from "../../../consts/messages";
+import { MESSAGE_ERROR, MESSAGE_ERROR_API, MESSAGE_SUCCESS } from "../../../consts/messages";
 import { RegPassword } from "../../../utils/regExp";
+import { useSetLoadingScreenState } from "../../../redux/store/loadingScreen";
+import { STATUS_TOAST } from "../../../consts/statusCode";
+import { handleErrorMessage } from "../../../utils/errorMessage";
+import apiService from "../../../services/api-services";
+import URL_PATHS from "../../../services/url-path";
+import { useSelector } from "react-redux";
 
 interface MyProfileProps {
   isOpen: boolean;
@@ -28,13 +34,14 @@ interface MyProfileProps {
 const CrudModalMyProfile: React.FC<MyProfileProps> = (props) => {
   const { isOpen, handleClose, cancelBtnLabel, saveBtnLabel, formTitle, setIsOpenChangePassWordModal } = props;
   const { setToastInformation } = useSetToastInformationState();
-  const [isLogOutDevice, setIsLogOutDevice] = useState(false);
   const [messageErrors, setMessageErrors] = useState("");
   const [hiddenCurrentPassword, setHiddenCurrentPassword] = useState(false);
   const [hiddenNewPassword, setHiddenNewPassword] = useState(false);
   const [hiddenConfirmNewPassword, setHiddenConfirmNewPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const { setLoadingScreen } = useSetLoadingScreenState();
   const { logout } = useAuth();
+  const { currentUser } = useSelector((state: any) => state.currentUser);
 
   const {
     formState: { errors },
@@ -54,26 +61,28 @@ const CrudModalMyProfile: React.FC<MyProfileProps> = (props) => {
   });
 
   const handleSaveChangePassWordModal = async (data: any) => {
-    // setDataChangePassWord(data);
-    // setLoading(true);
-    // try {
-    //   const param = {
-    //     ...data,
-    //     IsLogoutOtherDevices: isLogOutDevice,
-    //   };
-    //   const res: any = await ChangePassWord(param);
-    //   setToastInformation({ status: STATUS_TOAST.SUCCESS, message: MESSAGES_SUCCESS.ChangePassword });
-    //   setIsOpenChangePassWordModal(false);
-    //   LogOutAccount(logout);
-    // } catch (error: any) {
-    //   if (error?.status === 400) {
-    //     setMessageErrors(getErrorMessage(MessageErrorsAPI[error.errors.CurrentPassword[0]]));
-    //   } else {
-    //     setToastInformation({ status: STATUS_TOAST.ERROR, message: MESSAGE_ERROR.ChangePasswordFailed });
-    //   }
-    // } finally {
-    //   setLoading(false);
-    // }
+    setLoadingScreen(true);
+    try {
+      const item = {
+        ...data,
+        id: currentUser._id,
+      };
+      await apiService.post(`${URL_PATHS.CHANGE_PASSWORD}`, item);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: "Cập nhập thông tin thành công",
+      });
+      setIsOpenChangePassWordModal(false);
+    } catch (error: any) {
+      console.log("error", error?.status);
+      if (error?.status === 400) {
+        setToastInformation({ status: STATUS_TOAST.ERROR, message: handleErrorMessage(error) });
+      } else {
+        setToastInformation({ status: STATUS_TOAST.ERROR, message: MESSAGE_ERROR.ChangePasswordFailed });
+      }
+    } finally {
+      setLoadingScreen(false);
+    }
   };
 
   return (
@@ -136,7 +145,15 @@ const CrudModalMyProfile: React.FC<MyProfileProps> = (props) => {
           <Grid item xs={12}>
             <LabelCustom title="Nhập mật khẩu mới" />
             <Controller
-              key="newPassword"
+              name="newPassword"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+                validate: (value: any) => {
+                  const result = RegPassword(value);
+                  return !value || result;
+                },
+              }}
+              control={control}
               render={({ field }: any) => (
                 <TextFieldCustom
                   errorMessage={errors?.newPassword?.message}
@@ -161,22 +178,19 @@ const CrudModalMyProfile: React.FC<MyProfileProps> = (props) => {
                   }}
                 />
               )}
-              name="newPassword"
-              rules={{
-                required: MESSAGE_ERROR.fieldRequired,
-                validate: (value: any) => {
-                  const result = RegPassword(value);
-                  return !value || result;
-                },
-              }}
-              control={control}
               defaultValue=""
             />
           </Grid>
           <Grid item xs={12}>
             <LabelCustom title="Xác nhận mật khẩu mới" />
             <Controller
-              key="confirmNewPassword"
+              key={`${watch("newPassword")}`}
+              name="confirmNewPassword"
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+                validate: (value: any) => value?.trim() === watch("newPassword") || MESSAGE_ERROR.watchPassword,
+              }}
+              control={control}
               render={({ field }: any) => (
                 <TextFieldCustom
                   errorMessage={errors?.confirmNewPassword?.message}
@@ -201,16 +215,6 @@ const CrudModalMyProfile: React.FC<MyProfileProps> = (props) => {
                   }}
                 />
               )}
-              name="confirmNewPassword"
-              rules={{
-                required: MESSAGE_ERROR.fieldRequired,
-                validate: (value: any) => value?.trim() === watch("newPassword") || MESSAGE_ERROR.watchPassword,
-                // validate: (value: any) => {
-                //   const result = RegPassword(value);
-                //     return value?.trim() === watch('newPassword') || MESSAGE_ERROR.watchPassword || result;
-                // }
-              }}
-              control={control}
               defaultValue=""
             />
           </Grid>

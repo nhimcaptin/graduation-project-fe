@@ -46,5 +46,9 @@ const URL_PATHS = {
   DASHBOARD_INFORMATION: "api/dashboard/data-information",
   FINISHED_EXAMINATION: "api/booking/handle-finished-examination",
   PRINT: "api/history/print",
+  CHANGE_PASSWORD: "api/users/change-password",
+  SEND_PASSWORD_LINK: "api/auth/send-password-link",
+  FORGOT_PASSWORD: "api/auth/forgot-password",
+  REST_PASSWORD: "api/auth/reset-password",
 };
 export default URL_PATHS;

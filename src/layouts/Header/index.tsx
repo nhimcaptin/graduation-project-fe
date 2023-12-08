@@ -24,7 +24,7 @@ const Header = () => {
   const isChangeForm = useSelector((state: any) => state.checkingChanges.isChange);
   const { pathname } = location;
 
-  const ImageSrc = `${IMG_URL}${currentUser.avatar}`;
+  const ImageSrc = `${currentUser.image}`;
   const idAction = openMenu ? "simple-popover" : undefined;
 
   const handleClosePopover = () => {
@@ -98,7 +98,7 @@ const Header = () => {
               src={currentUser.image ? ImageSrc : avatarDefault}
               width={40}
               height={40}
-              style={{ borderRadius: "50%" }}
+              style={{ borderRadius: "50%", border: '1px solid gray' }}
               alt="avatarAdmin"
             />
           </Box>

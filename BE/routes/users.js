@@ -1,5 +1,16 @@
 import express from "express";
-import { createUser, deleteUser, detailDoctor, detailUser, getCurrentUser, getListDoctors, getListFilterUser, getListUser, updateUser } from "../controllers/user.js";
+import {
+  changePassWord,
+  createUser,
+  deleteUser,
+  detailDoctor,
+  detailUser,
+  getCurrentUser,
+  getListDoctors,
+  getListFilterUser,
+  getListUser,
+  updateUser,
+} from "../controllers/user.js";
 import { verifyAdmin } from "../middlewares/verifyToken.js";
 
 const router = express.Router();
@@ -29,5 +40,7 @@ router.get("/get-list-doctor", getListDoctors);
 router.get("/detail-doctor/:id", detailDoctor);
 
 router.get("/get-list-filter-user", verifyAdmin, getListFilterUser);
+
+router.post("/change-password", changePassWord);
 
 export default router;

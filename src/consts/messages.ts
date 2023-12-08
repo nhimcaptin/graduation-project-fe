@@ -5,6 +5,8 @@ export const MESSAGE_ERROR: any = {
   RegPhoneNumber: 'Số điện thoại sai định dạng.',
   RegExpEmail: 'Email sai định dạng.',
   suneditorUploadFile: 'Tải file không thành công.',
+  charactersPassword: 'Mật khẩu phải chứa tối thiểu 6 ký tự.',
+  watchPassword: 'Mật khẩu mới và mật khẩu xác nhận không trùng khớp.',
 };
 
 export const MESSAGE_SUCCESS: any = {
@@ -37,12 +39,14 @@ export const MESSAGE_SUCCESS: any = {
   CREATE_VOUCHER: "Tạo mới ưu đãi thành công",
   EDIT_VOUCHER: "Sửa ưu đãi thành công",
   DELETE_VOUCHER: "Xóa ưu đãi thành công",
+  CHANGE_PASSWORD: "Đổi mật khẩu thành công"
 };
 
 export const MESSAGE_ERROR_API: any = {
   ERROR_SYSTEM: "Hệ thống lỗi vui lòng thử lại sau.",
   MAIL_ALREADY_NOT_EXISTS: "Mail không tồn tại trên hệ thống.",
   WRONG_ACCOUNT: "Mật khẩu không đúng. Vui lòng nhập lại.",
+  WRONG_ACCOUNT_CHANGE: "Mật khẩu hiện tại không đúng vui lòng nhập lại.",
   QRBankTransfer: 'Vui lòng kiếm tra lại thông tin tài khoản ngân hàng',
 };
 
