@@ -86,9 +86,9 @@ const History = (props: any) => {
       PageSize: pageSize,
     };
 
-    const filters = { equals: { patientId: dataDetail } };
+    const filters = { equals: { patientId: dataDetail?._id, email: dataDetail?.email, phone: dataDetail?.phone } };
     try {
-      const data: any = await apiService.getFilter(URL_PATHS.GET_HISTORY, params, filters);
+      const data: any = await apiService.getFilter(URL_PATHS.GET_HISTORY_USER, params, filters);
       setTotalCount(data?.totalUsers);
       setDataTable(data?.data);
     } catch (error: any) {
@@ -118,7 +118,7 @@ const History = (props: any) => {
         maxWidth: "lg",
       }}
     >
-      <Grid container item xs={12} >
+      <Grid container item xs={12}>
         <Grid item xs={12}>
           <TableContainer component={Paper} sx={{ maxHeight: window.innerHeight - 300 }}>
             <Table stickyHeader>

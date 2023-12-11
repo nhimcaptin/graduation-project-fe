@@ -30,6 +30,7 @@ const URL_PATHS = {
   CONFIRM_BOOKING: "api/booking/update-status",
   GET_DETAIL_COME_CHECK: "api/booking/get-detail-come-check",
   GET_HISTORY: "api/history/get-list",
+  GET_HISTORY_USER: "api/history/get-list-history-user",
   CREATE_HISTORY: "api/history/create",
   DETAIL_HISTORY: "api/history/get-detail",
   UPDATE_HISTORY: "api/history/update",
