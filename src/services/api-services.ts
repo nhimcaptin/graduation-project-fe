@@ -67,8 +67,12 @@ class Service {
 
     this.handleError = async (error: any, isHandlerEnabled: any) => {
       if (error?.response?.status === 403) {
-        const permissionResponse = await GetPermission();
-        setPermissionsAction(permissionResponse?.permissions || []);
+        if (localStorage.getItem("token")) {
+          const permissionResponse = await GetPermission();
+          setPermissionsAction(permissionResponse?.permissions || []);
+        } else {
+          return errorHandler(error, isHandlerEnabled);
+        }
       } else {
         return errorHandler(error, isHandlerEnabled);
       }

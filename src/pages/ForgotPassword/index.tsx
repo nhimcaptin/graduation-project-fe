@@ -35,7 +35,11 @@ const ForgotPassword = () => {
     setIsLoading(true);
     setSubmit(false);
     try {
-      const res: any = await apiService.post(URL_PATHS.SEND_PASSWORD_LINK, data);
+      const _data = {
+        ...data,
+        url: "http://127.0.0.1:5173/reset-password",
+      };
+      const res: any = await apiService.post(URL_PATHS.SEND_PASSWORD_LINK, _data);
       setSubmit(true);
     } catch (error: any) {
       setToastInformation({
@@ -59,7 +63,7 @@ const ForgotPassword = () => {
         >
           <img src={logo} />
         </Box>
-        <Card className={styles.styleCard} style={{background: isSubmit ? "#e9e9e9" : ""}}>
+        <Card className={styles.styleCard} style={{ background: isSubmit ? "#e9e9e9" : "" }}>
           {!isSubmit ? (
             <CardContent className={styles.cardContent}>
               <Box alignItems="center" display="flex" justifyContent="center" mb={3}>

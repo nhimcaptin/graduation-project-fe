@@ -123,9 +123,9 @@ export const sendPasswordLink = async (req, res) => {
         Vui lòng thông báo bạn vừa yêu cầu chức năng quên mật khẩu. Vui lòng click vào đường dẫn sau để đặt lại mật khẩu cho tài khoản !
         <br /><br />
         <a
-          href="${url}${userFind.id}/${setUserToken.verifytoken}"
+          href="${url}?id=${userFind.id}&token=${setUserToken.verifytoken}"
           target="_blank"
-          >${url}${userFind.id}/${setUserToken.verifytoken}</a
+          >${url}?id=${userFind.id}&token=${setUserToken.verifytoken}</a
         ><br /><br />
         &nbsp;*Đường dẫn trên chỉ có hiệu lực trong 20p*<br />
         &nbsp;*Nếu Quý khách không gửi yêu cầu này, vui lòng liên hệ ngay với
@@ -163,7 +163,9 @@ export const forgotPassword = async (req, res) => {
     } else {
       res.status(401).json({ status: 401, message: "user does not exist" });
     }
-  } catch (error) {}
+  } catch (error) {
+    res.status(500).json({ status: 500, message: error });
+  }
 };
 
 export const resetPassword = async (req, res) => {
@@ -177,7 +179,8 @@ export const resetPassword = async (req, res) => {
     const verifyToken = jwt.verify(token, process.env.JWT);
 
     if (validuser && verifyToken._id) {
-      const newpassword = await bcrypt.hash(password, 12);
+      const salt = bcrypt.genSaltSync(10);
+      const newpassword = await bcrypt.hash(password, salt);
 
       const setnewuserpass = await User.findByIdAndUpdate({ _id: id }, { password: newpassword });
 

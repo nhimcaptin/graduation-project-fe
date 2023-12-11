@@ -19,6 +19,7 @@ const ROUTERS_PATHS = {
   SUB_SERVICES: "/sub-services",
   VOUCHER: "/voucher",
   TEST: "/test",
+  REST_PASSWORD: "/reset-password",
 };
 
 export default ROUTERS_PATHS;

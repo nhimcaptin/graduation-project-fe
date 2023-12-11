@@ -10,6 +10,7 @@ import apiService from "../services/api-services";
 import URL_PATHS from "../services/url-path";
 import { GetPermission } from "../redux/store/permissions";
 import { usePermissionState } from "../redux/store/permission";
+import { handleErrorMessage } from "../utils/errorMessage";
 
 const ACTION_TYPE = {
   INITIALISE: "INITIALISE",
@@ -92,11 +93,11 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
           setPermission(permissionResponse.permissions);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       localStorage.clear();
       setToastInformation({
         status: STATUS_TOAST.ERROR,
-        message: "Hệ thống lỗi vui lòng thử lại sau",
+        message: handleErrorMessage(error),
       });
     } finally {
       dispatch({
@@ -128,11 +129,11 @@ export const AuthProvider = ({ children }: IAuthProviderProps) => {
           setPermission(permissionResponse.permissions);
         }
       }
-    } catch (error) {
+    } catch (error: any) {
       localStorage.clear();
       setToastInformation({
         status: STATUS_TOAST.ERROR,
-        message: "Hệ thống lỗi vui lòng thử lại sau",
+        message: handleErrorMessage(error),
       });
     } finally {
       setTimeout(() => {

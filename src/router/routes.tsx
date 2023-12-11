@@ -69,6 +69,11 @@ const routes: IRoutesState[] = [
     component: lazy(() => import("../pages/Test")),
   },
   {
+    guard: GuestGuard,
+    path: ROUTERS_PATHS.REST_PASSWORD,
+    component: lazy(() => import("../pages/RestPassword")),
+  },
+  {
     path: ROUTERS_PATHS.ALL,
     guard: AuthGuard,
     layout: MainLayout,

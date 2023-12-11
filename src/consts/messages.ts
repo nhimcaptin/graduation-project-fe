@@ -48,6 +48,7 @@ export const MESSAGE_ERROR_API: any = {
   WRONG_ACCOUNT: "Mật khẩu không đúng. Vui lòng nhập lại.",
   WRONG_ACCOUNT_CHANGE: "Mật khẩu hiện tại không đúng vui lòng nhập lại.",
   QRBankTransfer: 'Vui lòng kiếm tra lại thông tin tài khoản ngân hàng',
+  NOT_PERMISSIONS: "Bạn không phải là quản trị viên"
 };
 
 export const MESSAGES_CONFIRM = {

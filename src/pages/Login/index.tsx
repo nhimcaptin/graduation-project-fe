@@ -45,7 +45,7 @@ const Login = () => {
           statusCode: 200,
         },
       };
-      await login(submitData);
+      login(submitData);
       navigate("/", { replace: false });
     } catch (error: any) {
       setToastInformation({
