@@ -39,7 +39,15 @@ export const MESSAGE_SUCCESS: any = {
   CREATE_VOUCHER: "Tạo mới ưu đãi thành công",
   EDIT_VOUCHER: "Sửa ưu đãi thành công",
   DELETE_VOUCHER: "Xóa ưu đãi thành công",
-  CHANGE_PASSWORD: "Đổi mật khẩu thành công"
+  CHANGE_PASSWORD: "Đổi mật khẩu thành công",
+
+  CREATE_NEWS: "Tạo mới tin tức thành công",
+  EDIT_NEWS: "Sửa tin tức thành công",
+  DELETE_NEWS: "Xóa tin tức thành công",
+
+  CREATE_KNOWLEDGE: "Tạo mới kiến thức nha khoa thành công",
+  EDIT_KNOWLEDGE: "Sửa kiến thức nha khoa thành công",
+  DELETE_KNOWLEDGE: "Xóa kiến thức nha khoa thành công",
 };
 
 export const MESSAGE_ERROR_API: any = {
@@ -57,4 +65,6 @@ export const MESSAGES_CONFIRM = {
   DeleteMainService: "Bạn có chắc muốn xóa danh mục dịch vụ này? Danh mục dịch vụ đã xóa không thể khôi phục lại.",
   DeleteSubServices: "Bạn có chắc muốn xóa dịch vụ này? Dịch vụ đã xóa không thể khôi phục lại.",
   DeleteVoucher: "Bạn có chắc muốn xóa ưu đãi này? Ưu đãi đã xóa không thể khôi phục lại.",
+  DeleteNew: "Bạn có chắc muốn xóa tin tức này? Tin tức đã xóa không thể khôi phục lại.",
+  DeleteKnowledge: "Bạn có chắc muốn xóa kiến thức nha khoa này? Kiến thức nha khoa đã xóa không thể khôi phục lại.",
 };

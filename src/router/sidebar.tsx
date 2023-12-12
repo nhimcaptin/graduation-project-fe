@@ -89,4 +89,21 @@ export const sidebar = [
     role: [SCREEN_ROLE_CODE.SubServices],
     subMenu: [],
   },
+  {
+    key: "NEW",
+    title: "Tin tức",
+    icon: Icons.Voucher,
+    href: ROUTERS_PATHS.NEW,
+    role: [SCREEN_ROLE_CODE.SubServices],
+    subMenu: [],
+  },
+
+  {
+    key: "KNOWLEDGE",
+    title: "Kiến thức nha khoa",
+    icon: Icons.Voucher,
+    href: ROUTERS_PATHS.DENTAL_KNOWLEDGE,
+    role: [SCREEN_ROLE_CODE.SubServices],
+    subMenu: [],
+  },
 ];

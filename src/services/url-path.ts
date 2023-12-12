@@ -35,6 +35,18 @@ const URL_PATHS = {
   UPDATE_HISTORY: "api/history/update",
   UPLOAD_FILE: "api/upload-image",
 
+  GET_LIST_NEWS: "api/News/getNews",
+  GET_DETAIL_NEWS: "api/News/getNewsID",
+  UPDATE_NEW: "api/News/updateNews",
+  CREATE_NEW: "api/News/createNews",
+  DELETE_NEW: "api/News/deleteNews",
+
+  GET_LIST_KNOWLEDGE: "api/DentalKnowledge/getAllDentalKnowledge",
+  CREATE_KNOWLEDGE: "api/DentalKnowledge/create",
+  DETAIL_KNOWLEDGE: "api/DentalKnowledge/getDetailDentalKnowledge",
+  UPDATE_KNOWLEDGE: "api/DentalKnowledge/updateDentalKnowledge",
+  DELETE_KNOWLEDGE: "api/DentalKnowledge/deleteDentalKnowledge",
+
   GET_LIST_VOUCHER: "api/preferential/get",
   CREATE_VOUCHER: "api/preferential/create",
   DETAIL_VOUCHER: "api/preferential/detail",

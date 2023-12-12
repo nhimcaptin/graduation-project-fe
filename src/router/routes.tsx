@@ -140,6 +140,15 @@ const routes: IRoutesState[] = [
         path: ROUTERS_PATHS.VOUCHER,
         component: lazy(() => import("../pages/Voucher")),
         role: [SCREEN_ROLE_CODE.SubServices],
+      },    {
+        path: ROUTERS_PATHS.NEW,
+        component: lazy(() => import("../pages/New")),
+        role: [SCREEN_ROLE_CODE.SubServices],
+      },
+      {
+        path: ROUTERS_PATHS.DENTAL_KNOWLEDGE,
+        component: lazy(() => import("../pages/DentalKnowledge")),
+        role: [SCREEN_ROLE_CODE.SubServices],
       },
       {
         path: "*",

@@ -8,6 +8,8 @@ export const SCREEN_ROLE_CODE = {
   MedicalExaminationNotes: "MedicalExaminationNotes",
   MainService: "MainService",
   SubServices: "SubServices",
+  New: "New",
+  DetalKnowledge: "DetalKnowledge",
 };
 
 export const ACTION_ROLE_CODE = {

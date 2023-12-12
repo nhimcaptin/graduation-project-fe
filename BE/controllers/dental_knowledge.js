@@ -81,3 +81,16 @@ export const deleteDentalKnowledge = async (req, res, next) => {
   
 
 
+    export const getKnowledgeId = async (req, res, next) => {
+      try {
+        const getDentalKnowledge = await DentalKnowledge.findOne({ _id: req.params.id}).exec();
+        if (!getDentalKnowledge) {
+          return res.status(404).json({message: "getDentalKnowledgeId không tồn tại"})
+        }
+       const data = { ...getDentalKnowledge._doc};
+  
+        return res.status(200).json({message: "Lay Ra DentalKnowledge thành công",data});
+      } catch (err) {
+        next(err);
+      }
+    };

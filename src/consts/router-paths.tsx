@@ -20,6 +20,8 @@ const ROUTERS_PATHS = {
   VOUCHER: "/voucher",
   TEST: "/test",
   REST_PASSWORD: "/reset-password",
+  NEW:"/news",
+  DENTAL_KNOWLEDGE:"/dental-knowledge"
 };
 
 export default ROUTERS_PATHS;
