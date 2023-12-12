@@ -23,6 +23,30 @@ export const getListHistory = async (req, res, next) => {
   }
 };
 
+export const getListHistoryUser = async (req, res, next) => {
+  try {
+    const { Page, PageSize, Sorts, filters } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+    const _item = convertFilter(filters);
+    const _filter = {
+      $or: [{ patientId: _item?.patientId }, { email: _item?.email }, { phone: _item?.phone }],
+    };
+    const historyBooking = await HistoryBooking.find(_filter)
+      .populate("service")
+      .populate("doctorId")
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .sort(Sorts);
+
+    const total = HistoryBooking.find(_filter);
+    const totalUsers = await HistoryBooking.countDocuments(total);
+    res.status(200).json({ data: historyBooking, totalUsers });
+  } catch (err) {
+    next(err);
+  }
+};
+
 export const addHistory = async (req, res, next) => {
   try {
     const data = req.body;

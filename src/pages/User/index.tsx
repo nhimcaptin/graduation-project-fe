@@ -579,7 +579,7 @@ const User = (props: any) => {
         />
       )}
       {isOpenModalHistory && (
-        <History isOpen={isOpenModalHistory} title={title} onCancel={handleCancel} dataDetail={selectedItem?._id} />
+        <History isOpen={isOpenModalHistory} title={title} onCancel={handleCancel} dataDetail={selectedItem} />
       )}
     </Page>
   );
