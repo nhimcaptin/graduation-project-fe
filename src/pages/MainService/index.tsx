@@ -190,6 +190,7 @@ const MainService = (props: any) => {
     setIsOpenModal(true);
     setSelectedItem(null);
     setMainServiceDetail(null);
+    setIsViewMode(false);
     setTitle("Thêm mới");
   };
 

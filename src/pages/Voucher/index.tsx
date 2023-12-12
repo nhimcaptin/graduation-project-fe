@@ -212,6 +212,7 @@ const Voucher = (props: any) => {
     setIsOpenModal(true);
     setSelectedItem(null);
     setUserDetail(null);
+    setIsViewMode(false);
     setTitle("Thêm mới");
   };
 

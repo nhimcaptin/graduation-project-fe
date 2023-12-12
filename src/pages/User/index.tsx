@@ -217,6 +217,7 @@ const User = (props: any) => {
     setIsOpenModalHistory(false);
     setSelectedItem(null);
     setUserDetail(null);
+    setIsViewMode(false);
     setTitle("Thêm mới");
   };
 

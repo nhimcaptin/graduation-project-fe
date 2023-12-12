@@ -5,7 +5,7 @@ const DentalKnowledgeSchema = new mongoose.Schema(
       type: String, 
       required: true 
     },
-    descreption: { 
+    description: { 
       type: String,
       require: true
     },
