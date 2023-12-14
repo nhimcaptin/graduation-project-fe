@@ -12,11 +12,11 @@ export const register = async (req, res, next) => {
     const hash = bcrypt.hashSync(req.body.password, salt);
     const existingUser = await User.findOne({ email: req.body.email });
     if (existingUser) {
-      return res.status(400).send("Email đã được sử dụng");
+      return res.status(400).send({ message: MESSAGE_ERROR.MAIL_ALREADY_EXISTS });
     }
     const existingPhoneUser = await User.findOne({ phone: req.body.phone });
     if (existingPhoneUser) {
-      return res.status(400).send("Số điện thoại đã được sử dụng");
+      return res.status(400).send({ message: MESSAGE_ERROR.PHONE_ALREADY_EXISTS });
     }
     const newUser = new User({
       ...req.body,
@@ -94,14 +94,12 @@ export const logout = async (req, res) => {
 };
 
 export const sendPasswordLink = async (req, res) => {
-  console.log(req.body);
-
-  const { email, url } = req.body;
-
-  if (!email) {
-    res.status(401).json({ status: 401, message: "Enter Your Email" });
-  }
   try {
+    const { email, url } = req.body;
+
+    if (!email) {
+      res.status(401).json({ status: 401, message: "Enter Your Email" });
+    }
     const userFind = await User.findOne({ email: email });
     //console.log(userFind)
 
@@ -149,9 +147,9 @@ export const sendPasswordLink = async (req, res) => {
 };
 
 export const forgotPassword = async (req, res) => {
-  const { id, token } = req.params;
   //console.log(id, token)
   try {
+    const { id, token } = req.params;
     const validuser = await User.findOne({ _id: id, verifytoken: token });
     //console.log(validuser)
 
@@ -169,11 +167,10 @@ export const forgotPassword = async (req, res) => {
 };
 
 export const resetPassword = async (req, res) => {
-  const { id, token } = req.params;
-
-  const { password } = req.body;
 
   try {
+    const { id, token } = req.params;
+    const { password } = req.body;
     const validuser = await User.findOne({ _id: id, verifytoken: token });
 
     const verifyToken = jwt.verify(token, process.env.JWT);

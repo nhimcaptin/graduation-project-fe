@@ -37,7 +37,7 @@ const ForgotPassword = () => {
     try {
       const _data = {
         ...data,
-        url: "http://127.0.0.1:5173/reset-password",
+        url: `${URL_LOCAL}/reset-password`,
       };
       const res: any = await apiService.post(URL_PATHS.SEND_PASSWORD_LINK, _data);
       setSubmit(true);
