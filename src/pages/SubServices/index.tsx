@@ -204,6 +204,7 @@ const SubServices = (props: any) => {
     setIsOpenModal(true);
     setSelectedItem(null);
     setSubServicesDetail(null);
+    setIsViewMode(false);
     setTitle("Thêm mới");
   };
 
