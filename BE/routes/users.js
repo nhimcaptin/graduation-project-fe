@@ -19,7 +19,7 @@ const router = express.Router();
 router.post("", verifyAdmin, createUser);
 
 //UPDATE
-router.put("/:id", verifyAdmin, updateUser);
+router.put("/:id", updateUser);
 
 //GET-DETAIL
 router.get("/detail/:id", verifyAdmin, detailUser);

@@ -47,7 +47,7 @@ const URL_PATHS = {
   DETAIL_KNOWLEDGE: "api/DentalKnowledge/getDetailDentalKnowledge",
   UPDATE_KNOWLEDGE: "api/DentalKnowledge/updateDentalKnowledge",
   DELETE_KNOWLEDGE: "api/DentalKnowledge/deleteDentalKnowledge",
-
+  
   GET_LIST_VOUCHER: "api/preferential/get",
   CREATE_VOUCHER: "api/preferential/create",
   DETAIL_VOUCHER: "api/preferential/detail",
