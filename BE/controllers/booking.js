@@ -314,13 +314,46 @@ export const handleFinishedExamination = async (req, res, next) => {
       doctorId: approvedBookings?.doctorId?._id,
       patientId: approvedBookings?.patientId?._id || undefined,
       bookingType: approvedBookings?.bookingType,
-      totalAmount
+      totalAmount,
     };
-    await Booking.findOneAndUpdate({ _id: approvedBookings?.id }, { $set: { status: "Done", totalAmount } }, { new: true });
+    await Booking.findOneAndUpdate(
+      { _id: approvedBookings?.id },
+      { $set: { status: "Done", totalAmount } },
+      { new: true }
+    );
     const _item = await new HistoryBooking({
       ...item,
     }).save();
     res.status(200).json(_item);
+  } catch (err) {
+    next(err);
+  }
+};
+
+export const getBookingUser = async (req, res, next) => {
+  try {
+    const { Page, PageSize, Sorts, filters } = req.query;
+    const page = parseInt(Page) || 1;
+    const pageSize = parseInt(PageSize) || 10;
+    const _filter = convertFilter(filters);
+    if (_filter?.name) {
+      _filter.$or = [
+        { patientId: { $in: _filter?._id } },
+        { emailCustomer: _filter?.email },
+        { numberPhoneCustomer: _filter?.phone },
+      ];
+    }
+    const booking = await Booking.find(_filter)
+      .populate("doctorId", "-password")
+      .populate("patientId", "-password")
+      .populate("timeTypeId")
+      .populate("service")
+      .skip((page - 1) * pageSize)
+      .limit(pageSize)
+      .sort(Sorts);
+    const total = await Booking.find(_filter);
+    const totalUsers = total.length;
+    res.status(200).json({ data: booking, totalUsers });
   } catch (err) {
     next(err);
   }
