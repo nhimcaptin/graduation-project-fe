@@ -350,7 +350,7 @@ export const getBookingUser = async (req, res, next) => {
       .populate("service")
       .skip((page - 1) * pageSize)
       .limit(pageSize)
-      .sort(Sorts);
+      .sort("-createdAt");
     const total = await Booking.find(_filter);
     const totalUsers = total.length;
     res.status(200).json({ data: booking, totalUsers });

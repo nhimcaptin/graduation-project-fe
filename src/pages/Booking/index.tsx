@@ -56,6 +56,7 @@ import ReactSelect from "../../components/ReactSelectView";
 import { RegExpEmail } from "../../utils/regExp";
 import { usePermissionHook } from "../../hook/usePermission";
 import SearchResult from "../../components/SearchResult";
+import { useSelector } from "react-redux";
 
 interface RowDataProps {
   id: number;
@@ -111,6 +112,8 @@ const headCells = [
 const Booking = (props: any) => {
   const { screenName } = props;
   const { hasCreate, hasUpdate, hasDelete } = usePermissionHook(screenName);
+
+  const { currentUser } = useSelector((state: any) => state.currentUser);
 
   const [loadingTable, setLoadingTable] = useState<Boolean>(true);
   const [order, setOrder] = useState<Order>("desc");
@@ -425,6 +428,42 @@ const Booking = (props: any) => {
     }
   };
 
+  const handleDelete = () => {
+    setAnchorEl(null);
+    openConfirmModal({
+      isOpen: true,
+      title: "Hủy đặt lịch",
+      message: MESSAGES_CONFIRM.CancelBooking,
+      cancelBtnLabel: "Hủy",
+      okBtnLabel: "Hủy đặt lịch",
+      isDeleteConfirm: true,
+      onOk: () => onDelete(),
+    });
+  };
+
+  const onDelete = async () => {
+    setLoadingScreen(true);
+    try {
+      const _data = {
+        id: selectedItem?._id,
+        userId: currentUser?._id,
+      };
+      const res: any = await apiService.post("api/refund", _data);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: MESSAGE_SUCCESS.CANCEL_BOOKING,
+      });
+      getData && getData({});
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
+  };
+
   useEffect(() => {
     getData({ status: [statusOptions[0], statusOptions[1]] });
     setFilterContext({ status: [statusOptions[0], statusOptions[1]] });
@@ -705,6 +744,7 @@ const Booking = (props: any) => {
           <MenuListActions
             actionView={handleView}
             actionConfirm={selectedItem?.status == "Waiting" && hasUpdate ? () => handleConfirm() : undefined}
+            actionCancel={selectedItem?.status != "Cancel" && hasUpdate ? () => handleDelete() : undefined}
           />
         </Popover>
       </IF>
