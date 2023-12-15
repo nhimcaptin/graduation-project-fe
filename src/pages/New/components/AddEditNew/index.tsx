@@ -15,7 +15,11 @@ import { useSetToastInformationState } from "../../../../redux/store/ToastMessag
 import apiService from "../../../../services/api-services";
 import { STATUS_TOAST } from "../../../../consts/statusCode";
 import { handleErrorMessage } from "../../../../utils/errorMessage";
-
+import { useUploadFileService } from "../../../../services/upload-file.service";
+import { useRef, useState } from "react";
+import { isEmpty } from "lodash";
+import { ButtonAddFileMainSelect } from "../../../../components/ButtonAddFile/ButtonAddFile";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
 interface PropsType {
   isOpen: boolean;
   dataDetail: any;
@@ -29,32 +33,86 @@ const AddMainService = (props: PropsType) => {
   const { isOpen, title, isEdit, onCancel, getData, dataDetail } = props;
   const { setLoadingScreen } = useSetLoadingScreenState();
   const { setToastInformation } = useSetToastInformationState();
-
+  const uploadFileService = useUploadFileService();
   const {
-    control,
     handleSubmit,
+    control,
+    setValue,
+    trigger,
     formState: { errors },
   } = useForm({
-    defaultValues: { description: dataDetail ? dataDetail?.description : "", name: dataDetail ? dataDetail?.name : "" },
+    defaultValues: {
+      description: dataDetail ? dataDetail?.description : "",
+      name: dataDetail ? dataDetail?.name : "",
+      image:dataDetail?dataDetail?.image:""
+    },
   });
 
   const getEditorNewValue = (newValue: string) => {
     const stripedValue = stripHTML(newValue).trim();
-    if (stripedValue.length === 1 && stripedValue.charCodeAt(0) === 8203) return "";
+    if (stripedValue.length === 1 && stripedValue.charCodeAt(0) === 8203)
+      return "";
     return stripedValue === "" ? "" : newValue;
   };
 
+  const refProps = useRef<any>(null);
+  const isCheckImage = (data: any) => {
+    const image = data ? [{ imageUrl: data }] : [];
+    return image;
+  };
+  const [previewImages, setPreviewImages] = useState<any>(dataDetail ? isCheckImage(dataDetail?.image) : []);
+  const handleChangeImage = (newFileList: any) => {
+    if (newFileList) setValue("image", newFileList);
+    setPreviewImages([]);
+    trigger("image");
+  };
+
+  const uploadImage = async (image: File) => {
+    const bodyFormData = new FormData();
+    bodyFormData.append("files", image);
+    const resUpload = await uploadFileService.uploadFileResources(bodyFormData);
+    return resUpload;
+  };
   const onSubmit = async (data: any) => {
+  const _data = {
+      ...data,
+      image:previewImages
+    };
     setLoadingScreen(true);
+  
     try {
-      if (dataDetail) {
-        await apiService.put(URL_PATHS.UPDATE_NEW + "/" + dataDetail?._id, data);
+      // if (dataDetail) {
+      //   await apiService.put(
+      //     URL_PATHS.UPDATE_NEW + "/" + dataDetail?._id,
+      //     data
+      //   );
+      // } else {
+      //   await apiService.post(URL_PATHS.CREATE_NEW, data);
+      // }
+      // setToastInformation({
+      //   status: STATUS_TOAST.SUCCESS,
+      //   message: dataDetail
+      //     ? MESSAGE_SUCCESS.EDIT_NEWS
+      //     : MESSAGE_SUCCESS.CREATE_NEWS,
+      // });
+      // onCancel && onCancel();
+      // getData && getData({ highlightId: dataDetail?._id });
+      let imageUrl;
+      if (data?.image && data?.image[0] && data?.image[0]?.file) {
+        const uploadImageRes = (await uploadImage(data?.image[0].file as File)) as any;
+        imageUrl = uploadImageRes.downloadURL?.length > 0 ? uploadImageRes.downloadURL : "";
       } else {
-        await apiService.post(URL_PATHS.CREATE_NEW, data);
+        imageUrl = isEmpty(data?.image) ? "" : data?.image;
+      }
+      _data.image = imageUrl;
+      if (dataDetail) {
+        await apiService.put(URL_PATHS.UPDATE_NEW + "/" + dataDetail?._id, _data);
+      } else {
+        await apiService.post(URL_PATHS.CREATE_NEW, _data);
       }
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
-        message: dataDetail ? MESSAGE_SUCCESS.EDIT_NEWS : MESSAGE_SUCCESS.CREATE_NEWS,
+        message: dataDetail ? MESSAGE_SUCCESS.EDIT_SUB_SERVICE : MESSAGE_SUCCESS.CREATE_SUB_SERVICE,
       });
       onCancel && onCancel();
       getData && getData({ highlightId: dataDetail?._id });
@@ -81,6 +139,34 @@ const AddMainService = (props: PropsType) => {
         maxWidth: "md",
       }}
     >
+      <Grid item xs={12} mt={1}>
+          <LabelCustom title="Ảnh" />
+          <Controller
+            name="image"
+            control={control}
+            render={({ field: { ref } }) => {
+              return (
+                <>
+                  <FocusHiddenInput ref={ref}></FocusHiddenInput>
+                  <ButtonAddFileMainSelect
+                    onChange={(files) => {
+                      handleChangeImage(files);
+                    }}
+                    isViewMode={!isEdit}
+                    refForm={refProps}
+                    icon={<AddPhotoAlternateIcon sx={{ fontSize: "20px", color: "#614C4C" }} />}
+                    title="Chọn ảnh"
+                    formProps={{ control }}
+                    initialUrls={previewImages}
+                    multiple={false}
+                    error={!!errors.image && errors.image.message}
+                    sizeLimit={2}
+                  />
+                </>
+              );
+            }}
+          />
+        </Grid>
       <Grid container>
         <Grid item xs={12} mt={2}>
           <LabelCustom title="Tên tin tức" isRequired />
@@ -118,7 +204,9 @@ const AddMainService = (props: PropsType) => {
                 <SunEditorShare
                   hideToolbarSunEditor={!isEdit}
                   disableSunEditor={!isEdit}
-                  onChangeEditorState={(newValue: any) => onChange(getEditorNewValue(newValue))}
+                  onChangeEditorState={(newValue: any) =>
+                    onChange(getEditorNewValue(newValue))
+                  }
                   setContents={value || ""}
                   minHeight="400px"
                   errorEditor={!!errors?.description?.message}
@@ -131,7 +219,9 @@ const AddMainService = (props: PropsType) => {
             )}
           />
           {errors?.description && (
-            <ErrorMessage style={{ marginTop: "-10px" }}>{errors?.description?.message}</ErrorMessage>
+            <ErrorMessage style={{ marginTop: "-10px" }}>
+              {errors?.description?.message}
+            </ErrorMessage>
           )}
         </Grid>
       </Grid>
