@@ -1,12 +1,14 @@
+import moment from "moment";
+
 const invoicePdf = (item) => {
-  const date = new Date();
-  const id = "1";
-  const name = "Traafn Danh Doanh Doanh";
-  const birthday = "1";
-  const address = "1";
-  const service = [];
-  const content = "1";
-  const amount = "1";
+  const date = moment(new Date()).format("DD/MM/YYYY");
+  const id = item?.id;
+  const name = item?.name;
+  const birthday = item?.birthday;
+  const address = item?.address;
+  const service = item?.service;
+  const content = item?.content || "";
+  const amount = item?.amount;
   return `
   <!DOCTYPE html>
   <html lang="en">
@@ -105,7 +107,7 @@ const invoicePdf = (item) => {
       <table style="width: 100%;">
           <tr>
               <td style="display: block;">
-                  <p style="padding-left: 40px; padding-right: 40px; font-size: 15px; margin:0px;">${content}</p>
+                  <p style="padding-left: 40px; padding-right: 40px; font-size: 15px; margin:0px;" dangerouslySetInnerHTML={{ __html: "${content}</p>
               </td>
               <td style="text-align: start; width: 300px; ">
                   <img src="https://firebasestorage.googleapis.com/v0/b/bokingdental.appspot.com/o/images%2F1.png?alt=media&token=d1b76bb2-98a5-482f-a05e-d775ef5cc2a8"

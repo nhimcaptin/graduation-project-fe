@@ -1,6 +1,9 @@
 import Booking from "../models/Booking.js";
 import HistoryBooking from "../models/HistoryBooking.js";
 import { convertFilter } from "../util/index.js";
+import moment from "moment";
+import config from "config";
+import request from "request";
 
 export const getListHistory = async (req, res, next) => {
   try {
@@ -155,13 +158,35 @@ export const bookingReExamination = async (req, res, next) => {
 
 export const onPrint = async (req, res, next) => {
   try {
+    let create_pdf = config.get("create_pdf");
     const id = req.params.id;
-    const _item = await HistoryBooking.findOneAndUpdate(
-      { _id: id },
-      { $set: { statusPayment: "Done" } },
-      { new: true }
+    const _item = await HistoryBooking.findOneAndUpdate({ _id: id }, { $set: { statusPayment: "Done" } }, { new: true })
+      .populate("patientId", "-password")
+      .populate("service");
+    const dataObj = {
+      id: _item?._id,
+      name: _item?.name || _item?.patientId?.name,
+      birthday: moment(_item?.birthday).format("DD/MM/YYYY"),
+      address: _item?.address,
+      service: _item?.service,
+      content: _item?.condition,
+      amount: _item?.totalAmount,
+    };
+    request(
+      {
+        url: create_pdf,
+        method: "POST",
+        json: true,
+        body: dataObj,
+      },
+      async function (error, response, body) {
+        try {
+          return res.status(200).json(body);
+        } catch (error) {
+          next(error);
+        }
+      }
     );
-    res.status(200).json(_item);
   } catch (err) {
     next(err);
   }

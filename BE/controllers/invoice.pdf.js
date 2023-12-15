@@ -15,7 +15,7 @@ export const createPdf = (req, res, next) => {
       res.send(Promise.reject());
     }
 
-    res.send(Promise.resolve());
+    // res.send(Promise.resolve());
     const dataObj = {
       nameFile,
     };
@@ -49,7 +49,7 @@ export const fetchPdf = async (req, res, next) => {
     };
     const snapshot = await uploadBytesResumable(storageRef, fileBuffer, metadata);
     const downloadURL = await getDownloadURL(snapshot.ref);
-    res.status(200).send(downloadURL);
+    return res.status(200).json(downloadURL);
   } catch (error) {
     next(error);
   }

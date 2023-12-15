@@ -94,7 +94,8 @@ const ReceptionistNote = () => {
   const onPrint = async () => {
     setLoadingScreen(true);
     try {
-      await apiService.get(URL_PATHS.PRINT + "/" + params?.id);
+      const res: any = await apiService.get(URL_PATHS.PRINT + "/" + params?.id);
+      window.open(res);
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
         message: MESSAGE_SUCCESS.UPDATE_STATUS,
