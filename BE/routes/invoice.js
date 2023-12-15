@@ -4,7 +4,6 @@ import { createPdf, fetchPdf } from "../controllers/invoice.pdf.js";
 const router = express.Router();
 
 router.post("/create-pdf", createPdf);
-router.get("/fetch-pdf",fetchPdf );
+router.post("/fetch-pdf", fetchPdf);
 
-
-export default router
+export default router;
