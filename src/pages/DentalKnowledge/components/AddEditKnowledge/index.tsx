@@ -15,6 +15,11 @@ import { useSetToastInformationState } from "../../../../redux/store/ToastMessag
 import apiService from "../../../../services/api-services";
 import { STATUS_TOAST } from "../../../../consts/statusCode";
 import { handleErrorMessage } from "../../../../utils/errorMessage";
+import AddPhotoAlternateIcon from "@mui/icons-material/AddPhotoAlternate";
+import { isEmpty } from "lodash";
+import { ButtonAddFileMainSelect } from "../../../../components/ButtonAddFile/ButtonAddFile";
+import { useRef, useState } from "react";
+import { useUploadFileService } from "../../../../services/upload-file.service";
 
 interface PropsType {
   isOpen: boolean;
@@ -29,13 +34,15 @@ const AddMainService = (props: PropsType) => {
   const { isOpen, title, isEdit, onCancel, getData, dataDetail } = props;
   const { setLoadingScreen } = useSetLoadingScreenState();
   const { setToastInformation } = useSetToastInformationState();
-
+  const uploadFileService = useUploadFileService();
   const {
-    control,
     handleSubmit,
+    control,
+    setValue,
+    trigger,
     formState: { errors },
   } = useForm({
-    defaultValues: { description: dataDetail ? dataDetail?.description : "", name: dataDetail ? dataDetail?.name : "" },
+    defaultValues: { description: dataDetail ? dataDetail?.description : "", name: dataDetail ? dataDetail?.name : "" ,image:dataDetail? dataDetail?.image:""},
   });
 
   const getEditorNewValue = (newValue: string) => {
@@ -43,18 +50,49 @@ const AddMainService = (props: PropsType) => {
     if (stripedValue.length === 1 && stripedValue.charCodeAt(0) === 8203) return "";
     return stripedValue === "" ? "" : newValue;
   };
+  const refProps = useRef<any>(null);
+  const isCheckImage = (data: any) => {
+    const image = data ? [{ imageUrl: data }] : [];
+    return image;
+  };
+  const [previewImages, setPreviewImages] = useState<any>(dataDetail ? isCheckImage(dataDetail?.image) : []);
+  const handleChangeImage = (newFileList: any) => {
+    if (newFileList) setValue("image", newFileList);
+    setPreviewImages([]);
+    trigger("image");
+  };
 
+  const uploadImage = async (image: File) => {
+    const bodyFormData = new FormData();
+    bodyFormData.append("files", image);
+    const resUpload = await uploadFileService.uploadFileResources(bodyFormData);
+    return resUpload;
+  };
   const onSubmit = async (data: any) => {
+    const _data = {
+      ...data,
+      image:previewImages
+    };
+  
+    
     setLoadingScreen(true);
     try {
-      if (dataDetail) {
-        await apiService.put(URL_PATHS.UPDATE_KNOWLEDGE + "/" + dataDetail?._id, data);
+      let imageUrl;
+      if (data?.image && data?.image[0] && data?.image[0]?.file) {
+        const uploadImageRes = (await uploadImage(data?.image[0].file as File)) as any;
+        imageUrl = uploadImageRes.downloadURL?.length > 0 ? uploadImageRes.downloadURL : "";
       } else {
-        await apiService.post(URL_PATHS.CREATE_KNOWLEDGE, data);
+        imageUrl = isEmpty(data?.image) ? "" : data?.image;
+      }
+      _data.image = imageUrl;
+      if (dataDetail) {
+        await apiService.put(URL_PATHS.UPDATE_KNOWLEDGE + "/" + dataDetail?._id, _data);
+      } else {
+        await apiService.post(URL_PATHS.CREATE_KNOWLEDGE, _data);
       }
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
-        message: dataDetail ? MESSAGE_SUCCESS.EDIT_KNOWLEDGE : MESSAGE_SUCCESS.CREATE_KNOWLEDGE,
+        message: dataDetail ? MESSAGE_SUCCESS.EDIT_SUB_SERVICE : MESSAGE_SUCCESS.CREATE_SUB_SERVICE,
       });
       onCancel && onCancel();
       getData && getData({ highlightId: dataDetail?._id });
@@ -82,6 +120,34 @@ const AddMainService = (props: PropsType) => {
       }}
     >
       <Grid container>
+      <Grid item xs={12} mt={1}>
+          <LabelCustom title="Ảnh" />
+          <Controller
+            name="image"
+            control={control}
+            render={({ field: { ref } }) => {
+              return (
+                <>
+                  <FocusHiddenInput ref={ref}></FocusHiddenInput>
+                  <ButtonAddFileMainSelect
+                    onChange={(files) => {
+                      handleChangeImage(files);
+                    }}
+                    isViewMode={!isEdit}
+                    refForm={refProps}
+                    icon={<AddPhotoAlternateIcon sx={{ fontSize: "20px", color: "#614C4C" }} />}
+                    title="Chọn ảnh"
+                    formProps={{ control }}
+                    initialUrls={previewImages}
+                    multiple={false}
+                    error={!!errors.image && errors.image.message}
+                    sizeLimit={2}
+                  />
+                </>
+              );
+            }}
+          />
+        </Grid>
         <Grid item xs={12} mt={2}>
           <LabelCustom title="Tên kiến thức nha khoa" isRequired />
           <Controller
