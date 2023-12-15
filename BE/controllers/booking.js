@@ -88,7 +88,7 @@ export const createBooking = async (req, res, next) => {
       `,
     });
 
-    res.status(200).json({ booking: newBooking, request: req.body });
+    res.status(200).json({ booking: newBooking});
   } catch (err) {
     next(err);
   }
