@@ -25,6 +25,7 @@ export const MESSAGE_SUCCESS: any = {
   // DELETE_STAFF: "Xóa nhân viên thành công",
 
   CONFIRM_BOOKING: "Xác nhận lịch khám thành công",
+  CANCEL_BOOKING: "Hủy đặt lịch khám thành công",
 
   UPDATE_STATUS: "Cập nhập thành công",
 
@@ -67,4 +68,5 @@ export const MESSAGES_CONFIRM = {
   DeleteVoucher: "Bạn có chắc muốn xóa ưu đãi này? Ưu đãi đã xóa không thể khôi phục lại.",
   DeleteNew: "Bạn có chắc muốn xóa tin tức này? Tin tức đã xóa không thể khôi phục lại.",
   DeleteKnowledge: "Bạn có chắc muốn xóa kiến thức nha khoa này? Kiến thức nha khoa đã xóa không thể khôi phục lại.",
+  CancelBooking: "Bạn có chắc muốn hủy lịch khám nào? Lịch khám đã hủy không thể khôi phục lại.",
 };

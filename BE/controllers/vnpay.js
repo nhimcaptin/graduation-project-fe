@@ -142,16 +142,13 @@ export const querydr = (req, res, next) => {
 export const refund = async (req, res, next) => {
   try {
     const { userId, id } = req.body;
-    const item = await Booking.findById(id);
+    const item = await Booking.findById(id).populate("service");
+    const totalAmount = (item?.service || []).reduce((next, pre) => Number(pre?.price) + next, 0);
     if (!item) {
       return res.status(400).json(MESSAGE_ERROR.CANNOT_FIND);
     }
     if (item?.statusPaymentOrder != "Done") {
-      await Booking.findOneAndUpdate(
-        { _id: id },
-        { $set: { status: "Cancel", statusPaymentOrder: "Cancel" } },
-        { new: true }
-      );
+      await Booking.findOneAndUpdate({ _id: id }, { $set: { status: "Cancel" } }, { new: true });
       return res.status(200).json("Success");
     }
     process.env.TZ = "Asia/Ho_Chi_Minh";
@@ -162,10 +159,8 @@ export const refund = async (req, res, next) => {
     let vnp_Api = config.get("vnp_Api");
 
     let vnp_TxnRef = id;
-    // let vnp_TxnRef = "05152613";
     let vnp_TransactionDate = item.transactionDate;
-    // let vnp_TransactionDate = "20231205152636";
-    let vnp_Amount = Number(item.totalAmount) * 100;
+    let vnp_Amount = Number(totalAmount) * 100;
     let vnp_TransactionType = "02";
     let vnp_CreateBy = userId;
 
@@ -248,7 +243,7 @@ export const refund = async (req, res, next) => {
           })();
           return res.status(200).json(body);
         } else {
-          return res.status(500).json(MESSAGE_ERROR.STATUS_500);
+          return res.status(500).json(body);
         }
       }
     );
