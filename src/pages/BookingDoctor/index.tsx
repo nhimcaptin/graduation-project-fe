@@ -301,7 +301,7 @@ const BookingDoctor = () => {
   return (
     <Page className={styles.root} title="Danh sách khám" isActive>
       <Grid container item xs={12} sx={{ marginTop: "15px" }}>
-        <LabelCustom title="Bệnh nhân vào khám" sx={{ fontSize: "18px !important" }} />
+        <LabelCustom title="Bệnh nhân đang vào khám" sx={{ fontSize: "18px !important" }} />
         <TableContainer component={Paper} sx={{ maxHeight: 300 }}>
           <Table stickyHeader>
             <TableHead>

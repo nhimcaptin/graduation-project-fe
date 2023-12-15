@@ -8,7 +8,8 @@ export const createMainService = async (req, res, next) => {
     const newMainService = new MainService({
       name,
       description,
-      descriptionMain
+      descriptionMain,
+      image
     });
     await newMainService.save();
 
