@@ -7,8 +7,9 @@ import VpnKeyIcon from "@mui/icons-material/VpnKey";
 import ContentCopyIcon from "@mui/icons-material/ContentCopy";
 import { MenuItem, MenuList, Typography } from "@mui/material";
 import VisibilityOffIcon from "@mui/icons-material/VisibilityOff";
-import CheckIcon from '@mui/icons-material/Check';
-import HistoryIcon from '@mui/icons-material/History';
+import CheckIcon from "@mui/icons-material/Check";
+import HistoryIcon from "@mui/icons-material/History";
+import CancelIcon from "@mui/icons-material/Cancel";
 
 interface MenuListActionsProps {
   actionEdit?: (param: any) => void | undefined;
@@ -25,6 +26,7 @@ interface MenuListActionsProps {
   actionChangePassword?: (param: any) => void | undefined;
   actionDuplicate?: (param: any) => any;
   actionHistory?: (param: any) => any;
+  actionCancel?: (param: any) => any;
   dataSelected?: any;
 }
 
@@ -45,6 +47,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
     actionChangePassword,
     actionDuplicate,
     actionHistory,
+    actionCancel,
   } = props;
 
   const STATUS_VALUE = {
@@ -81,6 +84,11 @@ const MenuListActions = (props: MenuListActionsProps) => {
       action: actionDelete,
     },
     {
+      icon: <CancelIcon className="icon-delete" sx={{ color: "red" }} />,
+      label: "Huỷ đặt lịch",
+      action: actionCancel,
+    },
+    {
       icon: <VpnKeyIcon className="icon-view" />,
       label: "Đổi mật khẩu",
       action: actionChangePassword,
@@ -91,7 +99,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
       action: actionShowReview,
     },
     {
-      icon: <CheckIcon className="icon-view" />,
+      icon: <CheckIcon className="icon-view" sx={{ color: "green" }}/>,
       label: "Xác nhận tới khám",
       action: actionConfirm,
     },
