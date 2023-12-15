@@ -12,6 +12,9 @@ const MainServiceSchema = new mongoose.Schema(
     descriptionMain: {
       type: String,
       require: true
+    },
+    image: { 
+      type: String
     }
   },
   { timestamps: true }
