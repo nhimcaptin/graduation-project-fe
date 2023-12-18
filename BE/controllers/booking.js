@@ -8,6 +8,7 @@ import SubService from "../models/SubService.js";
 import { sendMail } from "../middlewares/send.mail.js";
 import moment from "moment";
 import HistoryBooking from "../models/HistoryBooking.js";
+import cron from "node-cron";
 
 export const createBooking = async (req, res, next) => {
   try {
@@ -358,3 +359,7 @@ export const getBookingUser = async (req, res, next) => {
     next(err);
   }
 };
+
+cron.schedule('* * * * *', () => {
+  console.log('running a task every minute');
+});
