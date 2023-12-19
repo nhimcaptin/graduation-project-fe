@@ -157,7 +157,12 @@ export const updateBookingStatus = async (req, res, next) => {
     }
 
     if (status !== booking.status) {
-      // Chỉ cập nhật thời gian nếu trạng thái thay đổi
+      if (status == "WaitingDone") {
+        const listBookingDoctor = await Booking.find({ doctorId: booking?.doctorId, status: "WaitingDone" });
+        if (listBookingDoctor.length > 0) {
+          return next(createError(400, MESSAGE_ERROR.DOCTOR_EXAMINING));
+        }
+      }
       booking.status = status;
       if (statusUpdateTime) {
         booking.statusUpdateTime = statusUpdateTime;

@@ -267,16 +267,22 @@ const BookingDoctor = () => {
   };
 
   const handleComeCheck = async (dataItem: any) => {
+    setLoadingScreen(true);
     setAnchorEl(null);
     try {
       const data = {
         status: "WaitingDone",
       };
       await apiService.put(`${URL_PATHS.CONFIRM_BOOKING}/${dataItem?._id}`, data);
-    } catch (error) {
-    } finally {
       getData({});
       getDataWaitingDone({});
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingScreen(false);
     }
   };
 
