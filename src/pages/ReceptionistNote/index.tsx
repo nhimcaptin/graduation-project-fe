@@ -468,7 +468,7 @@ const ReceptionistNote = () => {
               <div className={styles.loader}></div>
             </div>
           )}
-          {watch("timeTypeId") && (
+          {watch("timeTypeId") && !isDisabled && (
             <p style={{ margin: "4px 0px 0px 2px", color: "#1A6332", fontSize: "14px", fontWeight: "700" }}>
               Số thứ tự của bạn trong khung giờ khám từ {(watch("timeTypeId") as any)?.timeSlot} là{" "}
               {isPushCount

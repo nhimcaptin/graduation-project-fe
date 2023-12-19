@@ -322,6 +322,7 @@ export const handleFinishedExamination = async (req, res, next) => {
       doctorId: approvedBookings?.doctorId?._id,
       patientId: approvedBookings?.patientId?._id || undefined,
       bookingType: approvedBookings?.bookingType,
+      statusPayment: approvedBookings?.statusPaymentOrder,
       totalAmount,
     };
     await Booking.findOneAndUpdate(

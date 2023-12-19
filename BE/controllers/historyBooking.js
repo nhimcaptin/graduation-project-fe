@@ -97,7 +97,7 @@ export const getDetailHistory = async (req, res, next) => {
       });
 
     let isDisabled = false;
-    if (historyDetail?.bookingId?.status === "Approved" || !moment(new Date()).isBefore(historyDetail?.bookingId?.date)) {
+    if (historyDetail?.bookingId?.status === "Approved" || (historyDetail?.bookingId?.date && !moment(new Date()).isBefore(historyDetail?.bookingId?.date))) {
       isDisabled = true;
     }
     res.status(200).json({ data: historyDetail, isDisabled });
