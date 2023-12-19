@@ -9,6 +9,8 @@ import { sendMail } from "../middlewares/send.mail.js";
 import moment from "moment";
 import HistoryBooking from "../models/HistoryBooking.js";
 import cron from "node-cron";
+import request from "request";
+import config from "config";
 
 export const createBooking = async (req, res, next) => {
   try {
@@ -89,7 +91,7 @@ export const createBooking = async (req, res, next) => {
       `,
     });
 
-    res.status(200).json({ booking: newBooking});
+    res.status(200).json({ booking: newBooking });
   } catch (err) {
     next(err);
   }
@@ -360,6 +362,38 @@ export const getBookingUser = async (req, res, next) => {
   }
 };
 
-cron.schedule('* * * * *', () => {
-  console.log('running a task every minute');
+cron.schedule("0 0 * * *", async () => {
+  try {
+    const item = await Booking.updateMany({ date: { $lt: new Date() } }, { $set: { status: "Cancel" } });
+  } catch (error) {}
+});
+
+cron.schedule("*/10 * * * *", async () => {
+  try {
+    let refund_VnPay = config.get("refund_VnPay");
+    const updatedBookings = await Booking.find({
+      statusPaymentOrder: "Done",
+      status: "Cancel",
+    });
+    updatedBookings.forEach((booking) => {
+      const dataObj = {
+        id: booking?._id,
+        userId: 88886666,
+      };
+      request(
+        {
+          url: refund_VnPay,
+          method: "POST",
+          json: true,
+          body: dataObj,
+        },
+        function (error, response, body) {
+          console.log("12312312", body);
+          if (body?.vnp_ResponseCode == "00") {
+            Booking.findOneAndUpdate({ _id: booking?._id }, { $set: { statusPaymentOrder: "Cancel" } }, { new: true });
+          }
+        }
+      );
+    });
+  } catch (error) {}
 });
