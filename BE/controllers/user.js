@@ -10,10 +10,14 @@ import { sendMail } from "../middlewares/send.mail.js";
 export const createUser = async (req, res, next) => {
   try {
     const data = req.body;
-    const { email } = data;
+    const { email,phone } = data;
     const isExists = await User.findOne({ email: email });
     if (isExists) {
       return next(createError(400, MESSAGE_ERROR.MAIL_ALREADY_EXISTS));
+    }
+    const isExistsPhone = await User.findOne({ phone: phone });
+    if (isExistsPhone) {
+      return next(createError(400, MESSAGE_ERROR.PHONE_ALREADY_EXISTS));
     }
     const password = data?.role ? randomStringInRange(7, 12) : data?.password;
     const salt = bcrypt.genSaltSync(10);
