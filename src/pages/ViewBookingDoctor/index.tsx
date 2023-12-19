@@ -250,7 +250,7 @@ const ViewBookingDoctor = () => {
 
   useEffect(() => {
     getDetail();
-    getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
+    getListTimeType(moment().add(1,'d').format("YYYY/MM/DD"));
   }, []);
   return (
     <Page className={styles.root} title="Thông tin bệnh nhân" isActive>
@@ -339,8 +339,8 @@ const ViewBookingDoctor = () => {
                 checked={isCheck}
                 onChange={(e: any, isInputChecked) => {
                   setIsCheck(isInputChecked);
-                  getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
-                  setValue("date", moment(new Date()).format("YYYY/MM/DD"));
+                  getListTimeType(moment().add(1,'d').format("YYYY/MM/DD"));
+                  setValue("date", moment().add(1,'d').format("YYYY/MM/DD"));
                   setValue("timeTypeId", "");
                 }}
               />
@@ -398,7 +398,7 @@ const ViewBookingDoctor = () => {
                     errorMessage: errors?.date?.message,
                   }}
                   staticDateTimePickerProps={{
-                    minDateTime: new Date(),
+                    minDateTime: moment().add(1,'d').format(),
                     views: ["year", "day"],
                     ampm: true,
                   }}
@@ -430,9 +430,6 @@ const ViewBookingDoctor = () => {
               return (
                 <>
                   {hourInDateData.map((item: any, index: number) => {
-                    const dateHour = item?.timeSlot.split("-")[1];
-                    const dateEnd = moment(new Date().getHours() + 1).format("YYYY-MM-DD HH:mm");
-                    const date = moment(new Date()).format("YYYY-MM-DD");
                     return (
                       <Button
                         variant={value?._id === item._id ? "contained" : "outlined"}

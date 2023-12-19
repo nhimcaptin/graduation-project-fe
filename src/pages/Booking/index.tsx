@@ -744,7 +744,11 @@ const Booking = (props: any) => {
           <MenuListActions
             actionView={handleView}
             actionConfirm={selectedItem?.status == "Waiting" && hasUpdate ? () => handleConfirm() : undefined}
-            actionCancel={selectedItem?.status != "Cancel" && hasUpdate ? () => handleDelete() : undefined}
+            actionCancel={
+              selectedItem?.status != "Cancel" && hasUpdate && moment(new Date()).isBefore(selectedItem?.date, "day")
+                ? () => handleDelete()
+                : undefined
+            }
           />
         </Popover>
       </IF>

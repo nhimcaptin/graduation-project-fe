@@ -73,7 +73,7 @@ const AddUser = (props: PropsType) => {
       patient: dataDetail ? { value: dataDetail?.patientId?._id, label: dataDetail?.patientId?.name } : "",
       doctor: dataDetail ? { value: dataDetail?.doctorId?._id, label: dataDetail?.doctorId?.name } : "",
       bookingType: dataDetail ? dataType.find((x) => x.value === dataDetail?.bookingType) : null,
-      date: dataDetail ? dataDetail?.date : new Date(),
+      date: dataDetail ? dataDetail?.date : moment().add(1,'d').format(),
       timeTypeId: dataDetail ? { _id: dataDetail?.timeTypeId?._id, timeSlot: dataDetail?.timeTypeId?.name } : "",
       mainService: dataDetail ? dataDetail?.service : "",
       setType: dataDetail ? dataDetail?.setType : "",
@@ -273,7 +273,7 @@ const AddUser = (props: PropsType) => {
   }, [watch("mainService")]);
 
   useEffect(() => {
-    getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
+    getListTimeType(moment().add(1,'d').format("YYYY/MM/DD"));
   }, []);
 
   return (
@@ -682,7 +682,7 @@ const AddUser = (props: PropsType) => {
                     }}
                     staticDateTimePickerProps={{
                       disabled: !isEdit,
-                      minDateTime: new Date(),
+                      minDateTime: moment().add(1,'d').format(),
                       views: ["year", "day"],
                       ampm: true,
                     }}
@@ -713,9 +713,6 @@ const AddUser = (props: PropsType) => {
                 return (
                   <>
                     {hourInDateData.map((item: any, index: number) => {
-                      const dateHour = item?.timeSlot.split("-")[1];
-                      const dateEnd = moment(new Date().getHours() + 1).format("YYYY-MM-DD HH:mm");
-                      const date = moment(new Date()).format("YYYY-MM-DD");
                       return (
                         <Button
                           disabled={!isEdit}
