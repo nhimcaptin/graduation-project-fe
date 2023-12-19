@@ -121,7 +121,7 @@ const ReceptionistNote = () => {
     try {
       Promise.all([
         apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id),
-        getListTimeType(moment(new Date()).format("YYYY/MM/DD")),
+        getListTimeType(moment().add(1,'d').format("YYYY/MM/DD")),
       ]).then((values: any) => {
         const { data, isDisabled } = values[0];
         const timeTypeId = (values[1] || []).find((x: any) => x?._id === data?.bookingId?.timeTypeId?._id);
@@ -340,8 +340,8 @@ const ReceptionistNote = () => {
               disabled={isDisabled}
               onChange={(e: any, isInputChecked) => {
                 setIsCheck(isInputChecked);
-                getListTimeType(moment(new Date()).format("YYYY/MM/DD"));
-                setValue("date", moment(new Date()).format("YYYY/MM/DD"));
+                getListTimeType(moment().add(1,'d').format("YYYY/MM/DD"));
+                setValue("date", moment().add(1,'d').format("YYYY/MM/DD"));
                 setValue("timeTypeId", "");
               }}
             />
@@ -400,7 +400,7 @@ const ReceptionistNote = () => {
                   }}
                   staticDateTimePickerProps={{
                     disabled: isDisabled,
-                    minDateTime: new Date(),
+                    minDateTime: moment().add(1,'d').format(),
                     views: ["year", "day"],
                     ampm: true,
                   }}
@@ -432,9 +432,6 @@ const ReceptionistNote = () => {
               return (
                 <>
                   {hourInDateData.map((item: any, index: number) => {
-                    const dateHour = item?.timeSlot.split("-")[1];
-                    const dateEnd = moment(new Date().getHours() + 1).format("YYYY-MM-DD HH:mm");
-                    const date = moment(new Date()).format("YYYY-MM-DD");
                     return (
                       <Button
                         variant={value?._id === item._id ? "contained" : "outlined"}

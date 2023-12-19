@@ -364,11 +364,11 @@ export const getBookingUser = async (req, res, next) => {
 
 cron.schedule("0 0 * * *", async () => {
   try {
-    const item = await Booking.updateMany({ date: { $lt: new Date() } }, { $set: { status: "Cancel" } });
+    await Booking.updateMany({ date: { $lt: new Date() } }, { $set: { status: "Cancel" } });
   } catch (error) {}
 });
 
-cron.schedule("*/10 * * * *", async () => {
+cron.schedule("10 0 * * *", async () => {
   try {
     let refund_VnPay = config.get("refund_VnPay");
     const updatedBookings = await Booking.find({
@@ -388,7 +388,6 @@ cron.schedule("*/10 * * * *", async () => {
           body: dataObj,
         },
         function (error, response, body) {
-          console.log("12312312", body);
           if (body?.vnp_ResponseCode == "00") {
             Booking.findOneAndUpdate({ _id: booking?._id }, { $set: { statusPaymentOrder: "Cancel" } }, { new: true });
           }
