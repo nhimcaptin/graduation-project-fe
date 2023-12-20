@@ -752,9 +752,13 @@ const Booking = (props: any) => {
         >
           <MenuListActions
             actionView={handleView}
-            actionConfirm={selectedItem?.status == "Waiting" && hasUpdate ? () => handleConfirm() : undefined}
+            actionConfirm={
+              selectedItem?.status == "Waiting" && hasUpdate && moment(new Date()).isSame(selectedItem?.date, "date")
+                ? () => handleConfirm()
+                : undefined
+            }
             actionCancel={
-              selectedItem?.status != "Cancel" && hasUpdate && moment(new Date()).isBefore(selectedItem?.date, "day")
+              selectedItem?.status != "Cancel" && hasUpdate && moment(new Date()).isBefore(selectedItem?.date)
                 ? () => handleDelete()
                 : undefined
             }

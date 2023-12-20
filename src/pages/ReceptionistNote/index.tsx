@@ -36,6 +36,7 @@ const ReceptionistNote = () => {
   const [openQR, setOpenQR] = useState<boolean>(false);
   const [imageQR, setImageQR] = useState<any>(null);
   const [isPushCount, setIsPushCount] = useState<boolean>(false);
+  const [idSubmit, setIdSubmit] = useState<any>("");
 
   const params = useParams();
 
@@ -72,11 +73,13 @@ const ReceptionistNote = () => {
     const _item = {
       ...dataUser,
       ...data,
+      bookingId: dataUser?.bookingId?._id || idSubmit,
       timeTypeId: data?.timeTypeId?._id,
       isCheck,
     };
     try {
-      await apiService.post(URL_PATHS.UPDATE_HISTORY + "/" + params?.id, _item);
+      const res: any = await apiService.post(URL_PATHS.UPDATE_HISTORY + "/" + params?.id, _item);
+      setIdSubmit(res?.bookingId);
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
         message: MESSAGE_SUCCESS.UPDATE_STATUS,
@@ -121,7 +124,7 @@ const ReceptionistNote = () => {
     try {
       Promise.all([
         apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id),
-        getListTimeType(moment().add(1,'d').format("YYYY/MM/DD")),
+        getListTimeType(moment().add(1, "d").format("YYYY/MM/DD")),
       ]).then((values: any) => {
         const { data, isDisabled } = values[0];
         const timeTypeId = (values[1] || []).find((x: any) => x?._id === data?.bookingId?.timeTypeId?._id);
@@ -340,8 +343,8 @@ const ReceptionistNote = () => {
               disabled={isDisabled}
               onChange={(e: any, isInputChecked) => {
                 setIsCheck(isInputChecked);
-                getListTimeType(moment().add(1,'d').format("YYYY/MM/DD"));
-                setValue("date", moment().add(1,'d').format("YYYY/MM/DD"));
+                getListTimeType(moment().add(1, "d").format("YYYY/MM/DD"));
+                setValue("date", moment().add(1, "d").format("YYYY/MM/DD"));
                 setValue("timeTypeId", "");
               }}
             />
@@ -400,7 +403,7 @@ const ReceptionistNote = () => {
                   }}
                   staticDateTimePickerProps={{
                     disabled: isDisabled,
-                    minDateTime: moment().add(1,'d').format(),
+                    minDateTime: moment().add(1, "d").format(),
                     views: ["year", "day"],
                     ampm: true,
                   }}
@@ -465,7 +468,7 @@ const ReceptionistNote = () => {
               <div className={styles.loader}></div>
             </div>
           )}
-          {watch("timeTypeId") && (
+          {watch("timeTypeId") && !isDisabled && (
             <p style={{ margin: "4px 0px 0px 2px", color: "#1A6332", fontSize: "14px", fontWeight: "700" }}>
               Số thứ tự của bạn trong khung giờ khám từ {(watch("timeTypeId") as any)?.timeSlot} là{" "}
               {isPushCount

@@ -82,8 +82,8 @@ const invoicePdf = (item) => {
                   <td style="border: 1px solid; text-align: center; vertical-align: middle; padding: 0.75rem">${x?.name}
                   </td>
                   <td style="border: 1px solid; text-align: center; vertical-align: middle; padding: 0.75rem">${
-                    x?.price
-                  }
+                    Number(x?.price || 0).toLocaleString('en')
+                  } VND
                   </td>
               </tr>
               `;
@@ -98,7 +98,7 @@ const invoicePdf = (item) => {
               </td>
               <td style="text-align: end; width: 300px; ">
                   <p style="padding-left: 40px; padding-right: 40px; font-size: 20px; font-weight: 700; margin:  0px;">
-                      Tổng: ${amount} VND
+                      Tổng: ${Number(amount || 0).toLocaleString("en")} VND
                   </p>
   
               </td>
