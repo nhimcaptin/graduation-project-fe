@@ -30,6 +30,7 @@ export const getListTimeTypes = async (req, res, next) => {
     const startDate = new Date(_filter.date);
     const date = await Booking.find({
       date: { $gte: startDate, $lt: new Date(startDate.getTime() + 24 * 60 * 60 * 1000) },
+      doctorId: _filter.doctorId,
     });
     const timeTypes = await TimeType.find({}, "-__v").lean();
     const listHour = timeTypes?.map((x) => {

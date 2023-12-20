@@ -252,12 +252,13 @@ const AddUser = (props: PropsType) => {
     }
   };
 
-  const getListTimeType = async (date: any) => {
+  const getListTimeType = async (date: any, doctorID?: any) => {
     setIsLoadingHour(true);
     try {
       const params = {
         equals: {
           date,
+          doctorId: doctorID?._id 
         },
       };
       const res: any = await apiService.getFilter(URL_PATHS.GET_LIST_TIME_TYPE, null, params);
@@ -441,6 +442,7 @@ const AddUser = (props: PropsType) => {
                   value={value}
                   onChange={(value: any) => {
                     onChange(value);
+                    getListTimeType(moment(watch('date') || moment().add(1,'d')).format("YYYY/MM/DD"), value);
                   }}
                   fieldName={name}
                   maxMenuHeight={200}
@@ -689,7 +691,7 @@ const AddUser = (props: PropsType) => {
                     value={value}
                     onChange={(e: any) => {
                       onChange(e);
-                      getListTimeType(moment(e).format("YYYY/MM/DD"));
+                      getListTimeType(moment(e).format("YYYY/MM/DD"), watch("doctor"));
                       setValue("timeTypeId", "");
                       clearErrors("timeTypeId");
                     }}
@@ -718,8 +720,7 @@ const AddUser = (props: PropsType) => {
                           disabled={!isEdit}
                           variant={value?._id === item._id ? "contained" : "outlined"}
                           className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
-                            [styles.isDisabled]:
-                              (item?.count === 3 && dataDetail?.timeTypeId?._id !== item._id) || !isEdit,
+                            [styles.isDisabled]: !isEdit,
                           })}
                           onClick={(e: any) => {
                             setValue("timeTypeId", item);
@@ -749,7 +750,7 @@ const AddUser = (props: PropsType) => {
         {errors?.timeTypeId && <ErrorMessage style={{ marginTop: "10px" }}>{errors?.timeTypeId?.message}</ErrorMessage>}
         {watch("timeTypeId") && (
           <p style={{ margin: "4px 0px 0px 2px", color: "#1A6332", fontSize: "14px", fontWeight: "700" }}>
-            Số thứ tự của bạn trong khung giờ khám từ {(watch("timeTypeId") as any)?.timeSlot} là {Number((watch("timeTypeId") as any)?.count || 0) + 1}
+            Số người đã đặt lịch trong khung giờ {(watch("timeTypeId") as any)?.timeSlot} là {Number((watch("timeTypeId") as any)?.count || 0)}
           </p>
         )}
       </Grid>

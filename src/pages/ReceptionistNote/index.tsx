@@ -122,47 +122,74 @@ const ReceptionistNote = () => {
   const getDetail = async () => {
     setLoadingScreen(true);
     try {
-      Promise.all([
-        apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id),
-        getListTimeType(moment().add(1, "d").format("YYYY/MM/DD")),
-      ]).then((values: any) => {
-        const { data, isDisabled } = values[0];
-        const timeTypeId = (values[1] || []).find((x: any) => x?._id === data?.bookingId?.timeTypeId?._id);
-        setIsDisabled(isDisabled);
-        const idService = data?.service?.map((x: any) => x?._id);
-        setDataUser({
-          address: data?.address || data?.patientId?.address,
-          email: data?.email || data?.patientId?.email,
-          name: data?.name || data?.patientId?.name,
-          phone: data?.phone || data?.patientId?.phone,
-          gender: data?.gender || data?.patientId?.gender,
-          birthday: data?.birthday || data?.patientId?.birthday,
-          nameService: data?.service,
-          idService: idService,
-          idPatient: data?.user?._id,
-          patientId: data?.patientId,
-          idDoctor: data?.doctorId?._id,
-          bookingType: data?.bookingType,
-          bookingId: data?.bookingId,
-        });
-        setValue("condition", data?.condition);
-        setValue("mainServicerReExamination", data?.bookingId?.service);
-        setValue("timeTypeId", timeTypeId);
-        setValue("date", data?.bookingId?.date);
-        setIsCheck(!!data?.bookingId);
+      // Promise.all([
+      //   apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id),
+      //   getListTimeType(moment().add(1, "d").format("YYYY/MM/DD")),
+      // ]).then((values: any) => {
+      //   const { data, isDisabled } = values[0];
+      //   const timeTypeId = (values[1] || []).find((x: any) => x?._id === data?.bookingId?.timeTypeId?._id);
+      //   setIsDisabled(isDisabled);
+      //   const idService = data?.service?.map((x: any) => x?._id);
+      //   setDataUser({
+      //     address: data?.address || data?.patientId?.address,
+      //     email: data?.email || data?.patientId?.email,
+      //     name: data?.name || data?.patientId?.name,
+      //     phone: data?.phone || data?.patientId?.phone,
+      //     gender: data?.gender || data?.patientId?.gender,
+      //     birthday: data?.birthday || data?.patientId?.birthday,
+      //     nameService: data?.service,
+      //     idService: idService,
+      //     idPatient: data?.user?._id,
+      //     patientId: data?.patientId,
+      //     idDoctor: data?.doctorId?._id,
+      //     bookingType: data?.bookingType,
+      //     bookingId: data?.bookingId,
+      //   });
+      //   setValue("condition", data?.condition);
+      //   setValue("mainServicerReExamination", data?.bookingId?.service);
+      //   setValue("timeTypeId", timeTypeId);
+      //   setValue("date", data?.bookingId?.date);
+      //   setIsCheck(!!data?.bookingId);
+      // });
+      const res: any = await apiService.getFilter(URL_PATHS.DETAIL_HISTORY + "/" + params?.id);
+      const { data, isDisabled } = res;
+      const time: any = await getListTimeType(moment().add(1, "d").format("YYYY/MM/DD"), data?.doctorId?._id);
+      const timeTypeId = (time || []).find((x: any) => x?._id === data?.bookingId?.timeTypeId?._id);
+      setIsDisabled(isDisabled);
+      const idService = data?.service?.map((x: any) => x?._id);
+      setDataUser({
+        address: data?.address || data?.patientId?.address,
+        email: data?.email || data?.patientId?.email,
+        name: data?.name || data?.patientId?.name,
+        phone: data?.phone || data?.patientId?.phone,
+        gender: data?.gender || data?.patientId?.gender,
+        birthday: data?.birthday || data?.patientId?.birthday,
+        nameService: data?.service,
+        idService: idService,
+        idPatient: data?.user?._id,
+        patientId: data?.patientId,
+        idDoctor: data?.doctorId?._id,
+        bookingType: data?.bookingType,
+        bookingId: data?.bookingId,
       });
+      setValue("condition", data?.condition);
+      setValue("mainServicerReExamination", data?.bookingId?.service);
+      setValue("timeTypeId", timeTypeId);
+      setValue("date", data?.bookingId?.date);
+      setIsCheck(!!data?.bookingId);
     } catch (error) {
     } finally {
       setLoadingScreen(false);
     }
   };
 
-  const getListTimeType = async (date: any) => {
+  const getListTimeType = async (date: any, doctorId?: any) => {
     setIsLoadingHour(true);
     try {
       const params = {
         equals: {
           date,
+          doctorId,
         },
       };
       const res: any = await apiService.getFilter(URL_PATHS.GET_LIST_TIME_TYPE, null, params);
@@ -343,7 +370,7 @@ const ReceptionistNote = () => {
               disabled={isDisabled}
               onChange={(e: any, isInputChecked) => {
                 setIsCheck(isInputChecked);
-                getListTimeType(moment().add(1, "d").format("YYYY/MM/DD"));
+                getListTimeType(moment().add(1, "d").format("YYYY/MM/DD"), dataUser?.idDoctor);
                 setValue("date", moment().add(1, "d").format("YYYY/MM/DD"));
                 setValue("timeTypeId", "");
               }}
@@ -410,7 +437,7 @@ const ReceptionistNote = () => {
                   value={value}
                   onChange={(e: any) => {
                     onChange(e);
-                    getListTimeType(moment(e).format("YYYY/MM/DD"));
+                    getListTimeType(moment(e).format("YYYY/MM/DD"), dataUser?.idDoctor);
                     setValue("timeTypeId", "");
                     clearErrors("timeTypeId");
                   }}
@@ -439,8 +466,7 @@ const ReceptionistNote = () => {
                       <Button
                         variant={value?._id === item._id ? "contained" : "outlined"}
                         className={clsx({ [styles.active]: value?._id === item._id }, `${styles.btnHour}`, {
-                          [styles.isDisabled]:
-                            isDisabled || (item?.count === 3 && dataUser?.bookingId?.timeTypeId?._id !== item._id),
+                          [styles.isDisabled]: isDisabled,
                         })}
                         onClick={(e: any) => {
                           setValue("timeTypeId", item);
@@ -470,10 +496,8 @@ const ReceptionistNote = () => {
           )}
           {watch("timeTypeId") && !isDisabled && (
             <p style={{ margin: "4px 0px 0px 2px", color: "#1A6332", fontSize: "14px", fontWeight: "700" }}>
-              Số thứ tự của bạn trong khung giờ khám từ {(watch("timeTypeId") as any)?.timeSlot} là{" "}
-              {isPushCount
-                ? Number((watch("timeTypeId") as any)?.count || 0) + 1
-                : Number((watch("timeTypeId") as any)?.count || 0)}
+              Số người đã đặt lịch trong khung giờ {(watch("timeTypeId") as any)?.timeSlot} là{" "}
+              {Number((watch("timeTypeId") as any)?.count || 0)}
             </p>
           )}
         </Grid>

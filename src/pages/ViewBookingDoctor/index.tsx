@@ -464,10 +464,8 @@ const ViewBookingDoctor = () => {
           )}
           {watch("timeTypeId") && (
             <p style={{ margin: "4px 0px 0px 2px", color: "#1A6332", fontSize: "14px", fontWeight: "700" }}>
-              Số thứ tự của bạn trong khung giờ khám từ {(watch("timeTypeId") as any)?.timeSlot} là{" "}
-              {isPushCount
-                ? Number((watch("timeTypeId") as any)?.count || 0) + 1
-                : Number((watch("timeTypeId") as any)?.count || 0)}
+              Số người đã đặt lịch trong khung giờ {(watch("timeTypeId") as any)?.timeSlot} là{" "}
+              {Number((watch("timeTypeId") as any)?.count || 0)}
             </p>
           )}
         </Grid>
