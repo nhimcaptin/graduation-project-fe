@@ -758,7 +758,7 @@ const Booking = (props: any) => {
                 : undefined
             }
             actionCancel={
-              selectedItem?.status != "Cancel" && hasUpdate && moment(new Date()).isBefore(selectedItem?.date)
+              selectedItem?.status != "Cancel" && hasUpdate && moment(new Date()).isBefore(selectedItem?.date, "date")
                 ? () => handleDelete()
                 : undefined
             }
