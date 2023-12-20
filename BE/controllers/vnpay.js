@@ -124,10 +124,17 @@ export const querydr = (req, res, next) => {
     },
     async function (error, response, body) {
       try {
-        if (body?.vnp_ResponseCode == "00") {
+        if (body?.vnp_TransactionStatus == "00") {
           await Booking.findOneAndUpdate(
             { _id: vnp_TxnRef },
             { $set: { statusPaymentOrder: "Done", transactionDate: vnp_TransactionDate } },
+            { new: true }
+          );
+        }
+        if (body?.vnp_TransactionStatus == "01") {
+          await Booking.findOneAndUpdate(
+            { _id: vnp_TxnRef },
+            { $set: { statusPaymentOrder: "Error", transactionDate: vnp_TransactionDate } },
             { new: true }
           );
         }

@@ -60,3 +60,26 @@ export const statusOptions: IStatusType[] = [
     chipType: STATUS_CHIP.INACTIVE,
   },
 ];
+
+export const statusOptionsPayment: IStatusType[] = [
+  {
+    label: "Chờ thanh toán",
+    value: "Waiting",
+    chipType: STATUS_CHIP.WARNING,
+  },
+  {
+    label: "Đã thanh toán",
+    value: "Done",
+    chipType: STATUS_CHIP.ACTIVE,
+  },
+  {
+    label: "Thanh toán lỗi",
+    value: "Error",
+    chipType: STATUS_CHIP.INACTIVE,
+  },
+  {
+    label: "Hoàn tiền",
+    value: "Cancel",
+    chipType: STATUS_CHIP.INACTIVE,
+  },
+];

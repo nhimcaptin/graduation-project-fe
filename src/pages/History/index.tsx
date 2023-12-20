@@ -73,6 +73,16 @@ export const statusOptions: IStatusType[] = [
     value: "Done",
     chipType: STATUS_CHIP.ACTIVE,
   },
+  {
+    label: "Thanh toán lỗi",
+    value: "Error",
+    chipType: STATUS_CHIP.INACTIVE,
+  },
+  {
+    label: "Hoàn tiền",
+    value: "Cancel",
+    chipType: STATUS_CHIP.INACTIVE,
+  },
 ];
 
 const headCells = [

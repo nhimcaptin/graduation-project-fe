@@ -42,7 +42,7 @@ import DISPLAY_TEXTS from "../../consts/display-texts";
 import apiService from "../../services/api-services";
 import URL_PATHS from "../../services/url-path";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
-import { STATUS_TOAST, statusOptions } from "../../consts/statusCode";
+import { STATUS_TOAST, statusOptions, statusOptionsPayment } from "../../consts/statusCode";
 import { handleErrorMessage } from "../../utils/errorMessage";
 import moment from "moment";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
@@ -102,9 +102,14 @@ const headCells = [
     style: { maxWidth: "10%", minWidth: "180px" },
   },
   {
+    label: "Trạng thái thanh toán",
+    sort: "status",
+    style: { maxWidth: "20%", minWidth: "200px" },
+  },
+  {
     label: "Trạng thái",
     sort: "status",
-    style: { maxWidth: "10%", minWidth: "80px" },
+    style: { maxWidth: "20%", minWidth: "180px" },
   },
   { label: "", style: { minWidth: "5%" } },
 ];
@@ -679,6 +684,7 @@ const Booking = (props: any) => {
               <>
                 {userState.map((data: any, index: number) => {
                   let statusContext = getRowStatus(data.status);
+                  let statusPayment = getRowStatus(data?.statusPaymentOrder, statusOptionsPayment);
                   return (
                     <TableRow
                       key={index}
@@ -700,6 +706,9 @@ const Booking = (props: any) => {
                         {data?.timeTypeId?.timeSlot
                           ? `${data?.timeTypeId?.timeSlot} | ${moment(data.date).format(FORMAT_DATE)}`
                           : ""}
+                      </TableCell>
+                      <TableCell className="">
+                        <ChipCustom label={statusPayment.label} chipType={statusPayment.chipType} />
                       </TableCell>
                       <TableCell className="">
                         <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
