@@ -32,6 +32,7 @@ export const MESSAGE_SUCCESS: any = {
   CREATE_MAIN_SERVICE: "Tạo mới danh mục dịch vụ thành công",
   EDIT_MAIN_SERVICE: "Sửa danh mục dịch vụ thành công",
   DELETE_MAIN_SERVICE: "Xóa danh mục dịch vụ thành công",
+  UPDATE_STATUS_SERVICE: "Cập nhật trạng thái thành công",
 
   CREATE_SUB_SERVICE: "Tạo mới dịch vụ thành công",
   EDIT_SUB_SERVICE: "Sửa dịch vụ thành công",

@@ -16,7 +16,6 @@ interface MenuListActionsProps {
   actionNote?: (param: any) => void | undefined;
   actionView?: (param: any) => void | undefined;
   actionDelete?: (param: any) => void | undefined;
-  actionActive?: (param: any) => void | undefined;
   actionShowReview?: (param: any) => void;
   actionConfirm?: (param: any) => void;
   actionComeCheck?: (param: any) => void;
@@ -27,7 +26,8 @@ interface MenuListActionsProps {
   actionDuplicate?: (param: any) => any;
   actionHistory?: (param: any) => any;
   actionCancel?: (param: any) => any;
-  actionInActive?: (param: any) => any;
+  actionInActive?: (param: any) => void | undefined;
+  actionActive?: (param: any) => void | undefined;
   dataSelected?: any;
 }
 
@@ -101,7 +101,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
       action: actionShowReview,
     },
     {
-      icon: <CheckIcon className="icon-view" sx={{ color: "green" }}/>,
+      icon: <CheckIcon className="icon-view" sx={{ color: "green" }} />,
       label: "Xác nhận tới khám",
       action: actionConfirm,
     },
@@ -133,12 +133,12 @@ const MenuListActions = (props: MenuListActionsProps) => {
     {
       icon: <LockIcon />,
       label: "Hủy kích hoạt",
-      action: actionActive,
+      action: actionInActive,
     },
     {
       icon: <LockOpenIcon />,
       label: "Kích hoạt",
-      action: actionInActive,
+      action: actionActive,
     },
     // {
     //   icon: dataSelected?.status === STATUS_VALUE.ACTIVE || dataSelected?.isActive ? <LockIcon /> : <LockOpenIcon />,

@@ -63,5 +63,7 @@ const URL_PATHS = {
   SEND_PASSWORD_LINK: "api/auth/send-password-link",
   FORGOT_PASSWORD: "api/auth/forgot-password",
   REST_PASSWORD: "api/auth/reset-password",
+  ACTIVE_MAIN_SERVICE: "api/main-service/active",
+  INACTIVE_MAIN_SERVICE: "api/main-service/inactive",
 };
 export default URL_PATHS;
