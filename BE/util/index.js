@@ -6,7 +6,15 @@ export const convertFilter = (data) => {
   (filterConditionsArray || []).forEach((x) => {
     if (x.indexOf("==") >= 0) {
       const [label, value] = x.split("==");
-      if (["status", "service", "role"].includes(label)) {
+      if (["formDate"].includes(label)) {
+        const startOfDay = new Date(value);
+        startOfDay.setHours(0, 0, 0, 0);
+        obj["date"] = { ...(obj["date"] ? obj["date"] : {}), $gte: startOfDay };
+      } else if (["toDate"].includes(label)) {
+        const endOfDay = new Date(value);
+        endOfDay.setHours(23, 59, 59, 999);
+        obj["date"] = { ...(obj["date"] ? obj["date"] : {}), $lte: endOfDay };
+      } else if (["status", "service", "role"].includes(label)) {
         obj[label] = { $in: value ? value.split("|") : "" };
       } else {
         obj[label] = value;

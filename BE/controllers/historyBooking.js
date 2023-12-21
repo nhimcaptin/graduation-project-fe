@@ -11,6 +11,10 @@ export const getListHistory = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
+    let createdAt = _filter?.date;
+    createdAt && (_filter.createdAt = createdAt);
+    delete _filter.date;
+    console.log("_filter", _filter)
     const historyBooking = await HistoryBooking.find(_filter)
       .populate("service")
       .populate("doctorId")

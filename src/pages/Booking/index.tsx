@@ -57,6 +57,7 @@ import { RegExpEmail } from "../../utils/regExp";
 import { usePermissionHook } from "../../hook/usePermission";
 import SearchResult from "../../components/SearchResult";
 import { useSelector } from "react-redux";
+import DateTimePickerCustom from "../../components/DateTimePickerCustom";
 
 interface RowDataProps {
   id: number;
@@ -154,6 +155,14 @@ const Booking = (props: any) => {
         value: filterContext?.phone || "",
       },
       {
+        label: "Từ ngày",
+        value: (filterContext?.formDate && moment(filterContext?.formDate).format("DD/MM/YYYY")) || "",
+      },
+      {
+        label: "Đến ngày",
+        value: (filterContext?.toDate && moment(filterContext?.toDate).format("DD/MM/YYYY")) || "",
+      },
+      {
         label: "Dịch vụ",
         value: getMultiLabel(filterContext.service, "label"),
       },
@@ -181,6 +190,8 @@ const Booking = (props: any) => {
       numberPhoneCustomer: "",
       emailCustomer: "",
       service: "",
+      formDate: new Date() || "",
+      toDate: new Date() || "",
       status: true ? [statusOptions[0], statusOptions[1]] : "",
     },
   });
@@ -240,7 +251,15 @@ const Booking = (props: any) => {
   };
 
   const handleClearSearch = () => {
-    reset({ name: "", numberPhoneCustomer: "", emailCustomer: "", service: "", status: "" });
+    reset({
+      name: "",
+      numberPhoneCustomer: "",
+      emailCustomer: "",
+      service: "",
+      status: "",
+      formDate: "" as any,
+      toDate: "" as any,
+    });
   };
 
   const handleRefresh = () => {
@@ -252,6 +271,8 @@ const Booking = (props: any) => {
       numberPhoneCustomer: "",
       emailCustomer: "",
       service: "",
+      formDate: new Date(),
+      toDate: new Date(),
       status: [statusOptions[0], statusOptions[1]],
     });
     getData({
@@ -259,6 +280,8 @@ const Booking = (props: any) => {
       numberPhoneCustomer: "",
       emailCustomer: "",
       service: "",
+      formDate: new Date(),
+      toDate: new Date(),
       status: [statusOptions[0], statusOptions[1]],
       pageIndex: 0,
       pageSize: 10,
@@ -332,6 +355,8 @@ const Booking = (props: any) => {
       !!props && props.hasOwnProperty("emailCustomer") ? props.emailCustomer : filterContext?.emailCustomer || "";
     const status = !!props && props.hasOwnProperty("status") ? props.status : filterContext?.status || "";
     const service = !!props && props.hasOwnProperty("service") ? props.service : filterContext?.service || "";
+    const formDate = !!props && props.hasOwnProperty("formDate") ? props.formDate : filterContext?.formDate || "";
+    const toDate = !!props && props.hasOwnProperty("toDate") ? props.toDate : filterContext?.toDate || "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -346,6 +371,8 @@ const Booking = (props: any) => {
     const filters = {
       unEncoded: { name: name, numberPhoneCustomer: numberPhoneCustomer, emailCustomer: emailCustomer },
       equals: {
+        formDate: formDate ? moment(formDate).format("YYYY/MM/DD") : "",
+        toDate: toDate ? moment(formDate).format("YYYY/MM/DD") : "",
         status: status ? getMultiFilter(status, "value") : "",
         service: service ? getMultiFilter(service, "value") : "",
       },
@@ -375,6 +402,8 @@ const Booking = (props: any) => {
         emailCustomer,
         status,
         service,
+        formDate,
+        toDate,
       });
     }
   };
@@ -471,8 +500,8 @@ const Booking = (props: any) => {
   };
 
   useEffect(() => {
-    getData({ status: [statusOptions[0], statusOptions[1]] });
-    setFilterContext({ status: [statusOptions[0], statusOptions[1]] });
+    getData({ status: [statusOptions[0], statusOptions[1]], formDate: new Date(), toDate: new Date() });
+    setFilterContext({ status: [statusOptions[0], statusOptions[1]], formDate: new Date(), toDate: new Date() });
   }, []);
 
   return (
@@ -566,6 +595,58 @@ const Booking = (props: any) => {
                           inputRef={ref}
                           isMulti
                           isValidationFailed
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Từ ngày" />
+                    <Controller
+                      control={control}
+                      name="formDate"
+                      render={({ field: { value, onChange } }) => (
+                        <DateTimePickerCustom
+                          inputProps={{
+                            errorMessage: errors?.formDate?.message,
+                          }}
+                          staticDateTimePickerProps={{
+                            views: ["year", "day"],
+                            ampm: true,
+                          }}
+                          value={value}
+                          onChange={(e: any) => {
+                            onChange(e);
+                            setValue("toDate", "" as any);
+                          }}
+                          inputFormat="DD/MM/YYYY"
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Đến ngày" />
+                    <Controller
+                      control={control}
+                      name="toDate"
+                      render={({ field: { value, onChange } }) => (
+                        <DateTimePickerCustom
+                          inputProps={{
+                            errorMessage: errors?.formDate?.message,
+                          }}
+                          staticDateTimePickerProps={{
+                            minDateTime: watch("formDate"),
+                            views: ["year", "day"],
+                            ampm: true,
+                          }}
+                          value={value}
+                          onChange={(e: any) => {
+                            onChange(e);
+                          }}
+                          inputFormat="DD/MM/YYYY"
                         />
                       )}
                     />

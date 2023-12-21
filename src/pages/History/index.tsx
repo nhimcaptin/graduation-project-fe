@@ -57,6 +57,7 @@ import { RegExpEmail, RegPhoneNumber } from "../../utils/regExp";
 import { usePermissionHook } from "../../hook/usePermission";
 import SearchResult from "../../components/SearchResult";
 import ReactSelect from "../../components/ReactSelectView";
+import DateTimePickerCustom from "../../components/DateTimePickerCustom";
 
 interface RowDataProps {
   id: number;
@@ -175,6 +176,14 @@ const History = (props: any) => {
         value: filterContext?.phone || "",
       },
       {
+        label: "Từ ngày",
+        value: (filterContext?.formDate && moment(filterContext?.formDate).format("DD/MM/YYYY")) || "",
+      },
+      {
+        label: "Đến ngày",
+        value: (filterContext?.toDate && moment(filterContext?.toDate).format("DD/MM/YYYY")) || "",
+      },
+      {
         label: "Dịch vụ",
         value: getMultiLabel(filterContext.service, "label"),
       },
@@ -203,6 +212,8 @@ const History = (props: any) => {
       email: "",
       service: "",
       status: "",
+      formDate: new Date() || "",
+      toDate: new Date() || "",
     },
   });
 
@@ -261,14 +272,24 @@ const History = (props: any) => {
   };
 
   const handleClearSearch = () => {
-    reset({ name: "", phone: "", email: "", service: "", status: "" });
+    reset({ name: "", phone: "", email: "", service: "", status: "", formDate: "" as any, toDate: "" as any });
   };
 
   const handleRefresh = () => {
     setPage(0);
     setRowsPerPage(10);
-    reset({ name: "", phone: "", email: "", service: "", status: "" });
-    getData({ name: "", phone: "", email: "", service: "", status: "", pageIndex: 0, pageSize: 10 });
+    reset({ name: "", phone: "", email: "", service: "", status: "", formDate: new Date(), toDate: new Date() });
+    getData({
+      name: "",
+      phone: "",
+      email: "",
+      service: "",
+      status: "",
+      formDate: new Date(),
+      toDate: new Date(),
+      pageIndex: 0,
+      pageSize: 10,
+    });
   };
 
   const handleOpenModal = () => {
@@ -295,6 +316,8 @@ const History = (props: any) => {
     const email = !!props && props.hasOwnProperty("email") ? props.email : filterContext?.email || "";
     const service = !!props && props.hasOwnProperty("service") ? props.service : filterContext?.service || "";
     const status = !!props && props.hasOwnProperty("status") ? props.status : filterContext?.status || "";
+    const formDate = !!props && props.hasOwnProperty("formDate") ? props.formDate : filterContext?.formDate || "";
+    const toDate = !!props && props.hasOwnProperty("toDate") ? props.toDate : filterContext?.toDate || "";
     const highlightId = !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
@@ -309,6 +332,8 @@ const History = (props: any) => {
     const filters = {
       unEncoded: { name: name, phone: phone, email: email },
       equals: {
+        formDate: formDate ? moment(formDate).format("YYYY/MM/DD") : "",
+        toDate: toDate ? moment(formDate).format("YYYY/MM/DD") : "",
         statusPayment: status ? getMultiFilter(status, "value") : "",
         service: service ? getMultiFilter(service, "value") : "",
       },
@@ -332,7 +357,7 @@ const History = (props: any) => {
       });
     } finally {
       setLoadingTable(false);
-      setFilterContext({ name, phone, email, service, status });
+      setFilterContext({ name, phone, email, service, status, formDate, toDate });
     }
   };
 
@@ -380,7 +405,7 @@ const History = (props: any) => {
   };
 
   useEffect(() => {
-    getData({});
+    getData({ formDate: new Date(), toDate: new Date() });
   }, []);
 
   return (
@@ -486,6 +511,59 @@ const History = (props: any) => {
                     />
                   </Box>
                 </Grid>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Từ ngày" />
+                    <Controller
+                      control={control}
+                      name="formDate"
+                      render={({ field: { value, onChange } }) => (
+                        <DateTimePickerCustom
+                          inputProps={{
+                            errorMessage: errors?.formDate?.message,
+                          }}
+                          staticDateTimePickerProps={{
+                            views: ["year", "day"],
+                            ampm: true,
+                          }}
+                          value={value}
+                          onChange={(e: any) => {
+                            onChange(e);
+                            setValue("toDate", "" as any);
+                          }}
+                          inputFormat="DD/MM/YYYY"
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={6}>
+                  <Box style={{ marginTop: 2 }}>
+                    <LabelCustom title="Đến ngày" />
+                    <Controller
+                      control={control}
+                      name="toDate"
+                      render={({ field: { value, onChange } }) => (
+                        <DateTimePickerCustom
+                          inputProps={{
+                            errorMessage: errors?.formDate?.message,
+                          }}
+                          staticDateTimePickerProps={{
+                            minDateTime: watch("formDate"),
+                            views: ["year", "day"],
+                            ampm: true,
+                          }}
+                          value={value}
+                          onChange={(e: any) => {
+                            onChange(e);
+                          }}
+                          inputFormat="DD/MM/YYYY"
+                        />
+                      )}
+                    />
+                  </Box>
+                </Grid>
+
                 <Grid item xs={6}>
                   <Box style={{ marginTop: 2 }}>
                     <LabelCustom title="Trạng thái" />
