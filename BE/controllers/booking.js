@@ -31,27 +31,62 @@ export const createBooking = async (req, res, next) => {
       emailCustomer,
       genderCustomer,
       addressCustomer,
+      statusUpdateTime,
+      isAdmin,
     } = data;
+
+    let doctorChange = {};
+
+    if (!doctorId) {
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      const bookings = await Booking.find({
+        date: {
+          $gte: startOfDay,
+          $lte: endOfDay,
+        },
+        status: { $in: ["Waiting", "Approve"] },
+        timeTypeId: timeTypeId,
+      });
+      const groupedBookings = bookings.reduce((acc, booking) => {
+        const doctorId = booking.doctorId;
+        acc[doctorId] = acc[doctorId] ? acc[doctorId] + 1 : 1;
+        return acc;
+      }, {});
+      const sortedBookings = Object.entries(groupedBookings).sort((a, b) => a[1] - b[1]);
+
+      const doctorIdsFromBookings = sortedBookings.map((entry) => entry[0]);
+      const doctorsNotInBookings = await User.find({
+        _id: { $nin: doctorIdsFromBookings },
+        role: "65317023583bf8c93e253b4e",
+      });
+
+      doctorChange = doctorsNotInBookings.length > 0 ? doctorsNotInBookings[0]?._id : minBookingDoctor[0] || undefined;
+    }
 
     const maxAppointmentsPerSlot = 3;
 
-    const existingAppointments = await Booking.find({ doctorId, date, timeTypeId, status: { $ne: "Cancel" } });
-    if (existingAppointments.length >= maxAppointmentsPerSlot) {
-      return res.status(400).json({ message: "Không còn chỗ trống trong khung giờ này." });
+    if (doctorId && timeTypeId && date && !isAdmin) {
+      const existingAppointments = await Booking.find({ doctorId, date, timeTypeId, status: { $ne: "Cancel" } });
+      if (existingAppointments.length >= maxAppointmentsPerSlot) {
+        return res.status(400).json({ message: MESSAGE_ERROR.AVAILABLE_TIME });
+      }
     }
-
     // const existingBooking = await Booking.findOne({ doctorId, date, timeTypeId });
     // if (existingBooking && bookingType === "Online") {
     //   return res.status(400).json({ message: "Cuộc hẹn trùng lặp." });
     // }
     const patient = await User.findById(patientId);
+    const doctor = await User.findById(doctorId || doctorChange, "-description");
 
     const timeType = await TimeType.findById(timeTypeId);
     const servicesDetails = await SubService.find({ _id: { $in: service } });
 
     const newBooking = new Booking({
       patientId,
-      doctorId,
+      doctorId: doctorId || doctorChange,
       date,
       timeTypeId: timeType,
       description,
@@ -65,6 +100,7 @@ export const createBooking = async (req, res, next) => {
       addressCustomer,
       genderCustomer,
       birthdayCustomer,
+      statusUpdateTime,
     });
     await newBooking.save();
     const servicesList = servicesDetails.map((service) => `<li>${service.name}</li>`).join("");
@@ -74,6 +110,7 @@ export const createBooking = async (req, res, next) => {
       html: `
       <h1 style="font-size: 24px; color: #333;"> Bạn đã đặt lịch thành công. Vui lòng kiểm tra lại thông tin lịch hẹn dưới đây</h1>
       <ul>
+        <li style="font-size: larger;"> Tên bác sĩ: ${doctor.name}</li>
         <li style="font-size: larger;"> Tên bệnh nhân: ${newBooking.nameCustomer}  </li>
         <li style="font-size: larger;"> Ngày khám: ${moment(newBooking.date).format("DD/MM/YYYY")}  </li>
         <li style="font-size: larger;"> Giờ vào khám: ${timeType ? timeType.timeSlot : "Không xác định"}  </li>
@@ -91,7 +128,7 @@ export const createBooking = async (req, res, next) => {
       `,
     });
 
-    res.status(200).json({ booking: newBooking });
+    res.status(200).json({ booking: newBooking, doctor });
   } catch (err) {
     next(err);
   }
@@ -370,7 +407,7 @@ export const getBookingUser = async (req, res, next) => {
 
 cron.schedule("0 0 * * *", async () => {
   try {
-    await Booking.updateMany({ date: { $lt: new Date() } }, { $set: { status: "Cancel" } });
+    await Booking.updateMany({ date: { $lt: new Date() }, service: { $ne: "Done" } }, { $set: { status: "Cancel" } });
   } catch (error) {}
 });
 

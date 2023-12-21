@@ -31,6 +31,8 @@ const Dashboard = () => {
   const [timeSelected, setTimeSelected] = useState(TIME_REPORT[2]);
   const [chartDate, setChartDate] = useState([]);
   const [chartData, setChartData] = useState([]);
+  const [amountTotal, setAmountTotal] = useState(0);
+  const [amountService, setAmountService] = useState(0);
 
   const { setToastInformation } = useSetToastInformationState();
 
@@ -63,6 +65,8 @@ const Dashboard = () => {
           borderWidth: 0,
         };
       });
+      setAmountTotal(data?.amount);
+      setAmountService(data?.amountService);
       setChartDate(data?.date);
       setChartData(_item);
     } catch (error: any) {
@@ -143,9 +147,9 @@ const Dashboard = () => {
         <Box p={2}>
           <Stack direction="row" justifyContent="space-between" alignItems="center">
             <Typography fontSize={14} fontWeight={700} textTransform="uppercase" color={"#614c4c"}>
-              Tổng số dịch vụ được sử dụng trong {timeSelected.title}:{" "}
+              Tổng doanh thu dịch vụ đã sử dụng trong {timeSelected.title}:{" "}
               <Typography component="span" fontSize={14} sx={{ color: "#0c9300" }} fontWeight={700}>
-                {numberWithCommas(0)} VND
+                {numberWithCommas(amountTotal)} VND
               </Typography>
             </Typography>
             <Stack direction="row" spacing={2}>
@@ -205,6 +209,12 @@ const Dashboard = () => {
               </Box>
             </Stack>
           </Stack>
+          <Typography fontSize={14} fontWeight={700} textTransform="uppercase" color={"#614c4c"}>
+            Số dịch vụ đã sử dụng trong {timeSelected.title}:{" "}
+            <Typography component="span" fontSize={14} sx={{ color: "#0c9300" }} fontWeight={700}>
+              {numberWithCommas(amountService)}
+            </Typography>
+          </Typography>
           <Box height={400} mt={2}>
             {loadingChart ? (
               <LoadingIcon />

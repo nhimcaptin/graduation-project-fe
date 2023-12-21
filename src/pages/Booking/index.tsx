@@ -295,7 +295,7 @@ const Booking = (props: any) => {
   const confirmBooking = async (id: any) => {
     setLoadingScreen(true);
     try {
-      const dateHour = selectedItem?.timeSlot && selectedItem?.timeSlot.split("-")[1];
+      const dateHour = selectedItem?.timeTypeId?.timeSlot && selectedItem?.timeTypeId?.timeSlot.split("-")[0];
       const date = dateHour
         ? `${moment(selectedItem?.date).format("YYYY-MM-DD")} ${dateHour}`
         : moment(new Date()).format("YYYY-MM-DD HH:mm");

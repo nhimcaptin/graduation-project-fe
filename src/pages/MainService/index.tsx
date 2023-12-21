@@ -32,7 +32,7 @@ import { StickyTableCell } from "../../components/StickyTableCell";
 import TextFieldCustom from "../../components/TextFieldCustom";
 import DISPLAY_TEXTS from "../../consts/display-texts";
 import { MESSAGES_CONFIRM, MESSAGE_SUCCESS } from "../../consts/messages";
-import { STATUS_TOAST } from "../../consts/statusCode";
+import { STATUS_TOAST, statusOptionsActive } from "../../consts/statusCode";
 import { useSetToastInformationState } from "../../redux/store/ToastMessage";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
 import { useSetLoadingScreenState } from "../../redux/store/loadingScreen";
@@ -44,6 +44,7 @@ import { Order } from "../../utils/sortTable";
 import AddMainService from "./components/AddMainService";
 import styles from "./styles.module.scss";
 import { usePermissionHook } from "../../hook/usePermission";
+import ChipCustom from "../../components/ChipCustom";
 
 interface RowDataProps {
   id: number;
@@ -60,7 +61,11 @@ const headCells = [
   {
     label: "Tên danh mục",
     sort: "name",
-    style: { width: "75%" },
+    style: { width: "55%" },
+  },
+  {
+    label: "Trạng thái",
+    style: { width: "20%" },
   },
   {
     label: "Ngày tạo",
@@ -245,6 +250,54 @@ const MainService = (props: any) => {
     }
   };
 
+  const handleActionActive = (isCheck?: any) => {
+    setAnchorEl(null);
+    setIsViewMode(false);
+    if (isCheck) {
+      handleActive();
+    } else {
+      handleInActive();
+    }
+  };
+
+  const handleActive = async () => {
+    setLoadingScreen(true);
+    try {
+      await apiService.get(`${URL_PATHS.ACTIVE_MAIN_SERVICE}/${selectedItem?._id}`);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: MESSAGE_SUCCESS.UPDATE_STATUS_SERVICE,
+      });
+      getData && getData({});
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
+  };
+
+  const handleInActive = async () => {
+    setLoadingScreen(true);
+    try {
+      await apiService.get(`${URL_PATHS.INACTIVE_MAIN_SERVICE}/${selectedItem?._id}`);
+      setToastInformation({
+        status: STATUS_TOAST.SUCCESS,
+        message: MESSAGE_SUCCESS.UPDATE_STATUS_SERVICE,
+      });
+      getData && getData({});
+    } catch (error: any) {
+      setToastInformation({
+        status: STATUS_TOAST.ERROR,
+        message: handleErrorMessage(error),
+      });
+    } finally {
+      setLoadingScreen(false);
+    }
+  };
+
   const getData = async (props: any) => {
     setLoadingTable(true);
     const pageSize = !!props && props.hasOwnProperty("pageSize") ? props.pageSize || 0 : rowsPerPage;
@@ -417,6 +470,7 @@ const MainService = (props: any) => {
             ) : mainServiceState && mainServiceState.length > 0 ? (
               <>
                 {mainServiceState.map((data: any, index: number) => {
+                  const statusContext: any = statusOptionsActive.find((_xs: any) => _xs.value === data?.status);
                   return (
                     <TableRow
                       key={index}
@@ -424,6 +478,9 @@ const MainService = (props: any) => {
                       className={clsx(styles.stickyTableRow, { "highlight-row": data?.isHighlight })}
                     >
                       <TableCell>{data.name}</TableCell>
+                      <TableCell className="">
+                        <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />
+                      </TableCell>
                       <TableCell>{moment(data.createdAt).format(FORMAT_DATE)}</TableCell>
                       <TableCell>
                         <IconButton aria-label="more" onClick={(e) => handleOpenMenuAction(e, data)}>
@@ -465,7 +522,9 @@ const MainService = (props: any) => {
           <MenuListActions
             actionView={handleView}
             actionEdit={hasUpdate ? () => handleEdit() : undefined}
-            actionDelete={hasDelete ? () => handleDelete() : undefined}
+            // actionDelete={hasDelete ? () => handleDelete() : undefined}
+            actionActive={hasUpdate && selectedItem?.status == "Inactive" ? () => handleActionActive(true) : undefined}
+            actionInActive={hasUpdate && selectedItem?.status == "Active" ? () => handleActionActive() : undefined}
           />
         </Popover>
       </IF>

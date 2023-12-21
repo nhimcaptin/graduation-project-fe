@@ -16,7 +16,6 @@ interface MenuListActionsProps {
   actionNote?: (param: any) => void | undefined;
   actionView?: (param: any) => void | undefined;
   actionDelete?: (param: any) => void | undefined;
-  actionActive?: (param: any) => void | undefined;
   actionShowReview?: (param: any) => void;
   actionConfirm?: (param: any) => void;
   actionComeCheck?: (param: any) => void;
@@ -27,6 +26,8 @@ interface MenuListActionsProps {
   actionDuplicate?: (param: any) => any;
   actionHistory?: (param: any) => any;
   actionCancel?: (param: any) => any;
+  actionInActive?: (param: any) => void | undefined;
+  actionActive?: (param: any) => void | undefined;
   dataSelected?: any;
 }
 
@@ -37,6 +38,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
     actionNote,
     actionDelete,
     actionActive,
+    actionInActive,
     dataSelected,
     actionShowReview,
     actionConfirm,
@@ -99,7 +101,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
       action: actionShowReview,
     },
     {
-      icon: <CheckIcon className="icon-view" sx={{ color: "green" }}/>,
+      icon: <CheckIcon className="icon-view" sx={{ color: "green" }} />,
       label: "Xác nhận tới khám",
       action: actionConfirm,
     },
@@ -129,10 +131,20 @@ const MenuListActions = (props: MenuListActionsProps) => {
       action: actionHistory,
     },
     {
-      icon: dataSelected?.status === STATUS_VALUE.ACTIVE || dataSelected?.isActive ? <LockIcon /> : <LockOpenIcon />,
-      label: dataSelected?.status === STATUS_VALUE.ACTIVE || dataSelected?.isActive ? "Hủy kích hoạt" : "Kích hoạt",
+      icon: <LockIcon />,
+      label: "Hủy kích hoạt",
+      action: actionInActive,
+    },
+    {
+      icon: <LockOpenIcon />,
+      label: "Kích hoạt",
       action: actionActive,
     },
+    // {
+    //   icon: dataSelected?.status === STATUS_VALUE.ACTIVE || dataSelected?.isActive ? <LockIcon /> : <LockOpenIcon />,
+    //   label: dataSelected?.status === STATUS_VALUE.ACTIVE || dataSelected?.isActive ? "Hủy kích hoạt" : "Kích hoạt",
+    //   action: actionActive,
+    // },
   ];
 
   return (

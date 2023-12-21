@@ -15,6 +15,8 @@ import Voucher from "./../assets/icons/loyalty.svg";
 import Entrance from "./../assets/icons/entrance-alt1.svg";
 import eyes from "./../assets/icons/icon-eyes.svg";
 import eyesHidden from "./../assets/icons/icon-eyes-hidden.svg";
+import ActiveIcon from "./../assets/icons/active.svg";
+import InActiveIcon from "./../assets/icons/inactive.svg";
 
 const Icons = {
   IconUser,
@@ -33,7 +35,9 @@ const Icons = {
   Voucher,
   Entrance,
   eyes,
-  eyesHidden
+  eyesHidden,
+  ActiveIcon,
+  InActiveIcon
 };
 
 export default Icons;

@@ -83,3 +83,16 @@ export const statusOptionsPayment: IStatusType[] = [
     chipType: STATUS_CHIP.INACTIVE,
   },
 ];
+
+export const statusOptionsActive: IStatusType[] = [
+  {
+    label: "Kích hoạt",
+    value: "Active",
+    chipType: STATUS_CHIP.ACTIVE,
+  },
+  {
+    label: "Hủy kích hoạt",
+    value: "Inactive",
+    chipType: STATUS_CHIP.INACTIVE,
+  },
+];

@@ -40,7 +40,7 @@ const HistoryBookingSchema = new mongoose.Schema(
         ref: "SubService",
       },
     ],
-    totalAmount:{
+    totalAmount: {
       type: String,
     },
     statusPayment: {
@@ -55,6 +55,9 @@ const HistoryBookingSchema = new mongoose.Schema(
     bookingId: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "Booking",
+    },
+    urlPdf: {
+      type: String,
     },
   },
   { timestamps: true }

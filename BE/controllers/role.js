@@ -93,7 +93,30 @@ export const resourceActions = async (req, res) => {
     const _action = await Action.find();
     const _resourceActions = _resource.map((x) => {
       const filterAction = _action.filter((y) => {
-        if (y?.code === "Export") return ["User", "Staff"].includes(x?.code);
+        if (y?.code === "Delete")
+          return ![
+            "Booking",
+            "LoginAdmin",
+            "QueueList",
+            "MedicalExaminationNotes",
+            "Role",
+            "MainService",
+            "SubServices",
+            "Dashboard",
+          ].includes(x?.code);
+        if (y?.code === "Create")
+          return ![
+            "LoginAdmin",
+            "QueueList",
+            "MedicalExaminationNotes",
+            "Role",
+            "Dashboard",
+          ].includes(x?.code);
+        if (y?.code === "Update")
+          return ![
+            "LoginAdmin",
+            "Dashboard",
+          ].includes(x?.code);
         if (y?.code !== "LoginAdmin") {
           if (x?.code === "LoginAdmin") return false;
           return true;

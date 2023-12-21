@@ -32,6 +32,7 @@ export const MESSAGE_SUCCESS: any = {
   CREATE_MAIN_SERVICE: "Tạo mới danh mục dịch vụ thành công",
   EDIT_MAIN_SERVICE: "Sửa danh mục dịch vụ thành công",
   DELETE_MAIN_SERVICE: "Xóa danh mục dịch vụ thành công",
+  UPDATE_STATUS_SERVICE: "Cập nhật trạng thái thành công",
 
   CREATE_SUB_SERVICE: "Tạo mới dịch vụ thành công",
   EDIT_SUB_SERVICE: "Sửa dịch vụ thành công",
@@ -62,7 +63,11 @@ export const MESSAGE_ERROR_API: any = {
   WRONG_ACCOUNT_CHANGE: "Mật khẩu hiện tại không đúng vui lòng nhập lại.",
   QRBankTransfer: 'Vui lòng kiếm tra lại thông tin tài khoản ngân hàng',
   NOT_PERMISSIONS: "Bạn không phải là quản trị viên",
-  DOCTOR_EXAMINING: "Bác sĩ đang khám cho bệnh nhân khác."
+  DOCTOR_EXAMINING: "Bác sĩ đang khám cho bệnh nhân khác.",
+  AVAILABLE_TIME: "Không còn chỗ trống trong khung giờ này.",
+  MAIN_SERVICE_NOT_FOUND: "Không tìm thấy danh mục dịch vụ.",
+  SUB_SERVICE_NOT_FOUND: "Không tìm thấy dịch vụ.",
+  MAIN_SERVICE_NOT_ACTIVE: "Vui lòng kích hoạt danh mục dịch vụ trước."
 };
 
 export const MESSAGES_CONFIRM = {
