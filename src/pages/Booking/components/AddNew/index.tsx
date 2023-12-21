@@ -108,6 +108,7 @@ const AddUser = (props: PropsType) => {
       genderCustomer: data?.setType ? data?.genderCustomer?.value : "",
       addressCustomer: data?.setType ? data?.addressCustomer : "",
       setType: data?.setType ? data?.setType : "",
+      isAdmin: true,
     };
     setLoadingScreen(true);
     try {

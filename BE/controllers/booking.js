@@ -31,6 +31,8 @@ export const createBooking = async (req, res, next) => {
       emailCustomer,
       genderCustomer,
       addressCustomer,
+      statusUpdateTime,
+      isAdmin
     } = data;
 
     let doctorChange = {};
@@ -53,7 +55,7 @@ export const createBooking = async (req, res, next) => {
 
     const maxAppointmentsPerSlot = 3;
 
-    if (doctorId && timeTypeId && date) {
+    if (doctorId && timeTypeId && date && !isAdmin) {
       const existingAppointments = await Booking.find({ doctorId, date, timeTypeId, status: { $ne: "Cancel" } });
       if (existingAppointments.length >= maxAppointmentsPerSlot) {
         return res.status(400).json({ message: MESSAGE_ERROR.AVAILABLE_TIME });
@@ -85,6 +87,7 @@ export const createBooking = async (req, res, next) => {
       addressCustomer,
       genderCustomer,
       birthdayCustomer,
+      statusUpdateTime
     });
     await newBooking.save();
     const servicesList = servicesDetails.map((service) => `<li>${service.name}</li>`).join("");

@@ -200,7 +200,7 @@ const BookingDoctor = () => {
     const params = {
       Page: pageIndex + 1,
       PageSize: pageSize,
-      Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
+      Sorts: "statusUpdateTime",
     };
 
     const filters = { unEncoded: { name: name, phone: phone, email: email }, equals: { status: "Approved" } };
