@@ -379,7 +379,7 @@ const BookingDoctor = () => {
                       >
                         <TableCell>{data?.setType ? data?.nameCustomer : data?.patientId?.name}</TableCell>
                         <TableCell>{data?.doctorId?.name}</TableCell>
-                        <TableCell>{data.bookingType}</TableCell>
+                        <TableCell>{data.bookingType == "Online" ? "Đặt lịch trước" : data.bookingType}</TableCell>
                         <TableCell className="">{data?.service}</TableCell>
                         <TableCell className="">
                           <Tooltip title="Khám xong">
@@ -485,7 +485,7 @@ const BookingDoctor = () => {
                       <TableCell>{page * rowsPerPage + index + 1}</TableCell>
                       <TableCell>{data?.setType ? data?.nameCustomer : data?.patientId?.name}</TableCell>
                       <TableCell>{data?.doctorId?.name}</TableCell>
-                      <TableCell>{data.bookingType}</TableCell>
+                      <TableCell>{data.bookingType == "Online" ? "Đặt lịch trước" : data.bookingType}</TableCell>
                       <TableCell className="">{data?.service}</TableCell>
                       <TableCell className="">
                         <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />

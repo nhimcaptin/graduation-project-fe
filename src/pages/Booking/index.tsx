@@ -782,7 +782,7 @@ const Booking = (props: any) => {
                           (!data.setType && "Đặt cho mình") ||
                           ""}
                       </TableCell>
-                      <TableCell>{data.bookingType}</TableCell>
+                      <TableCell>{data.bookingType == "Online" ? "Đặt lịch trước" : data.bookingType}</TableCell>
                       <TableCell className="">{data?.service}</TableCell>
                       <TableCell>
                         {data?.timeTypeId?.timeSlot

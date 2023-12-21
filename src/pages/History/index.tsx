@@ -675,7 +675,7 @@ const History = (props: any) => {
                       <TableCell>{data?.doctorId?.name}</TableCell>
                       <TableCell>{data.phone}</TableCell>
                       <TableCell>{data.email}</TableCell>
-                      <TableCell>{data.bookingType}</TableCell>
+                      <TableCell>{data.bookingType == "Online" ? "Đặt lịch trước" : data.bookingType}</TableCell>
                       <TableCell className="">{data?.service}</TableCell>
                       <TableCell className="">
                         <ChipCustom label={statusContext.label} chipType={statusContext.chipType} />

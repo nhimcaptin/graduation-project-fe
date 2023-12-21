@@ -381,14 +381,13 @@ export const getBookingUser = async (req, res, next) => {
     const page = parseInt(Page) || 1;
     const pageSize = parseInt(PageSize) || 10;
     const _filter = convertFilter(filters);
-    if (_filter?.name) {
-      _filter.$or = [
-        { patientId: { $in: _filter?._id } },
-        { emailCustomer: _filter?.email },
-        { numberPhoneCustomer: _filter?.phone },
-      ];
-    }
-    const booking = await Booking.find(_filter)
+    const __filters = {};
+    __filters.$or = [
+      { patientId: { $in: _filter?.patientId } },
+      { emailCustomer: _filter?.emailCustomer },
+      { numberPhoneCustomer: _filter?.numberPhoneCustomer },
+    ];
+    const booking = await Booking.find(__filters)
       .populate("doctorId", "-password")
       .populate("patientId", "-password")
       .populate("timeTypeId")
@@ -396,7 +395,7 @@ export const getBookingUser = async (req, res, next) => {
       .skip((page - 1) * pageSize)
       .limit(pageSize)
       .sort("-createdAt");
-    const total = await Booking.find(_filter);
+    const total = await Booking.find(__filters);
     const totalUsers = total.length;
     res.status(200).json({ data: booking, totalUsers });
   } catch (err) {

@@ -31,7 +31,7 @@
 }
 
 .sidebar-menu {
-  padding: 20px 0;
+  padding: 0px 0 0 20px;
 
   ul {
     font-size: 15px;
@@ -402,6 +402,9 @@
 
 .logo-company {
   text-align: center;
-  padding: 25px 0px 19px;
+  padding: 25px 0px 0px;
   cursor: pointer;
+  img{
+    width: 100%;
+  }
 }

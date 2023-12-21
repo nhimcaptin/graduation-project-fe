@@ -45,7 +45,7 @@ const AddUser = (props: PropsType) => {
   const dataType = [
     {
       value: "Online",
-      label: "Online",
+      label: "Đặt lịch trước",
     },
     {
       value: "Offline",
