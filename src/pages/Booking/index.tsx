@@ -405,8 +405,8 @@ const Booking = (props: any) => {
       name: searchText,
     };
     try {
-      const res: any = await await apiService.getFilter(URL_PATHS.GET_LIST_MAIN_SERVICE, params, filters);
-      const resultItems: any[] = res?.mainServices;
+      const res: any = await await apiService.getFilter(URL_PATHS.GET_LIST_SUB_SERVICE, params, filters);
+      const resultItems: any[] = res?.getSubservice;
       if (resultItems.length >= 0) {
         const items: any[] = resultItems.map((item) => {
           const result = {
