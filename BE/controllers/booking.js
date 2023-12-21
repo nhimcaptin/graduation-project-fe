@@ -391,7 +391,7 @@ export const getBookingUser = async (req, res, next) => {
 
 cron.schedule("0 0 * * *", async () => {
   try {
-    await Booking.updateMany({ date: { $lt: new Date() } }, { $set: { status: "Cancel" } });
+    await Booking.updateMany({ date: { $lt: new Date() }, service: { $ne: "Done" }}, { $set: { status: "Cancel" } });
   } catch (error) {}
 });
 

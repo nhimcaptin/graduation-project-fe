@@ -1,28 +1,36 @@
 import moment from "moment";
 import Booking from "../models/Booking.js";
 import User from "../models/User.js";
+import HistoryBooking from "../models/HistoryBooking.js";
 
 export const getDataDashboard = async (req, res, next) => {
   try {
     const { fromDate, toDate } = req.query;
 
-    const Bookings = await Booking.find({
+    const Bookings = await HistoryBooking.find({
       status: "Done",
-      statusUpdateTime: { $gte: new Date(fromDate), $lte: new Date(toDate) },
+      createdAt: { $gte: new Date(fromDate), $lte: new Date(toDate) },
       service: { $ne: null },
     })
       .populate("service")
-      .sort({ statusUpdateTime: 1 });
+      .sort({ createdAt: 1 });
 
     const obj = {};
+    let amount = 0;
+    let amountService = 0;
     Bookings.forEach((x) => {
-      const { statusUpdateTime } = x;
-      const id = moment(statusUpdateTime).format("DD-MM-YYYY");
-      if (obj[id]) {
-        obj[id].push(x._doc);
-      } else {
-        obj[id] = [{ ...x._doc }];
-      }
+      const { createdAt } = x;
+      const id = moment(createdAt).format("DD-MM-YYYY");
+      x?.service.forEach((_service) => {
+        amount += Number(_service?.price || 0);
+        amountService++;
+        if (obj[id]) {
+          x._doc.service = _service;
+          obj[id].push(x._doc);
+        } else {
+          obj[id] = [{ ...x._doc, service: _service }];
+        }
+      });
     });
 
     let numberMax = Object.keys(obj).length;
@@ -50,7 +58,7 @@ export const getDataDashboard = async (req, res, next) => {
       });
     });
 
-    res.status(200).json({ item: Object.values(item), date: Object.keys(obj) });
+    res.status(200).json({ item: Object.values(item), date: Object.keys(obj), amount, amountService });
   } catch (error) {
     next(error);
   }
