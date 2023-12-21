@@ -390,6 +390,10 @@ const ReceptionistNote = () => {
             <LabelCustom title="Dịch vụ tái khám" />
             <Controller
               control={control}
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
+              shouldUnregister
               name="mainServicerReExamination"
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <ReactSelect
