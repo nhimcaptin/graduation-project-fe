@@ -33,25 +33,45 @@ export const createBooking = async (req, res, next) => {
       addressCustomer,
     } = data;
 
-    const maxAppointmentsPerSlot = 3;
+    let doctorChange = {};
 
-    const existingAppointments = await Booking.find({ doctorId, date, timeTypeId, status: { $ne: "Cancel" } });
-    if (existingAppointments.length >= maxAppointmentsPerSlot) {
-      return res.status(400).json({ message: "Không còn chỗ trống trong khung giờ này." });
+    if (!doctorId) {
+      const minBookingDoctor = await Booking.aggregate([
+        {
+          $group: {
+            _id: "$doctorId",
+            count: { $sum: 1 },
+          },
+        },
+        {
+          $sort: { count: 1 },
+        },
+      ]);
+      doctorChange = minBookingDoctor.length > 0 ? minBookingDoctor[0] : undefined;
     }
 
+
+    const maxAppointmentsPerSlot = 3;
+
+    if (doctorId && timeTypeId && date) {
+      const existingAppointments = await Booking.find({ doctorId, date, timeTypeId, status: { $ne: "Cancel" } });
+      if (existingAppointments.length >= maxAppointmentsPerSlot) {
+        return res.status(400).json({ message: MESSAGE_ERROR.AVAILABLE_TIME });
+      }
+    }
     // const existingBooking = await Booking.findOne({ doctorId, date, timeTypeId });
     // if (existingBooking && bookingType === "Online") {
     //   return res.status(400).json({ message: "Cuộc hẹn trùng lặp." });
     // }
     const patient = await User.findById(patientId);
+    const doctor = await User.findById(doctorId || doctorChange, "-description");
 
     const timeType = await TimeType.findById(timeTypeId);
     const servicesDetails = await SubService.find({ _id: { $in: service } });
 
     const newBooking = new Booking({
       patientId,
-      doctorId,
+      doctorId: doctorId || doctorChange,
       date,
       timeTypeId: timeType,
       description,
@@ -74,6 +94,7 @@ export const createBooking = async (req, res, next) => {
       html: `
       <h1 style="font-size: 24px; color: #333;"> Bạn đã đặt lịch thành công. Vui lòng kiểm tra lại thông tin lịch hẹn dưới đây</h1>
       <ul>
+        <li style="font-size: larger;"> Tên bác sĩ: ${doctor.name}</li>
         <li style="font-size: larger;"> Tên bệnh nhân: ${newBooking.nameCustomer}  </li>
         <li style="font-size: larger;"> Ngày khám: ${moment(newBooking.date).format("DD/MM/YYYY")}  </li>
         <li style="font-size: larger;"> Giờ vào khám: ${timeType ? timeType.timeSlot : "Không xác định"}  </li>
@@ -91,7 +112,7 @@ export const createBooking = async (req, res, next) => {
       `,
     });
 
-    res.status(200).json({ booking: newBooking });
+    res.status(200).json({ booking: newBooking, doctor });
   } catch (err) {
     next(err);
   }
