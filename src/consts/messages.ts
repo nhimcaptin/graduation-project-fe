@@ -50,6 +50,10 @@ export const MESSAGE_SUCCESS: any = {
   CREATE_KNOWLEDGE: "Tạo mới kiến thức nha khoa thành công",
   EDIT_KNOWLEDGE: "Sửa kiến thức nha khoa thành công",
   DELETE_KNOWLEDGE: "Xóa kiến thức nha khoa thành công",
+  
+  CREATE_COMMENT: "Tạo mới bình luận thành công",
+  EDIT_COMMENT: "Sửa bình luận thành công",
+  DELETE_COMMENT: "Xóa bình luận thành công",
 };
 
 export const MESSAGE_ERROR_API: any = {
@@ -74,5 +78,6 @@ export const MESSAGES_CONFIRM = {
   DeleteVoucher: "Bạn có chắc muốn xóa ưu đãi này? Ưu đãi đã xóa không thể khôi phục lại.",
   DeleteNew: "Bạn có chắc muốn xóa tin tức này? Tin tức đã xóa không thể khôi phục lại.",
   DeleteKnowledge: "Bạn có chắc muốn xóa kiến thức nha khoa này? Kiến thức nha khoa đã xóa không thể khôi phục lại.",
+  DeleteComment: "Bạn có chắc muốn xóa bình luận này? Bình luận đã xóa không thể khôi phục lại.",
   CancelBooking: "Bạn có chắc muốn hủy lịch khám nào? Lịch khám đã hủy không thể khôi phục lại.",
 };

@@ -21,7 +21,8 @@ const ROUTERS_PATHS = {
   TEST: "/test",
   REST_PASSWORD: "/reset-password",
   NEW:"/news",
-  DENTAL_KNOWLEDGE:"/dental-knowledge"
+  DENTAL_KNOWLEDGE:"/dental-knowledge",
+  COMMENT:"/comment"
 };
 
 export default ROUTERS_PATHS;
