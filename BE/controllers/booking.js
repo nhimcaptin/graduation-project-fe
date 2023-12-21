@@ -32,26 +32,39 @@ export const createBooking = async (req, res, next) => {
       genderCustomer,
       addressCustomer,
       statusUpdateTime,
-      isAdmin
+      isAdmin,
     } = data;
 
     let doctorChange = {};
 
     if (!doctorId) {
-      const minBookingDoctor = await Booking.aggregate([
-        {
-          $group: {
-            _id: "$doctorId",
-            count: { $sum: 1 },
-          },
+      const startOfDay = new Date(date);
+      startOfDay.setHours(0, 0, 0, 0);
+      const endOfDay = new Date(date);
+      endOfDay.setHours(23, 59, 59, 999);
+      const bookings = await Booking.find({
+        date: {
+          $gte: startOfDay,
+          $lte: endOfDay,
         },
-        {
-          $sort: { count: 1 },
-        },
-      ]);
-      doctorChange = minBookingDoctor.length > 0 ? minBookingDoctor[0] : undefined;
-    }
+        status: { $in: ["Waiting", "Approve"] },
+        timeTypeId: timeTypeId,
+      });
+      const groupedBookings = bookings.reduce((acc, booking) => {
+        const doctorId = booking.doctorId;
+        acc[doctorId] = acc[doctorId] ? acc[doctorId] + 1 : 1;
+        return acc;
+      }, {});
+      const sortedBookings = Object.entries(groupedBookings).sort((a, b) => a[1] - b[1]);
 
+      const doctorIdsFromBookings = sortedBookings.map((entry) => entry[0]);
+      const doctorsNotInBookings = await User.find({
+        _id: { $nin: doctorIdsFromBookings },
+        role: "65317023583bf8c93e253b4e",
+      });
+
+      doctorChange = doctorsNotInBookings.length > 0 ? doctorsNotInBookings[0]?._id : minBookingDoctor[0] || undefined;
+    }
 
     const maxAppointmentsPerSlot = 3;
 
@@ -87,7 +100,7 @@ export const createBooking = async (req, res, next) => {
       addressCustomer,
       genderCustomer,
       birthdayCustomer,
-      statusUpdateTime
+      statusUpdateTime,
     });
     await newBooking.save();
     const servicesList = servicesDetails.map((service) => `<li>${service.name}</li>`).join("");
@@ -394,7 +407,7 @@ export const getBookingUser = async (req, res, next) => {
 
 cron.schedule("0 0 * * *", async () => {
   try {
-    await Booking.updateMany({ date: { $lt: new Date() }, service: { $ne: "Done" }}, { $set: { status: "Cancel" } });
+    await Booking.updateMany({ date: { $lt: new Date() }, service: { $ne: "Done" } }, { $set: { status: "Cancel" } });
   } catch (error) {}
 });
 
