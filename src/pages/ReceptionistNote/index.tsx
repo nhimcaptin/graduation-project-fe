@@ -387,7 +387,7 @@ const ReceptionistNote = () => {
       {isCheck && (
         <Grid container item xs={12} sx={{ marginTop: "5px" }}>
           <Grid item xs={2.5}>
-            <LabelCustom title="Dịch vụ tái khám" />
+            <LabelCustom title="Dịch vụ tái khám" isRequired/>
             <Controller
               control={control}
               rules={{
@@ -411,6 +411,7 @@ const ReceptionistNote = () => {
                   maxMenuHeight={200}
                   placeholder="Chọn dịch vụ tái khám"
                   inputRef={ref}
+                  isValidationFailed
                   errorMessage={errors?.mainServicerReExamination?.message as string}
                   menuPlacement="top"
                 />
