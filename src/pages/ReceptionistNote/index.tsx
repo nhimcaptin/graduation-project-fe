@@ -248,7 +248,7 @@ const ReceptionistNote = () => {
     const data = {
       accountNo: "1014543955",
       accountName: "TRAN DANH DOANH",
-      acqId: 970415,
+      acqId: 970436,
       amount: moenyService,
       addInfo: `DTTD_${params?.id}_DTTD`,
       format: "text",
