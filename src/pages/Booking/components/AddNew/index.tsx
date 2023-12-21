@@ -401,6 +401,9 @@ const AddUser = (props: PropsType) => {
             <LabelCustom title="Dịch vụ" />
             <Controller
               control={control}
+              rules={{
+                required: MESSAGE_ERROR.fieldRequired,
+              }}
               name="mainService"
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <ReactSelect
@@ -418,6 +421,7 @@ const AddUser = (props: PropsType) => {
                   placeholder="Chọn dịch vụ"
                   inputRef={ref}
                   isDisabled={!isEdit}
+                  isValidationFailed
                   errorMessage={errors?.mainService?.message as string}
                   menuPlacement="top"
                 />

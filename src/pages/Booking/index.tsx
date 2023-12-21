@@ -372,7 +372,7 @@ const Booking = (props: any) => {
       unEncoded: { name: name, numberPhoneCustomer: numberPhoneCustomer, emailCustomer: emailCustomer },
       equals: {
         formDate: formDate ? moment(formDate).format("YYYY/MM/DD") : "",
-        toDate: toDate ? moment(formDate).format("YYYY/MM/DD") : "",
+        toDate: toDate ? moment(toDate).format("YYYY/MM/DD") : "",
         status: status ? getMultiFilter(status, "value") : "",
         service: service ? getMultiFilter(service, "value") : "",
       },
@@ -840,7 +840,7 @@ const Booking = (props: any) => {
                 : undefined
             }
             actionCancel={
-              selectedItem?.status != "Cancel" && hasUpdate && moment(new Date()).isBefore(selectedItem?.date, "date")
+              selectedItem?.status != "Cancel" && selectedItem?.setType == "Migrant" && hasUpdate && moment(new Date()).isBefore(selectedItem?.date, "date")
                 ? () => handleDelete()
                 : undefined
             }

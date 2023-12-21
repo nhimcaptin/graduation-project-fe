@@ -14,7 +14,6 @@ export const getListHistory = async (req, res, next) => {
     let createdAt = _filter?.date;
     createdAt && (_filter.createdAt = createdAt);
     delete _filter.date;
-    console.log("_filter", _filter)
     const historyBooking = await HistoryBooking.find(_filter)
       .populate("service")
       .populate("doctorId")

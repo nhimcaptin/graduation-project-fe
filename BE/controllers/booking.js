@@ -237,7 +237,6 @@ export const getUserAndBookings = async (req, res, next) => {
     const userId = req.params.id;
 
     const user = await User.findById(userId);
-    console.log(userId);
     if (!user) {
       return res.status(401).json({ message: "không tìm thấy người dùng" });
     }

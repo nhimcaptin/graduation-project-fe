@@ -333,7 +333,7 @@ const History = (props: any) => {
       unEncoded: { name: name, phone: phone, email: email },
       equals: {
         formDate: formDate ? moment(formDate).format("YYYY/MM/DD") : "",
-        toDate: toDate ? moment(formDate).format("YYYY/MM/DD") : "",
+        toDate: toDate ? moment(toDate).format("YYYY/MM/DD") : "",
         statusPayment: status ? getMultiFilter(status, "value") : "",
         service: service ? getMultiFilter(service, "value") : "",
       },
