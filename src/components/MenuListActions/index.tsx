@@ -27,6 +27,7 @@ interface MenuListActionsProps {
   actionDuplicate?: (param: any) => any;
   actionHistory?: (param: any) => any;
   actionCancel?: (param: any) => any;
+  actionInActive?: (param: any) => any;
   dataSelected?: any;
 }
 
@@ -37,6 +38,7 @@ const MenuListActions = (props: MenuListActionsProps) => {
     actionNote,
     actionDelete,
     actionActive,
+    actionInActive,
     dataSelected,
     actionShowReview,
     actionConfirm,
@@ -129,10 +131,20 @@ const MenuListActions = (props: MenuListActionsProps) => {
       action: actionHistory,
     },
     {
-      icon: dataSelected?.status === STATUS_VALUE.ACTIVE || dataSelected?.isActive ? <LockIcon /> : <LockOpenIcon />,
-      label: dataSelected?.status === STATUS_VALUE.ACTIVE || dataSelected?.isActive ? "Hủy kích hoạt" : "Kích hoạt",
+      icon: <LockIcon />,
+      label: "Hủy kích hoạt",
       action: actionActive,
     },
+    {
+      icon: <LockOpenIcon />,
+      label: "Kích hoạt",
+      action: actionInActive,
+    },
+    // {
+    //   icon: dataSelected?.status === STATUS_VALUE.ACTIVE || dataSelected?.isActive ? <LockIcon /> : <LockOpenIcon />,
+    //   label: dataSelected?.status === STATUS_VALUE.ACTIVE || dataSelected?.isActive ? "Hủy kích hoạt" : "Kích hoạt",
+    //   action: actionActive,
+    // },
   ];
 
   return (

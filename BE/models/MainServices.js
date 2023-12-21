@@ -1,21 +1,25 @@
 import mongoose from "mongoose";
 const MainServiceSchema = new mongoose.Schema(
   {
-    name: { 
-      type: String, 
-      required: true 
+    name: {
+      type: String,
+      required: true,
     },
     description: {
       type: String,
-      require: true
+      require: true,
     },
     descriptionMain: {
       type: String,
-      require: true
+      require: true,
     },
-    image: { 
-      type: String
-    }
+    status: {
+      type: String,
+      default: "Inactive",
+    },
+    image: {
+      type: String,
+    },
   },
   { timestamps: true }
 );

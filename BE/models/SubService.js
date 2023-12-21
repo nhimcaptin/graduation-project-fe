@@ -41,6 +41,10 @@ const SubServiceSchema = new mongoose.Schema(
       type: String,
       // require: true,
     },
+    status: {
+      type: String,
+      default: "Inactive",
+    },
   },
   { timestamps: true }
 );

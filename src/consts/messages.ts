@@ -59,7 +59,8 @@ export const MESSAGE_ERROR_API: any = {
   QRBankTransfer: 'Vui lòng kiếm tra lại thông tin tài khoản ngân hàng',
   NOT_PERMISSIONS: "Bạn không phải là quản trị viên",
   DOCTOR_EXAMINING: "Bác sĩ đang khám cho bệnh nhân khác.",
-  AVAILABLE_TIME: "Không còn chỗ trống trong khung giờ này."
+  AVAILABLE_TIME: "Không còn chỗ trống trong khung giờ này.",
+  MAIN_SERVICE_NOT_FOUND: "Không tìm thấy danh mục dịch vụ"
 };
 
 export const MESSAGES_CONFIRM = {
