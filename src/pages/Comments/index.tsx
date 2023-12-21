@@ -6,6 +6,7 @@ import {
   IconButton,
   Paper,
   Popover,
+  Rating,
   Table,
   TableBody,
   TableCell,
@@ -44,7 +45,7 @@ import { useSetToastInformationState } from "../../redux/store/ToastMessage";
 import { STATUS_TOAST } from "../../consts/statusCode";
 import { handleErrorMessage } from "../../utils/errorMessage";
 import moment from "moment";
-import AddUser from "./components/AddUser";
+import AddUser from "./components/AddEditComment";
 import { useSetConfirmModalState } from "../../redux/store/confirmModal";
 import {
   MESSAGES_CONFIRM,
@@ -58,12 +59,16 @@ import ReactSelect from "../../components/ReactSelectView";
 import { RegExpEmail, RegPhoneNumber } from "../../utils/regExp";
 import { usePermissionHook } from "../../hook/usePermission";
 import SearchResult from "../../components/SearchResult";
+import { BASE_URL } from "../../services/base-url";
+import AddEditComment from "./components/AddEditComment";
 
 interface RowDataProps {
   id: number;
   name: string;
+  comment: string;
+  rate: number | string;
+  role: number | string;
   email: string;
-  phone: string;
   address: string;
   createdAt: string;
   [x: string]: string | number | boolean | undefined;
@@ -72,29 +77,24 @@ interface RowDataProps {
 
 const headCells = [
   {
-    label: "Họ và tên",
-    sort: "name",
+    label: "Bình luận",
+    sort: "comment",
     style: { maxWidth: "30%", minWidth: "180px" },
   },
   {
-    label: "Vai trò",
+    label: "Người bình luận",
+    sort: "user",
+    style: { maxWidth: "30%", minWidth: "180px" },
+  },
+  {
+    label: "Đánh giá",
+    sort: "rate",
+    style: { maxWidth: "30%", minWidth: "180px" },
+  },
+  {
+    label: "Bác sĩ",
     sort: "role",
-    style: { maxWidth: "20%", minWidth: "180px" },
-  },
-  {
-    label: "Email",
-    sort: "email",
-    style: { maxWidth: "20%", minWidth: "180px" },
-  },
-  {
-    label: "Số điện thoại",
-    sort: "phone",
-    style: { maxWidth: "20%", minWidth: "180px" },
-  },
-  {
-    label: "Địa chỉ",
-    sort: "address",
-    style: { maxWidth: "20%", minWidth: "180px" },
+    style: { maxWidth: "30%", minWidth: "180px" },
   },
   {
     label: "Ngày tạo",
@@ -104,7 +104,7 @@ const headCells = [
   { label: "", style: { minWidth: "5%" } },
 ];
 
-const Staff = (props: any) => {
+const Comment = (props: any) => {
   const { screenName } = props;
   const { hasCreate, hasUpdate, hasDelete } = usePermissionHook(screenName);
 
@@ -132,26 +132,17 @@ const Staff = (props: any) => {
   const searchResults = useMemo(() => {
     let results = [
       {
-        label: "Họ và tên",
-        value: filterContext?.name || "",
+        label: "Bình luận",
+        value: filterContext?.comment || "",
       },
       {
-        label: "Email",
-        value: filterContext?.email || "",
-      },
-      {
-        label: "Số điện thoại",
-        value: filterContext?.phone || "",
-      },
-      {
-        label: "Vai trò",
+        label: "Tên bác sĩ",
         value: getMultiLabel(filterContext?.role, "label") || "",
       },
     ];
     return results;
   }, [filterContext]);
-  // console.log(filterContext);
-
+  //   console.log(filterContext);
   const isShowResult = searchResults.some((result) => !!result.value);
   const tableDiff = isShowResult ? 280 : 250;
 
@@ -164,10 +155,11 @@ const Staff = (props: any) => {
     formState: { errors },
   } = useForm({
     defaultValues: {
-      name: "",
-      phone: "",
+      comment: "",
+      rate: "",
       email: "",
       role: "",
+      doctorId: "",
     },
   });
 
@@ -226,6 +218,7 @@ const Staff = (props: any) => {
   };
 
   const handleSearch = (handleCloseSearch?: () => void) => {
+
     handleSubmit((data) =>
       onSubmitFilter(
         { ...data, sortBy: "createdAt", sortDirection: "desc", pageIndex: 0 },
@@ -235,6 +228,8 @@ const Staff = (props: any) => {
   };
 
   const onSubmitFilter = (data: any, handleCloseSearch?: () => void) => {
+    // console.log(data);
+    
     setPage(0);
     handleCloseSearch && handleCloseSearch();
     setFilterContext(data);
@@ -242,21 +237,14 @@ const Staff = (props: any) => {
   };
 
   const handleClearSearch = () => {
-    reset({ name: "", phone: "", email: "", role: "" });
+    reset({ comment: "", role: "" });
   };
 
   const handleRefresh = () => {
     setPage(0);
     setRowsPerPage(10);
-    reset({ name: "", phone: "", email: "", role: "" });
-    getData({
-      name: "",
-      phone: "",
-      email: "",
-      role: "",
-      pageIndex: 0,
-      pageSize: 10,
-    });
+    reset({ comment: "", role: "" });
+    getData({ comment: "", role: "", pageIndex: 0, pageSize: 10 });
   };
 
   const handleOpenModal = () => {
@@ -302,10 +290,12 @@ const Staff = (props: any) => {
   const onDelete = async () => {
     setLoadingScreen(true);
     try {
-      await apiService.delete(`${URL_PATHS.CREATE_USER}/${selectedItem?._id}`);
+      await apiService.delete(
+        `${URL_PATHS.DELETE_COMMENT}/${selectedItem?._id}`
+      );
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
-        message: MESSAGE_SUCCESS.DELETE_STAFF,
+        message: MESSAGE_SUCCESS.DELETE_COMMENT,
       });
       getData && getData({});
     } catch (error: any) {
@@ -328,56 +318,59 @@ const Staff = (props: any) => {
       !!props && props.hasOwnProperty("pageIndex")
         ? props.pageIndex || 0
         : page;
-    const name =
-      !!props && props.hasOwnProperty("name")
-        ? props.name
-        : filterContext?.name || "";
-    const phone =
-      !!props && props.hasOwnProperty("phone")
-        ? props.phone
-        : filterContext?.phone || "";
-    const email =
-      !!props && props.hasOwnProperty("email")
-        ? props.email
-        : filterContext?.email || "";
+    const comment =
+      !!props && props.hasOwnProperty("comment")
+        ? props.comment
+        : filterContext?.comment || "";
     const role =
       !!props && props.hasOwnProperty("role")
         ? props.role
         : filterContext?.role || "";
+
     const highlightId =
       !!props && props.hasOwnProperty("highlightId") ? props.highlightId : null;
 
     const sortBy = props?.sortBy || orderBy;
     const sortOrder = props?.sortDirection || order;
-
+    // console.log(pageSize,pageIndex,sortBy,sortOrder);
     const params = {
       Page: pageIndex + 1,
       PageSize: pageSize,
       Sorts: (sortOrder === "desc" ? "-" : "") + sortBy,
     };
-console.log(pageSize,pageIndex,sortBy,sortOrder);
 
     const filters = {
-      unEncoded: { name: name, phone: phone, email: email },
+      unEncoded: { comment: comment },
       equals: {
         isAdmin: "true",
-        role: role ? getMultiFilter(role, "value") : "",
+        role: role ? getMultiFilter(role, "name") : "",
       },
     };
     // console.log(filters);
     try {
       const data: any = await apiService.getFilter(
-        URL_PATHS.GET_USER,
+        URL_PATHS.GET_LIST_COMMENT,
         params,
         filters
+      ); 
+      const _item = await Promise.all(
+        (data?.data || []).map(async (x: any) => {
+          const doctorName = await apiService.get(
+            `${BASE_URL}${URL_PATHS.GET_ONE_DOCTOR}/${x?.doctorId}`
+          );
+          const userName = await apiService.get(
+            `${BASE_URL}${URL_PATHS.DETAIL_USER}/${x?.userId}`
+          );
+          return {
+            ...x,
+            doctorName: doctorName,
+            userName: userName,
+            isHighlight: x._id === highlightId,
+          };
+        })
       );
-      console.log("API Response:", data);
-      const _item = (data?.data || []).map((x: any) => {
-        return {
-          ...x,
-          isHighlight: x._id === highlightId,
-        };
-      });
+    
+      
       setTotalCount(data?.totalUsers);
       setUserState(_item);
     } catch (error: any) {
@@ -388,9 +381,7 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
     } finally {
       setLoadingTable(false);
       setFilterContext({
-        name,
-        phone,
-        email,
+        comment,
         role,
       });
     }
@@ -425,20 +416,21 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
     };
 
     const filters = {
-      name: searchText,
+      comment: searchText,
     };
     try {
-      const res: any = await await apiService.getFilter(
-        URL_PATHS.ROLE_GET,
+      const res: any = await apiService.getFilter(
+        URL_PATHS.GET_DOCTOR,
         params,
         filters
       );
-      const resultItems: any[] = res?.data;
+      const resultItems: any[] = res?.doctors;
+
       if (resultItems.length >= 0) {
         const items: any[] = resultItems.map((item) => {
           const result = {
             ...item,
-            label: item?.roleName || "",
+            label: item?.name || "",
             value: item?._id || "",
           };
           return result;
@@ -459,13 +451,15 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
       };
     }
   };
+  //   console.log(userState);
 
   useEffect(() => {
     getData({});
   }, []);
 
+
   return (
-    <Page className={styles.root} title="Nhân viên" isActive>
+    <Page className={styles.root} title="Bình luận" isActive>
       <Grid container style={{ marginBottom: "20px" }}>
         <Grid item xs={10}>
           <Box>
@@ -477,10 +471,10 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
               <Grid container spacing={2}>
                 <Grid item xs={6}>
                   <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Họ và tên" />
+                    <LabelCustom title="Bình luận" />
                     <Controller
                       control={control}
-                      name="name"
+                      name="comment"
                       render={({
                         field: { onChange, onBlur, value, ref, name },
                       }) => (
@@ -489,72 +483,17 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
                           ref={ref}
                           value={value}
                           onChange={onChange}
-                          placeholder="Nhập họ và tên"
+                          placeholder="Tìm bình luận"
                           type="text"
                         />
                       )}
                     />
                   </Box>
                 </Grid>
+
                 <Grid item xs={6}>
                   <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Email" />
-                    <Controller
-                      control={control}
-                      name="email"
-                      rules={{
-                        validate: (value: any) => {
-                          const result = RegExpEmail(value);
-                          return !value || result || MESSAGE_ERROR.RegExpEmail;
-                        },
-                      }}
-                      render={({
-                        field: { onChange, onBlur, value, ref, name },
-                      }) => (
-                        <TextFieldCustom
-                          name={name}
-                          ref={ref}
-                          value={value}
-                          onChange={onChange}
-                          placeholder="Nhập email"
-                          type="text"
-                          errorMessage={errors?.email?.message}
-                        />
-                      )}
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={6}>
-                  <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Số điện thoại" />
-                    <Controller
-                      control={control}
-                      name="phone"
-                      // rules={{
-                      //   validate: (value: any) => {
-                      //     const result = RegPhoneNumber(value);
-                      //     return !value || result || MESSAGE_ERROR.RegPhoneNumber;
-                      //   },
-                      // }}
-                      render={({
-                        field: { onChange, onBlur, value, ref, name },
-                      }) => (
-                        <TextFieldCustom
-                          name={name}
-                          ref={ref}
-                          value={value}
-                          onChange={onChange}
-                          placeholder="Nhập số điện thoại"
-                          type="text"
-                          errorMessage={errors?.phone?.message}
-                        />
-                      )}
-                    />
-                  </Box>
-                </Grid>
-                <Grid item xs={6}>
-                  <Box style={{ marginTop: 2 }}>
-                    <LabelCustom title="Vai trò" />
+                    <LabelCustom title="Tên bác sĩ" />
                     <Controller
                       control={control}
                       name="role"
@@ -570,7 +509,7 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
                           }}
                           fieldName={name}
                           maxMenuHeight={120}
-                          placeholder="Chọn dịch vụ"
+                          placeholder="Chọn bác sĩ"
                           inputRef={ref}
                           isMulti
                           isValidationFailed
@@ -591,7 +530,7 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
             <SearchResult results={searchResults} />
           </Box>
         </Grid>
-        <Grid item xs={2}>
+        {/* <Grid item xs={2}>
           <Box
             display="flex"
             justifyContent="flex-end"
@@ -608,7 +547,7 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
               />
             )}
           </Box>
-        </Grid>
+        </Grid> */}
       </Grid>
       <TableContainer
         component={Paper}
@@ -683,8 +622,6 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
             ) : userState && userState.length > 0 ? (
               <>
                 {userState.map((data: any, index: number) => {
-                  // console.log(data);
-
                   return (
                     <TableRow
                       key={index}
@@ -693,11 +630,18 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
                         "highlight-row": data?.isHighlight,
                       })}
                     >
-                      <TableCell>{data.name}</TableCell>
-                      <TableCell>{data?.role?.roleName}</TableCell>
-                      <TableCell>{data.email}</TableCell>
-                      <TableCell>{data.phone}</TableCell>
-                      <TableCell className="">{data.address}</TableCell>
+                      <TableCell>{data.comment}</TableCell>
+                      <TableCell>{data.userName.name}</TableCell>
+                      <TableCell>
+                        <Rating
+                          name="read-only"
+                          value={data?.rate}
+                          readOnly
+                          size="small"
+                        />
+                      </TableCell>
+
+                      <TableCell>{data.doctorName.name}</TableCell>
                       <TableCell>
                         {moment(data.createdAt).format(FORMAT_DATE)}
                       </TableCell>
@@ -742,15 +686,15 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
           }}
         >
           <MenuListActions
-            actionView={handleView}
-            actionEdit={hasUpdate ? () => handleEdit() : undefined}
+            // actionView={handleView}
+            // actionEdit={hasUpdate ? () => handleEdit() : undefined}
             actionDelete={hasDelete ? () => handleDelete() : undefined}
           />
         </Popover>
       </IF>
 
       {isOpenModal && (
-        <AddUser
+        <AddEditComment
           isOpen={isOpenModal}
           title={title}
           onCancel={handleCancel}
@@ -763,4 +707,4 @@ console.log(pageSize,pageIndex,sortBy,sortOrder);
   );
 };
 
-export default Staff;
+export default Comment;

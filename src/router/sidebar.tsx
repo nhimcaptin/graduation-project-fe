@@ -106,4 +106,12 @@ export const sidebar = [
     role: [SCREEN_ROLE_CODE.SubServices],
     subMenu: [],
   },
+  {
+    key: "COMMENT",
+    title: "Bình luận",
+    icon: Icons.Voucher,
+    href: ROUTERS_PATHS.COMMENT,
+    role: [SCREEN_ROLE_CODE.SubServices],
+    subMenu: [],
+  },
 ];

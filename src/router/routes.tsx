@@ -151,6 +151,11 @@ const routes: IRoutesState[] = [
         role: [SCREEN_ROLE_CODE.SubServices],
       },
       {
+        path: ROUTERS_PATHS.COMMENT,
+        component: lazy(() => import("../pages/Comments")),
+        role: [SCREEN_ROLE_CODE.SubServices],
+      },
+      {
         path: "*",
         component: () => <Navigate to={ROUTERS_PATHS.DASHBOARD} replace />,
       },
