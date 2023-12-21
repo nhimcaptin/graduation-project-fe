@@ -181,6 +181,7 @@ export const onPrint = async (req, res, next) => {
       },
       async function (error, response, body) {
         try {
+          await HistoryBooking.findByIdAndUpdate(id, { $set: { urlPdf: body } }, { new: true })
           return res.status(200).json(body);
         } catch (error) {
           next(error);

@@ -37,6 +37,7 @@ const ReceptionistNote = () => {
   const [imageQR, setImageQR] = useState<any>(null);
   const [isPushCount, setIsPushCount] = useState<boolean>(false);
   const [idSubmit, setIdSubmit] = useState<any>("");
+  const [isCheckUrl, setIsCheckUrl] = useState<any>("");
 
   const params = useParams();
 
@@ -98,6 +99,7 @@ const ReceptionistNote = () => {
     setLoadingScreen(true);
     try {
       const res: any = await apiService.get(URL_PATHS.PRINT + "/" + params?.id);
+      setIsCheckUrl(!!res);
       window.open(res);
       setToastInformation({
         status: STATUS_TOAST.SUCCESS,
@@ -156,6 +158,7 @@ const ReceptionistNote = () => {
       const time: any = await getListTimeType(moment().add(1, "d").format("YYYY/MM/DD"), data?.doctorId?._id);
       const timeTypeId = (time || []).find((x: any) => x?._id === data?.bookingId?.timeTypeId?._id);
       setIsDisabled(isDisabled);
+      setIsCheckUrl(!!data?.urlPdf);
       const idService = data?.service?.map((x: any) => x?._id);
       setDataUser({
         address: data?.address || data?.patientId?.address,
@@ -513,8 +516,8 @@ const ReceptionistNote = () => {
               <>
                 <FocusHiddenInput ref={ref}></FocusHiddenInput>
                 <SunEditorShare
-                  hideToolbarSunEditor={false}
-                  disableSunEditor={isDisabled}
+                  hideToolbarSunEditor={isDisabled || isCheckUrl}
+                  disableSunEditor={isDisabled || isCheckUrl}
                   onChangeEditorState={(newValue: any) => onChange(getEditorNewValue(newValue))}
                   setContents={value || ""}
                   minHeight="400px"
@@ -535,9 +538,14 @@ const ReceptionistNote = () => {
         xs={8.5}
         sx={{ marginTop: "0px", paddingBottom: "20px", display: "flex", justifyContent: "end" }}
       >
-        <ButtonCustom type="submit" title="Mã QR" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />
-        <ButtonCustom type="submit" title="In hóa đơn" color="yellow" onClick={handleSubmit(onPrint)} />
-        <ButtonCustom type="submit" title="Lưu" color="blue" onClick={handleSubmit(onSubmit)} />
+        {<ButtonCustom type="submit" title="Mã QR" color="green" onClick={handleSubmit(onSubmitBankTransfer)} />}
+        <ButtonCustom
+          type="submit"
+          title={isCheckUrl ? `In lại hóa đơn` : `In hóa đơn`}
+          color="yellow"
+          onClick={handleSubmit(onPrint)}
+        />
+        {<ButtonCustom type="submit" title="Lưu" color="blue" onClick={handleSubmit(onSubmit)} />}
       </Grid>
       <CrudModal
         isOpen={openQR}
