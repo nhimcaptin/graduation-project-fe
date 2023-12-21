@@ -113,7 +113,9 @@ export const detailSubservice = async (req, res, next) => {
 
 export const getAllServices = async (req, res, next) => {
   try {
-    const subService = await SubService.find({}).populate("mainServiceID");
+    const {  filters } = req.query;
+    const _filter = convertFilter(filters);
+    const subService = await SubService.find(_filter).populate("mainServiceID");
     const obj = {};
     subService.forEach((x) => {
       if (obj[x?.mainServiceID?._id]) {
