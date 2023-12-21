@@ -1,5 +1,6 @@
 import { MESSAGE_ERROR } from "../const/messages.js";
 import MainService from "../models/MainServices.js";
+import SubService from "../models/SubService.js";
 import { convertFilter } from "../util/index.js";
 
 export const createMainService = async (req, res, next) => {
@@ -11,7 +12,7 @@ export const createMainService = async (req, res, next) => {
       description,
       descriptionMain,
       image,
-      status: "Inactive"
+      status: "Inactive",
     });
     await newMainService.save();
 
@@ -61,10 +62,15 @@ export const getAllMainServices = async (req, res, next) => {
 
 export const updateMainServices = async (req, res, next) => {
   try {
-    const mainServices = await MainService.findByIdAndUpdate(req.params.id, { $set: {...req.body, status: "Inactive"} }, { new: true });
+    const mainServices = await MainService.findByIdAndUpdate(
+      req.params.id,
+      { $set: { ...req.body, status: "Inactive" } },
+      { new: true }
+    );
     if (!mainServices) {
       return res.status(401).json({ message: "Không tìm thấy MainServices" });
     }
+    await SubService.updateMany({ mainServiceID: req.params.id }, { $set: { status: "Inactive" } });
     res.status(200).json({ mainServices, message: "Update  Thành Công" });
   } catch (err) {
     next(err);
@@ -82,7 +88,11 @@ export const deleteMainServices = async (req, res, next) => {
 
 export const updateStatusActive = async (req, res, next) => {
   try {
-    const mainServices = await MainService.findByIdAndUpdate(req.params.id, { $set: {status: "Active"} }, { new: true });
+    const mainServices = await MainService.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status: "Active" } },
+      { new: true }
+    );
     if (!mainServices) {
       return res.status(401).json({ message: MESSAGE_ERROR.MAIN_SERVICE_NOT_FOUND });
     }
@@ -94,10 +104,15 @@ export const updateStatusActive = async (req, res, next) => {
 
 export const updateStatusInActive = async (req, res, next) => {
   try {
-    const mainServices = await MainService.findByIdAndUpdate(req.params.id, { $set: {status: "Inactive"} }, { new: true });
+    const mainServices = await MainService.findByIdAndUpdate(
+      req.params.id,
+      { $set: { status: "Inactive" } },
+      { new: true }
+    );
     if (!mainServices) {
       return res.status(401).json({ message: MESSAGE_ERROR.MAIN_SERVICE_NOT_FOUND });
     }
+    await SubService.updateMany({ mainServiceID: req.params.id }, { $set: { status: "Inactive" } });
     res.status(200).json({ mainServices, message: "Update  Thành Công" });
   } catch (err) {
     next(err);

@@ -251,6 +251,8 @@ const MainService = (props: any) => {
   };
 
   const handleActionActive = (isCheck?: any) => {
+    setAnchorEl(null);
+    setIsViewMode(false);
     if (isCheck) {
       handleActive();
     } else {
@@ -353,8 +355,6 @@ const MainService = (props: any) => {
   useEffect(() => {
     getData({});
   }, []);
-
-  console.log("selectedItem", selectedItem);
 
   return (
     <Page className={styles.root} title="Danh mục" isActive>
@@ -522,7 +522,7 @@ const MainService = (props: any) => {
           <MenuListActions
             actionView={handleView}
             actionEdit={hasUpdate ? () => handleEdit() : undefined}
-            actionDelete={hasDelete ? () => handleDelete() : undefined}
+            // actionDelete={hasDelete ? () => handleDelete() : undefined}
             actionActive={hasUpdate && selectedItem?.status == "Inactive" ? () => handleActionActive(true) : undefined}
             actionInActive={hasUpdate && selectedItem?.status == "Active" ? () => handleActionActive() : undefined}
           />

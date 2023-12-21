@@ -65,5 +65,7 @@ const URL_PATHS = {
   REST_PASSWORD: "api/auth/reset-password",
   ACTIVE_MAIN_SERVICE: "api/main-service/active",
   INACTIVE_MAIN_SERVICE: "api/main-service/inactive",
+  ACTIVE_SUB_SERVICE: "api/sub-service/active",
+  INACTIVE_SUB_SERVICE: "api/sub-service/inactive",
 };
 export default URL_PATHS;

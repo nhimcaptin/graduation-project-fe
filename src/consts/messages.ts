@@ -61,7 +61,9 @@ export const MESSAGE_ERROR_API: any = {
   NOT_PERMISSIONS: "Bạn không phải là quản trị viên",
   DOCTOR_EXAMINING: "Bác sĩ đang khám cho bệnh nhân khác.",
   AVAILABLE_TIME: "Không còn chỗ trống trong khung giờ này.",
-  MAIN_SERVICE_NOT_FOUND: "Không tìm thấy danh mục dịch vụ"
+  MAIN_SERVICE_NOT_FOUND: "Không tìm thấy danh mục dịch vụ.",
+  SUB_SERVICE_NOT_FOUND: "Không tìm thấy dịch vụ.",
+  MAIN_SERVICE_NOT_ACTIVE: "Vui lòng kích hoạt danh mục dịch vụ trước."
 };
 
 export const MESSAGES_CONFIRM = {
