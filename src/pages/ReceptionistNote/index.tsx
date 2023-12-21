@@ -213,6 +213,7 @@ const ReceptionistNote = () => {
 
     const filters = {
       name: searchText,
+      status: "Active",
     };
     try {
       const res: any = await await apiService.getFilter(URL_PATHS.GET_LIST_SUB_SERVICE, params, filters);
