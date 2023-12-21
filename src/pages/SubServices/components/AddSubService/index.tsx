@@ -73,10 +73,10 @@ const AddSubService = (props: PropsType) => {
     },
   });
 
-  const getMainServiceOptions = async (searchText: string, page: number, perPage: number) => {
+  const getMainServiceOptions = async (searchText: string, Page: number, PageSize: number) => {
     const params = {
-      page,
-      perPage,
+      Page,
+      PageSize,
     };
 
     const filters = {
@@ -96,7 +96,7 @@ const AddSubService = (props: PropsType) => {
         });
         return {
           options: items,
-          hasMore: res?.totalUsers / perPage > page,
+          hasMore: res?.totalUsers / PageSize > Page,
         };
       }
       return {

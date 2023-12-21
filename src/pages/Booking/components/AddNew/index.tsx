@@ -135,11 +135,11 @@ const AddUser = (props: PropsType) => {
     return stripedValue === "" ? "" : newValue;
   };
 
-  const getPatientOptions = async (searchText: string, page: number, perPage: number) => {
+  const getPatientOptions = async (searchText: string, Page: number, PageSize: number) => {
     setIsLoadingPatient(true);
     const params = {
-      page,
-      perPage,
+      Page,
+      PageSize,
     };
 
     const filters = {
@@ -160,7 +160,7 @@ const AddUser = (props: PropsType) => {
         });
         return {
           options: items,
-          hasMore: res?.totalUsers / perPage > page,
+          hasMore: res?.totalUsers / PageSize > Page,
         };
       }
       return {
@@ -177,10 +177,10 @@ const AddUser = (props: PropsType) => {
     }
   };
 
-  const getDoctorOptions = async (searchText: string, page: number, perPage: number) => {
+  const getDoctorOptions = async (searchText: string, Page: number, PageSize: number) => {
     const params = {
-      page,
-      perPage,
+      Page,
+      PageSize,
     };
 
     const filters = {
@@ -200,7 +200,7 @@ const AddUser = (props: PropsType) => {
         });
         return {
           options: items,
-          hasMore: res?.totalUsers / perPage > page,
+          hasMore: res?.totalUsers / PageSize > Page,
         };
       }
       return {
@@ -215,10 +215,10 @@ const AddUser = (props: PropsType) => {
     }
   };
 
-  const getMainServiceOptions = async (searchText: string, page: number, perPage: number) => {
+  const getMainServiceOptions = async (searchText: string, Page: number, PageSize: number) => {
     const params = {
-      page,
-      perPage,
+      Page,
+      PageSize,
     };
 
     const filters = {
@@ -238,7 +238,7 @@ const AddUser = (props: PropsType) => {
         });
         return {
           options: items,
-          hasMore: res?.totalUsers / perPage > page,
+          hasMore: res?.totalUsers / PageSize > Page,
         };
       }
       return {

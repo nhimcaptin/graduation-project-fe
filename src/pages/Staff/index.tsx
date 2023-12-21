@@ -347,10 +347,10 @@ const Staff = (props: any) => {
     }
   };
 
-  const getRoleOptions = async (searchText: string, page: number, perPage: number) => {
+  const getRoleOptions = async (searchText: string, Page: number, PageSize: number) => {
     const params = {
-      page,
-      perPage,
+      Page,
+      PageSize,
     };
 
     const filters = {
@@ -370,7 +370,7 @@ const Staff = (props: any) => {
         });
         return {
           options: items,
-          hasMore: res?.totalUsers / perPage > page,
+          hasMore: res?.totalUsers / PageSize > Page,
         };
       }
       return {

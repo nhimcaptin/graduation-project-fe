@@ -84,11 +84,11 @@ const AddUser = (props: PropsType) => {
     trigger("image");
   };
 
-  const getCustomerGroupOptions = async (searchText: string, page: number, perPage: number) => {
+  const getCustomerGroupOptions = async (searchText: string, Page: number, PageSize: number) => {
     setIsLoadingSelect(true);
     const params = {
-      page,
-      perPage,
+      Page,
+      PageSize,
     };
 
     const filters = {
@@ -108,7 +108,7 @@ const AddUser = (props: PropsType) => {
         });
         return {
           options: items,
-          hasMore: res?.totalUsers / perPage > page,
+          hasMore: res?.totalUsers / PageSize > Page,
         };
       }
       return {
@@ -396,8 +396,8 @@ const AddUser = (props: PropsType) => {
               render={({ field: { onChange, onBlur, value, ref, name } }) => (
                 <ReactSelect
                   isClearable
-                  getOptions={(searchText: string, page: number, perPage: number) =>
-                    getCustomerGroupOptions(searchText, page, perPage)
+                  getOptions={(searchText: string, Page: number, PageSize: number) =>
+                    getCustomerGroupOptions(searchText, Page, PageSize)
                   }
                   getOptionLabel={(option: any) => option.label}
                   getOptionValue={(option: any) => option.value}
