@@ -36,6 +36,8 @@ const URL_PATHS = {
   UPDATE_HISTORY: "api/history/update",
   UPLOAD_FILE: "api/upload-image",
 
+  GET_LIST_COMMENT:"api/comment/getComments",
+  GET_ONE_DOCTOR:"api/users/detail-doctor",
   GET_LIST_NEWS: "api/News/getNews",
   GET_DETAIL_NEWS: "api/News/getNewsID",
   UPDATE_NEW: "api/News/updateNews",
